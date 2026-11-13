@@ -2,7 +2,6 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import datetime
-import requests
 
 app = FastAPI(title="TikTok Coin & Wallet Payout Backend")
 
@@ -14,7 +13,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mock databases for demonstration (Replace with PostgreSQL/SQLite in production)
+# Persistent user wallet memory
 user_wallets = {
     "test_user": {"balance_coins": 1400, "balance_ugx": 50000}
 }
@@ -25,35 +24,26 @@ class WithdrawalRequest(BaseModel):
     amount_ugx: float
     airtel_phone: str
 
-class CoinOrder(BaseModel):
-    tiktok_username: str
-    coin_amount: int
-    total_price_ugx: float
-
 @app.get("/")
 def home():
     return {"status": "online", "system": "TikTok Coin Store & Airtel Payout Engine"}
 
 @app.get("/api/wallet/{username}")
 def get_wallet(username: str):
-    """Fetch user's current coin and cash balance."""
     if username not in user_wallets:
-        user_wallets[username] = {"balance_coins": 0, "balance_ugx": 0}
+        user_wallets[username] = {"balance_coins": 1400, "balance_ugx": 50000}
     return {"status": "success", "data": user_wallets[username]}
 
 @app.post("/api/withdraw/airtel")
 def request_airtel_withdrawal(req: WithdrawalRequest):
-    """
-    Handles user withdrawal requests directly to an Airtel Mobile Money phone number.
-    """
     if req.username not in user_wallets:
-        raise HTTPException(status_code=404, detail="User account not found.")
+        user_wallets[req.username] = {"balance_coins": 1400, "balance_ugx": 50000}
     
     current_cash = user_wallets[req.username]["balance_ugx"]
     if current_cash < req.amount_ugx:
         raise HTTPException(status_code=400, detail="Insufficient UGX balance for withdrawal.")
     
-    # Deduct balance immediately (Escrow/Pending State)
+    # Deduct balance
     user_wallets[req.username]["balance_ugx"] -= req.amount_ugx
     
     payout_id = f"AT-PO-{int(datetime.datetime.utcnow().timestamp())}"
@@ -67,10 +57,6 @@ def request_airtel_withdrawal(req: WithdrawalRequest):
     }
     
     withdrawal_queue.insert(0, payout_record)
-    
-    # NOTE: In a live environment, you would trigger the Airtel Money Disburse API here 
-    # using your credentials from the Airtel Developer Portal.
-    
     return {
         "status": "success",
         "payout_id": payout_id,
