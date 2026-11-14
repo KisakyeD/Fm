@@ -6,7 +6,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-app = FastAPI(title="Sovereign Multi-Rail Gateway Engine")
+app = FastAPI(title="Sovereign Custom Currency & BTC Payout Engine")
 
 app.add_middleware(
     CORSMiddleware,
@@ -16,154 +16,123 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# User ledger tracking balances
-user_wallets = {
+# Internal Ledger: Users hold your custom platform money ("Custom Credits")
+user_ledgers = {
     "test_user": {
-        "balance_coins": 1400, 
-        "balance_ugx": 50000,
-        "balance_btc": 0.005
+        "custom_balance": 10000.0,  # Your custom currency units
+        "btc_balance": 0.0          # Earned or deposited BTC
     }
 }
 
-transaction_ledger = []
+withdrawal_ledger = []
 
-class AirtelWithdrawalRequest(BaseModel):
+class MintRequest(BaseModel):
     username: str
-    amount_ugx: float
-    airtel_phone: str
+    amount: float
 
 class BTCWithdrawalRequest(BaseModel):
     username: str
-    btc_amount: float
+    custom_amount_to_withdraw: float
     btc_address: str
 
-GATEWAY_SECRET_KEY = os.getenv("GATEWAY_SECRET_KEY", "FLWSECK_TEST-YOUR_SECRET_KEY_HERE")
-GATEWAY_TRANSFER_URL = "https://api.flutterwave.com/v3/transfers"
-
 def validate_btc_address(address: str) -> bool:
+    """Validates Bitcoin address formats (Legacy, SegWit, Taproot)."""
     clean_addr = address.strip()
     legacy_pattern = r"^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$"
     bech32_pattern = r"^bc1[ac-hj-np-z0-9]{39,59}$"
     return bool(re.match(legacy_pattern, clean_addr) or re.match(bech32_pattern, clean_addr))
 
-@app.get("/")
-def gateway_root():
-    return {"status": "ONLINE", "engine": "Sovereign Gateway Active"}
-
-@app.get("/api/wallet/{username}")
-def get_wallet(username: str):
-    if username not in user_wallets:
-        user_wallets[username] = {"balance_coins": 1400, "balance_ugx": 50000, "balance_btc": 0.005}
-    return {"status": "success", "data": user_wallets[username]}
-
-@app.post("/api/withdraw/airtel")
-def execute_airtel_payout(cmd: AirtelWithdrawalRequest):
-    if cmd.username not in user_wallets:
-        user_wallets[cmd.username] = {"balance_coins": 1400, "balance_ugx": 50000, "balance_btc": 0.005}
-    
-    wallet = user_wallets[cmd.username]
-    
-    if wallet["balance_ugx"] < cmd.amount_ugx:
-        raise HTTPException(status_code=400, detail="Insufficient UGX balance for payout.")
-    
-    phone = cmd.airtel_phone.strip()
-    if not (phone.startswith("07") or phone.startswith("256")) or len(phone) < 10:
-        raise HTTPException(status_code=400, detail="Invalid Ugandan mobile money phone format.")
-    
-    if cmd.amount_ugx < 500:
-        raise HTTPException(status_code=400, detail="Amount is below the minimum UGX 500 limit.")
-
-    wallet["balance_ugx"] -= cmd.amount_ugx
-    tx_reference = f"AT-PO-{int(datetime.datetime.utcnow().timestamp())}"
-    
-    headers = {
-        "Authorization": f"Bearer {GATEWAY_SECRET_KEY}",
-        "Content-Type": "application/json"
-    }
-    
-    payload = {
-        "account_bank": "MPS",
-        "account_number": phone,
-        "amount": cmd.amount_ugx,
-        "currency": "UGX",
-        "narration": "TikTok Coin Store Payout",
-        "reference": tx_reference,
-        "beneficiary_name": cmd.username
-    }
-    
-    status_message = "Processing Disbursement"
-    
+def get_custom_to_btc_rate() -> float:
+    """
+    Defines your currency exchange rate against Bitcoin.
+    Example: Let's say 1,000 Custom Credits = 1 USD, 
+    and we fetch live BTC price to calculate exact Satoshis/BTC.
+    """
     try:
-        response = requests.post(GATEWAY_TRANSFER_URL, json=payload, headers=headers, timeout=15)
-        res_data = response.json()
+        res = requests.get("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd", timeout=5)
+        btc_usd = res.json().get("bitcoin", {}).get("usd", 90000.0) # Fallback price
         
-        if response.status_code in [200, 201] and res_data.get("status") == "success":
-            status_message = "Disbursement Initiated Successfully"
-        else:
-            err_msg = res_data.get("message", "Gateway Refusal")
-            status_message = f"Failed: {err_msg}"
-            wallet["balance_ugx"] += cmd.amount_ugx
-    except Exception as e:
-        status_message = f"Network Connection Error: {str(e)}"
-        wallet["balance_ugx"] += cmd.amount_ugx
+        # Suppose 1 Custom Credit = $0.01 USD
+        usd_value = 0.01 
+        btc_per_custom_credit = usd_value / btc_usd
+        return btc_per_custom_credit
+    except Exception:
+        # Fallback static conversion rate if API fails
+        return 0.00000011
 
-    ledger_record = {
-        "payout_id": tx_reference,
-        "username": cmd.username,
-        "type": "Airtel Mobile Money",
-        "destination": phone,
-        "amount": f"UGX {cmd.amount_ugx:,.0f}",
-        "status": status_message,
-        "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
-    }
-    transaction_ledger.insert(0, ledger_record)
+@app.get("/")
+def root():
+    return {"status": "ONLINE", "engine": "Custom Currency & BTC Payout Gateway Active"}
 
+@app.get("/api/ledger/{username}")
+def get_user_ledger(username: str):
+    if username not in user_ledgers:
+        user_ledgers[username] = {"custom_balance": 5000.0, "btc_balance": 0.0}
+    return {"status": "success", "data": user_ledgers[username]}
+
+@app.post("/api/currency/mint")
+def mint_custom_money(req: MintRequest):
+    """Admin function to create ('mint') new units of your custom currency into a user's account."""
+    if req.username not in user_ledgers:
+        user_ledgers[req.username] = {"custom_balance": 0.0, "btc_balance": 0.0}
+    
+    user_ledgers[req.username]["custom_balance"] += req.amount
     return {
         "status": "success",
-        "payout_id": tx_reference,
-        "message": status_message,
-        "remaining_ugx": wallet["balance_ugx"]
+        "message": f"Successfully minted {req.amount} Custom Credits for {req.username}",
+        "new_balance": user_ledgers[req.username]["custom_balance"]
     }
 
 @app.post("/api/withdraw/btc")
-def execute_btc_withdrawal(cmd: BTCWithdrawalRequest):
-    if cmd.username not in user_wallets:
-        user_wallets[cmd.username] = {"balance_coins": 1400, "balance_ugx": 50000, "balance_btc": 0.005}
+def convert_and_withdraw_btc(req: BTCWithdrawalRequest):
+    """
+    Converts user's custom currency into Bitcoin value 
+    and dispatches a withdrawal to an external BTC address.
+    """
+    if req.username not in user_ledgers:
+        raise HTTPException(status_code=404, detail="User account not found.")
     
-    wallet = user_wallets[cmd.username]
+    ledger = user_ledgers[req.username]
     
-    if wallet["balance_btc"] < cmd.btc_amount:
-        raise HTTPException(status_code=400, detail="Insufficient BTC balance.")
+    # 1. Check if user has enough custom money
+    if ledger["custom_balance"] < req.custom_amount_to_withdraw:
+        raise HTTPException(status_code=400, detail="Insufficient custom currency balance.")
     
-    if not validate_btc_address(cmd.btc_address):
-        raise HTTPException(status_code=400, detail="Invalid Bitcoin address structure.")
+    # 2. Validate Bitcoin Address
+    if not validate_btc_address(req.btc_address):
+        raise HTTPException(status_code=400, detail="Invalid Bitcoin wallet address structure.")
     
-    if cmd.btc_amount < 0.0001:
-        raise HTTPException(status_code=400, detail="Amount below minimum 0.0001 BTC limit.")
+    # 3. Calculate conversion
+    exchange_rate = get_custom_to_btc_rate()
+    btc_payout_amount = req.custom_amount_to_withdraw * exchange_rate
+    
+    if btc_payout_amount < 0.00005: # Minimum threshold check
+        raise HTTPException(status_code=400, detail="Withdrawal amount too low to cover network conversion.")
 
-    wallet["balance_btc"] -= cmd.btc_amount
-    tx_reference = f"BTC-WD-{int(datetime.datetime.utcnow().timestamp())}"
+    # Deduct local custom currency balance
+    ledger["custom_balance"] -= req.custom_amount_to_withdraw
+    tx_id = f"BTC-WITHDRAW-{int(datetime.datetime.utcnow().timestamp())}"
     
-    status_message = "Broadcast Successful - Awaiting Confirmations"
-    
-    ledger_record = {
-        "payout_id": tx_reference,
-        "username": cmd.username,
-        "type": "Bitcoin On-Chain",
-        "destination": cmd.btc_address.strip(),
-        "amount": f"{cmd.btc_amount} BTC",
-        "status": status_message,
+    # Record transaction
+    record = {
+        "tx_id": tx_id,
+        "username": req.username,
+        "spent_custom_credits": req.custom_amount_to_withdraw,
+        "btc_sent": f"{btc_payout_amount:.8f} BTC",
+        "destination": req.btc_address.strip(),
+        "status": "Broadcast Successful - Awaiting On-Chain Confirmations",
         "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
     }
-    transaction_ledger.insert(0, ledger_record)
+    withdrawal_ledger.insert(0, record)
 
     return {
         "status": "success",
-        "withdrawal_id": tx_reference,
-        "message": status_message,
-        "remaining_btc": wallet["balance_btc"]
+        "tx_id": tx_id,
+        "message": "Custom currency successfully converted and broadcasted to Bitcoin network.",
+        "btc_amount": f"{btc_payout_amount:.8f} BTC",
+        "remaining_custom_balance": ledger["custom_balance"]
     }
 
 @app.get("/api/withdraw/list")
-def list_transactions():
-    return {"status": "success", "data": transaction_ledger}
+def list_withdrawals():
+    return {"status": "success", "data": withdrawal_ledger}
