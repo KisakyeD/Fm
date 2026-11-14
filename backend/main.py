@@ -1,10 +1,13 @@
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+import os
+import hmac
+import hashlib
 import datetime
 import requests
+from fastapi import FastAPI, HTTPException, Header, Request
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
-app = FastAPI(title="Algorithmic Payout Middleman Engine")
+app = FastAPI(title="Custom Sovereign Payment Gateway Engine")
 
 app.add_middleware(
     CORSMiddleware,
@@ -14,139 +17,136 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-user_wallets = {
-    "test_user": {"balance_coins": 1400, "balance_ugx": 50000}
-}
-withdrawal_queue = []
+# Immutable transaction ledger & secure gateway state
+gateway_ledger = []
+idempotency_cache = set()
 
-class WithdrawalRequest(BaseModel):
-    username: str
+class PayoutCommand(BaseModel):
+    merchant_id: str
     amount_ugx: float
-    airtel_phone: str
+    destination_phone: str
+    currency: str = "UGX"
 
-# Gateway configuration (e.g., Flutterwave or local Payer API)
-GATEWAY_SECRET_KEY = "FLWSECK_TEST-YOUR_SECRET_KEY_HERE"
-GATEWAY_BASE_URL = "https://api.flutterwave.com/v3"
+# Sovereign Gateway Security Constants (Load securely via environment variables)
+GATEWAY_MASTER_KEY = os.getenv("GATEWAY_MASTER_KEY", "SOVEREIGN_GATEWAY_SECRET_SIGNING_KEY_2026")
+TELCO_DISBURSE_ENDPOINT = os.getenv("TELCO_DISBURSE_ENDPOINT", "https://openapi.airtel.africa/standard/v1/disbursements/")
 
-def algorithmic_risk_assessment(username: str, amount: float, phone: str) -> dict:
-    """
-    Automated Middleman Algorithm:
-    Evaluates risk metrics, account history, and thresholds to 
-    automatically approve or flag payout requests.
-    """
-    # Rule 1: Check maximum single payout limit (e.g., 1,000,000 UGX max per transaction)
-    if amount > 1000000:
-        return {"approved": False, "reason": "Amount exceeds automated algorithmic threshold. Flagged for review."}
+def verify_cryptographic_signature(payload_bytes: bytes, signature_header: str) -> bool:
+    """Cryptographically verifies incoming merchant command signatures to break authorization walls."""
+    expected_signature = hmac.new(
+        GATEWAY_MASTER_KEY.encode(),
+        payload_bytes,
+        hashlib.sha256
+    ).hexdigest()
+    return hmac.compare_digest(expected_signature, signature_header or "")
+
+def algorithmic_gateway_risk_engine(amount: float, phone: str) -> dict:
+    """The Middleman Algorithm acting as the autonomous gatekeeper."""
+    if amount <= 0:
+        return {"authorized": False, "reason": "Zero or negative asset transmission rejected."}
+    if amount > 5000000:
+        return {"authorized": False, "reason": "Transaction exceeds sovereign gateway daily single-cap limit."}
     
-    # Rule 2: Validate Ugandan phone carrier formatting via algorithm
     clean_phone = phone.strip()
     if not (clean_phone.startswith("07") or clean_phone.startswith("256")) or len(clean_phone) < 10:
-        return {"approved": False, "reason": "Invalid mobile money routing format."}
-
-    # Rule 3: Velocity check (prevent rapid-fire spam requests)
-    recent_user_txs = [tx for tx in withdrawal_queue if tx["username"] == username]
-    if len(recent_user_txs) >= 5:
-        return {"approved": False, "reason": "Velocity limit reached: Maximum daily automated payouts exceeded."}
-
-    return {"approved": True, "reason": "Passed automated risk checks."}
+        return {"authorized": False, "reason": "Malformed destination node address (Invalid MSISDN)."}
+        
+    return {"authorized": True, "reason": "Gateway checks cleared successfully."}
 
 @app.get("/")
-def home():
-    return {"status": "online", "system": "Algorithmic Middleman Payout Engine Active"}
-
-@app.get("/api/wallet/{username}")
-def get_wallet(username: str):
-    if username not in user_wallets:
-        user_wallets[username] = {"balance_coins": 1400, "balance_ugx": 50000}
-    return {"status": "success", "data": user_wallets[username]}
-
-@app.post("/api/withdraw/airtel")
-def request_airtel_withdrawal(req: WithdrawalRequest):
-    if req.username not in user_wallets:
-        user_wallets[req.username] = {"balance_coins": 1400, "balance_ugx": 50000}
-    
-    wallet = user_wallets[req.username]
-    if wallet["balance_ugx"] < req.amount_ugx:
-        raise HTTPException(status_code=400, detail="Insufficient UGX balance for withdrawal.")
-    
-    # --- STEP 1: RUN THE ALGORITHMIC MIDDLEMAN DECISION ---
-    decision = algorithmic_risk_assessment(req.username, req.amount_ugx, req.airtel_phone)
-    
-    if not decision["approved"]:
-        raise HTTPException(status_code=403, detail=f"Automated Middleman Rejected: {decision['reason']}")
-
-    # --- STEP 2: AUTO-DEDUCT & GENERATE REFERENCE ---
-    wallet["balance_ugx"] -= req.amount_ugx
-    reference = f"AUTO-PO-{int(datetime.datetime.utcnow().timestamp())}"
-    
-    headers = {
-        "Authorization": f"Bearer {GATEWAY_SECRET_KEY}",
-        "Content-Type": "application/json"
+def gateway_status():
+    return {
+        "gateway_status": "OPERATIONAL",
+        "protocol": "REST/JSON",
+        "ledger_entries": len(gateway_ledger)
     }
+
+@app.post("/api/gateway/command/disburse")
+async def execute_gateway_disbursement(
+    request: Request,
+    command: PayoutCommand,
+    x_idempotency_key: str = Header(None),
+    x_gateway_signature: str = Header(None)
+):
+    """
+    Core Gateway Command: Intercepts raw request bytes, validates cryptographic signature,
+    enforces idempotency, runs algorithmic risk checks, and fires direct payout commands.
+    """
+    body_bytes = await request.body()
     
-    payload = {
-        "account_bank": "MPS",
-        "account_number": req.airtel_phone.strip(),
-        "amount": req.amount_ugx,
-        "currency": "UGX",
-        "narration": "Automated TikTok Coin Payout",
-        "reference": reference,
-        "beneficiary_name": req.username
+    # 1. Cryptographic Security Check
+    if not verify_cryptographic_signature(body_bytes, x_gateway_signature):
+        raise HTTPException(status_code=401, detail="Gateway Access Denied: Invalid Cryptographic Signature.")
+
+    # 2. Idempotency Wall (Prevent double payouts from network retries)
+    if not x_idempotency_key:
+        raise HTTPException(status_code=400, detail="Gateway Error: Missing X-Idempotency-Key header.")
+    
+    if x_idempotency_key in idempotency_cache:
+        raise HTTPException(status_code=409, detail="Conflict: Duplicate transaction reference detected by gateway.")
+    
+    idempotency_cache.add(x_idempotency_key)
+
+    # 3. Algorithmic Risk Evaluation
+    risk_assessment = algorithmic_gateway_risk_engine(command.amount_ugx, command.destination_phone)
+    if not risk_assessment["authorized"]:
+        raise HTTPException(status_code=403, detail=f"Gateway Firewall Blocked: {risk_assessment['reason']}")
+
+    # 4. Generate Unique Gateway Reference
+    gateway_tx_id = f"GW-SVRV-{int(datetime.datetime.utcnow().timestamp())}"
+    
+    # 5. Build Direct Telco Payload (Acting as the bridge)
+    telco_payload = {
+        "payee": {
+            "wallet_type": "MSISDN",
+            "msisdn": command.destination_phone.strip()
+        },
+        "reference": gateway_tx_id,
+        "transaction": {
+            "amount": command.amount_ugx,
+            "country": "UG",
+            "currency": command.currency,
+            "id": gateway_tx_id
+        }
     }
-    
-    status_message = "Algorithm Approved: Disbursing via Gateway"
+
+    transmission_status = "PENDING_DISPATCH"
     
     try:
-        # --- STEP 3: AUTOMATED DISBURSEMENT API CALL ---
-        response = requests.post(f"{GATEWAY_BASE_URL}/transfers", json=payload, headers=headers)
-        res_data = response.json()
+        # Fire direct API command to telco infrastructure
+        telco_response = requests.post(
+            TELCO_DISBURSE_ENDPOINT,
+            json=telco_payload,
+            headers={"Content-Type": "application/json", "X-Country": "UG", "X-Currency": "UGX"},
+            timeout=10
+        )
         
-        if response.status_code in [200, 201] and res_data.get("status") == "success":
-            status_message = "Disbursement Initiated Successfully"
+        if telco_response.status_code in [200, 201]:
+            transmission_status = "DISBURSED_SUCCESSFULLY"
         else:
-            err_msg = res_data.get("message", "Gateway Refusal")
-            status_message = f"Gateway Error: {err_msg}"
-            # Automated rollback: refund balance if gateway fails
-            wallet["balance_ugx"] += req.amount_ugx
-    except Exception as e:
-        status_message = f"Network Disruption: {str(e)}"
-        wallet["balance_ugx"] += req.amount_ugx
+            transmission_status = f"TELCO_REJECTED: {telco_response.text}"
+    except Exception as network_error:
+        transmission_status = f"GATEWAY_SOCKET_ERROR: {str(network_error)}"
 
-    payout_record = {
-        "payout_id": reference,
-        "username": req.username,
-        "amount_ugx": req.amount_ugx,
-        "airtel_phone": req.airtel_phone,
-        "status": status_message,
-        "time": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+    # Record to Immutable Ledger
+    ledger_record = {
+        "gateway_tx_id": gateway_tx_id,
+        "idempotency_key": x_idempotency_key,
+        "merchant_id": command.merchant_id,
+        "amount_ugx": command.amount_ugx,
+        "destination": command.destination_phone.strip(),
+        "status": transmission_status,
+        "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
     }
     
-    withdrawal_queue.insert(0, payout_record)
-    
+    gateway_ledger.insert(0, ledger_record)
+
     return {
         "status": "success",
-        "payout_id": reference,
-        "message": status_message
+        "gateway_tx_id": gateway_tx_id,
+        "transmission_status": transmission_status
     }
 
-@app.post("/api/webhook/gateway")
-async def gateway_webhook(request: Request):
-    """Automated listener that updates statuses when funds clear on Airtel."""
-    body = await request.json()
-    data = body.get("data", {})
-    reference = data.get("reference")
-    status = data.get("status")
-    
-    for item in withdrawal_queue:
-        if item["payout_id"] == reference:
-            if status == "SUCCESSFUL":
-                item["status"] = "Confirmed on Airtel Line"
-            elif status == "FAILED":
-                item["status"] = "Disbursement Failed"
-            break
-            
-    return {"status": "received"}
-
-@app.get("/api/withdraw/list")
-def list_withdrawals():
-    return {"status": "success", "data": withdrawal_queue}
+@app.get("/api/gateway/ledger")
+def fetch_gateway_ledger():
+    return {"status": "success", "ledger": gateway_ledger}
