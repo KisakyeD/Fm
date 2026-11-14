@@ -1,122 +1,111 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikTok Coins & Airtel Payout Store</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Sovereign Payment Gateway</title>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; padding: 20px; }
+        .card { background: #1e293b; padding: 20px; border-radius: 12px; margin-bottom: 20px; max-width: 500px; margin-left: auto; margin-right: auto; }
+        input, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 6px; border: none; box-sizing: border-box; }
+        input { background: #0f172a; color: #fff; border: 1px solid #334155; }
+        button { background: #10b981; color: white; font-weight: bold; cursor: pointer; }
+        button:hover { background: #059669; }
+        .ledger-item { background: #0f172a; padding: 10px; margin-top: 8px; border-radius: 6px; font-size: 13px; border-left: 4px solid #10b981; }
+    </style>
 </head>
-<body class="bg-gray-950 text-gray-100 min-h-screen p-4 font-sans">
-    <div class="max-w-md mx-auto space-y-4">
-        
-        <!-- Header & Wallet Card -->
-        <header class="bg-gray-900 p-4 rounded-2xl border border-gray-800 flex justify-between items-center">
-            <div>
-                <h1 class="font-bold text-sm text-pink-500">TIKTOK COINS & WALLET</h1>
-                <p class="text-[11px] text-gray-400">Instant Direct Top-Up & Airtel Cashout</p>
-            </div>
-            <div class="text-right bg-gray-950 p-2.5 rounded-xl border border-gray-800">
-                <div class="text-[10px] text-gray-400">My Balance</div>
-                <div id="userBalance" class="text-xs font-bold text-emerald-400">UGX 50,000</div>
-            </div>
-        </header>
+<body>
 
-        <!-- Withdrawal to Airtel Money Form -->
-        <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl space-y-3">
-            <h2 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Withdraw to Airtel Mobile Money</h2>
-            <div class="space-y-2">
-                <input type="text" id="withdrawPhone" placeholder="Airtel Phone (e.g. 075xxxxxxx)" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500">
-                <input type="number" id="withdrawAmount" placeholder="Amount in UGX" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500">
-                <button onclick="requestWithdrawal()" class="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white py-2.5 rounded-xl text-xs font-bold transition">Withdraw to Airtel</button>
-            </div>
-        </div>
+    <div class="card">
+        <h2>TIKTOK COINS & WALLET</h2>
+        <p>My Balance: <span id="ugxBalance" style="color: #34d399; font-weight: bold;">UGX 50,000</span></p>
+    </div>
 
-        <!-- Withdrawal Status Log -->
-        <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl space-y-3">
-            <h2 class="text-xs font-bold text-gray-300 uppercase tracking-wider">Recent Payout Transactions</h2>
-            <div id="payoutContainer" class="space-y-2 text-xs text-gray-400">
-                Loading payout history...
-            </div>
-        </div>
+    <div class="card">
+        <h3>WITHDRAW TO AIRTEL MOBILE MONEY</h3>
+        <input type="text" id="airtelPhone" placeholder="Airtel Phone (e.g., 0707282428)">
+        <input type="number" id="airtelAmount" placeholder="Amount in UGX">
+        <button onclick="triggerAirtelWithdrawal()">Withdraw to Airtel</button>
+    </div>
 
+    <div class="card">
+        <h3>RECENT PAYOUT TRANSACTIONS</h3>
+        <div id="ledgerList">Loading transactions...</div>
     </div>
 
     <script>
-        // Updated to your active Render service URL
-        const API_BASE = "https://fm-1-ksmj.onrender.com";
-        const CURRENT_USER = "test_user";
+        const API_BASE = "https://YOUR-RENDER-BACKEND-URL.onrender.com"; // Replace with your Render URL
 
         async function fetchWallet() {
             try {
-                const res = await fetch(`${API_BASE}/api/wallet/${CURRENT_USER}`);
+                const res = await fetch(`${API_BASE}/api/wallet/test_user`);
                 const data = await res.json();
-                if(data.status === "success") {
-                    document.getElementById('userBalance').textContent = `UGX ${data.data.balance_ugx.toLocaleString()}`;
+                if (data.status === "success") {
+                    document.getElementById('ugxBalance').innerText = `UGX ${data.data.balance_ugx.toLocaleString()}`;
                 }
-            } catch (err) {
-                console.error("Wallet fetch error:", err);
-            }
+            } catch (e) { console.error("Wallet fetch error", e); }
         }
 
-        async function requestWithdrawal() {
-            const phone = document.getElementById('withdrawPhone').value.trim();
-            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+        async function triggerAirtelWithdrawal() {
+            const phone = document.getElementById('airtelPhone').value;
+            const amount = document.getElementById('airtelAmount').value;
 
-            if (!phone || !amount || amount <= 0) {
-                alert("Please enter a valid Airtel phone number and payout amount.");
+            if (!phone || !amount) {
+                alert("Please fill in both fields.");
                 return;
             }
 
             try {
-                const res = await fetch(`${API_BASE}/api/withdraw/airtel`, {
+                const response = await fetch(`${API_BASE}/api/withdraw/airtel`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        username: CURRENT_USER,
-                        amount_ugx: amount,
+                        username: "test_user",
+                        amount_ugx: parseFloat(amount),
                         airtel_phone: phone
                     })
                 });
-                const data = await res.json();
-                if (res.ok) {
-                    alert(`Payout Initiated!\nReference: ${data.payout_id}\nFunds are being sent to Airtel line: ${phone}`);
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert(`Payout Initiated!\nReference: ${result.payout_id}\nStatus: ${result.message}`);
                     fetchWallet();
-                    fetchPayouts();
+                    fetchLedger();
                 } else {
-                    alert("Withdrawal failed: " + (data.detail || "Unknown error"));
+                    alert(`Error: ${result.detail || 'Gateway rejection'}`);
                 }
             } catch (err) {
-                alert("Network error: " + err);
+                alert(`Network Connection Error: ${err.message}`);
             }
         }
 
-        async function fetchPayouts() {
+        async function fetchLedger() {
             try {
                 const res = await fetch(`${API_BASE}/api/withdraw/list`);
-                const result = await res.json();
-                const container = document.getElementById('payoutContainer');
+                const data = await res.json();
+                const container = document.getElementById('ledgerList');
                 
-                if (result.status === "success" && result.data.length > 0) {
-                    container.innerHTML = result.data.slice(0, 5).map(po => `
-                        <div class="bg-gray-950 border border-gray-800 p-2.5 rounded-xl flex justify-between items-center">
-                            <div>
-                                <span class="text-white font-bold">Airtel: ${po.airtel_phone}</span>
-                                <div class="text-[10px] text-gray-500">UGX ${po.amount_ugx.toLocaleString()} • ${po.payout_id}</div>
-                            </div>
-                            <span class="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded text-[10px] font-bold">${po.status}</span>
+                if (data.status === "success" && data.data.length > 0) {
+                    container.innerHTML = data.data.map(item => `
+                        <div class="ledger-item">
+                            <strong>${item.type}</strong> (${item.amount})<br>
+                            Dest: ${item.destination}<br>
+                            Status: ${item.status}<br>
+                            <small style="color: #94a3b8;">${item.timestamp}</small>
                         </div>
                     `).join('');
                 } else {
                     container.innerHTML = "No withdrawal requests yet.";
                 }
-            } catch (err) {
-                document.getElementById('payoutContainer').textContent = "Connecting to disbursement ledger...";
+            } catch (e) {
+                document.getElementById('ledgerList').innerHTML = "Failed to load ledger.";
             }
         }
 
-        setInterval(fetchPayouts, 5000);
+        // Initialize on load
         fetchWallet();
-        fetchPayouts();
+        fetchLedger();
+        setInterval(fetchLedger, 10000); // Auto-refresh ledger every 10s
     </script>
 </body>
 </html>
