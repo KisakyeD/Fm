@@ -30,33 +30,56 @@
 
     <div class="card">
         <h3>RECENT PAYOUT TRANSACTIONS</h3>
-        <div id="ledgerList">Loading transactions...</div>
+        <div id="ledgerList">Connecting to backend gateway...</div>
     </div>
 
     <script>
-        const API_BASE = "https://YOUR-RENDER-BACKEND-URL.onrender.com"; // Replace with your Render URL
+        // Your live Render backend URL
+        const API_BASE = "https://fm-nict.onrender.com";
+
+        async function apiRequest(endpoint, options = {}) {
+            const maxRetries = 3;
+            let attempt = 0;
+            
+            while (attempt < maxRetries) {
+                try {
+                    const response = await fetch(`${API_BASE}${endpoint}`, options);
+                    if (!response.ok) {
+                        const errData = await response.json().catch(() => ({}));
+                        throw new Error(errData.detail || `Server error: ${response.status}`);
+                    }
+                    return await response.json();
+                } catch (error) {
+                    attempt++;
+                    if (attempt >= maxRetries) throw error;
+                    // Wait 3 seconds for Render backend to wake up from cold start, then retry
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+                }
+            }
+        }
 
         async function fetchWallet() {
             try {
-                const res = await fetch(`${API_BASE}/api/wallet/test_user`);
-                const data = await res.json();
+                const data = await apiRequest('/api/wallet/test_user');
                 if (data.status === "success") {
                     document.getElementById('ugxBalance').innerText = `UGX ${data.data.balance_ugx.toLocaleString()}`;
                 }
-            } catch (e) { console.error("Wallet fetch error", e); }
+            } catch (e) {
+                console.error("Wallet fetch error:", e.message);
+            }
         }
 
         async function triggerAirtelWithdrawal() {
-            const phone = document.getElementById('airtelPhone').value;
+            const phone = document.getElementById('airtelPhone').value.trim();
             const amount = document.getElementById('airtelAmount').value;
 
             if (!phone || !amount) {
-                alert("Please fill in both fields.");
+                alert("Please fill in both your Airtel phone number and amount.");
                 return;
             }
 
             try {
-                const response = await fetch(`${API_BASE}/api/withdraw/airtel`, {
+                const result = await apiRequest('/api/withdraw/airtel', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -66,23 +89,17 @@
                     })
                 });
 
-                const result = await response.json();
-                if (response.ok) {
-                    alert(`Payout Initiated!\nReference: ${result.payout_id}\nStatus: ${result.message}`);
-                    fetchWallet();
-                    fetchLedger();
-                } else {
-                    alert(`Error: ${result.detail || 'Gateway rejection'}`);
-                }
+                alert(`Payout Initiated!\nReference: ${result.payout_id}\nStatus: ${result.message}`);
+                fetchWallet();
+                fetchLedger();
             } catch (err) {
-                alert(`Network Connection Error: ${err.message}`);
+                alert(`Gateway Connection Failed: ${err.message}\n(Tip: If your backend was sleeping, try clicking withdraw again now that it is awake.)`);
             }
         }
 
         async function fetchLedger() {
             try {
-                const res = await fetch(`${API_BASE}/api/withdraw/list`);
-                const data = await res.json();
+                const data = await apiRequest('/api/withdraw/list');
                 const container = document.getElementById('ledgerList');
                 
                 if (data.status === "success" && data.data.length > 0) {
@@ -98,14 +115,14 @@
                     container.innerHTML = "No withdrawal requests yet.";
                 }
             } catch (e) {
-                document.getElementById('ledgerList').innerHTML = "Failed to load ledger.";
+                document.getElementById('ledgerList').innerHTML = "Backend waking up... please wait.";
             }
         }
 
-        // Initialize on load
+        // Initialize on page load
         fetchWallet();
         fetchLedger();
-        setInterval(fetchLedger, 10000); // Auto-refresh ledger every 10s
+        setInterval(fetchLedger, 10000); // Poll ledger state every 10s
     </script>
 </body>
 </html>
