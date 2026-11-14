@@ -3,126 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign Payment Gateway</title>
+    <title>Custom Currency & BTC Gateway</title>
     <style>
         body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; padding: 20px; }
         .card { background: #1e293b; padding: 20px; border-radius: 12px; margin-bottom: 20px; max-width: 500px; margin-left: auto; margin-right: auto; }
         input, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 6px; border: none; box-sizing: border-box; }
         input { background: #0f172a; color: #fff; border: 1px solid #334155; }
-        button { background: #10b981; color: white; font-weight: bold; cursor: pointer; }
-        button:hover { background: #059669; }
-        .ledger-item { background: #0f172a; padding: 10px; margin-top: 8px; border-radius: 6px; font-size: 13px; border-left: 4px solid #10b981; }
+        button { background: #f59e0b; color: #0f172a; font-weight: bold; cursor: pointer; }
+        button:hover { background: #d97706; }
+        .btn-mint { background: #10b981; color: #fff; }
+        .btn-mint:hover { background: #059669; }
+        .ledger-item { background: #0f172a; padding: 10px; margin-top: 8px; border-radius: 6px; font-size: 13px; border-left: 4px solid #f59e0b; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2>TIKTOK COINS & WALLET</h2>
-        <p>My Balance: <span id="ugxBalance" style="color: #34d399; font-weight: bold;">UGX 50,000</span></p>
+        <h2>CUSTOM CURRENCY WALLET</h2>
+        <p>Available Balance: <span id="customBalance" style="color: #34d399; font-weight: bold;">10,000.00 Credits</span></p>
     </div>
 
     <div class="card">
-        <h3>WITHDRAW TO AIRTEL MOBILE MONEY</h3>
-        <input type="text" id="airtelPhone" placeholder="Airtel Phone (e.g., 0707282428)">
-        <input type="number" id="airtelAmount" placeholder="Amount in UGX">
-        <button onclick="triggerAirtelWithdrawal()">Withdraw to Airtel</button>
+        <h3>MINT CUSTOM MONEY (ADMIN)</h3>
+        <input type="number" id="mintAmount" placeholder="Credits to Mint (e.g., 5000)">
+        <button class="btn-mint" onclick="mintCredits()">Mint New Credits</button>
     </div>
 
     <div class="card">
-        <h3>RECENT PAYOUT TRANSACTIONS</h3>
-        <div id="ledgerList">Connecting to backend gateway...</div>
+        <h3>WITHDRAW TO BITCOIN (BTC)</h3>
+        <input type="number" id="withdrawCredits" placeholder="Custom Credits to Convert & Withdraw">
+        <input type="text" id="btcAddress" placeholder="Your Bitcoin Wallet Address (bc1... / 1... / 3...)">
+        <button onclick="withdrawToBTC()">Convert & Withdraw via BTC</button>
+    </div>
+
+    <div class="card">
+        <h3>RECENT BTC WITHDRAWALS</h3>
+        <div id="ledgerList">Connecting to gateway...</div>
     </div>
 
     <script>
-        // Your live Render backend URL
         const API_BASE = "https://fm-nict.onrender.com";
 
         async function apiRequest(endpoint, options = {}) {
             const maxRetries = 3;
             let attempt = 0;
-            
             while (attempt < maxRetries) {
                 try {
                     const response = await fetch(`${API_BASE}${endpoint}`, options);
+                    const data = await response.json();
                     if (!response.ok) {
-                        const errData = await response.json().catch(() => ({}));
-                        throw new Error(errData.detail || `Server error: ${response.status}`);
+                        throw new Error(data.detail || `Server error: ${response.status}`);
                     }
-                    return await response.json();
+                    return data;
                 } catch (error) {
                     attempt++;
                     if (attempt >= maxRetries) throw error;
-                    // Wait 3 seconds for Render backend to wake up from cold start, then retry
                     await new Promise(resolve => setTimeout(resolve, 3000));
                 }
             }
         }
 
-        async function fetchWallet() {
+        async function fetchLedgerBalance() {
             try {
-                const data = await apiRequest('/api/wallet/test_user');
-                if (data.status === "success") {
-                    document.getElementById('ugxBalance').innerText = `UGX ${data.data.balance_ugx.toLocaleString()}`;
+                const res = await apiRequest('/api/ledger/test_user');
+                if (res.status === "success") {
+                    document.getElementById('customBalance').innerText = `${res.data.custom_balance.toLocaleString()} Credits`;
                 }
             } catch (e) {
-                console.error("Wallet fetch error:", e.message);
+                console.error("Ledger error:", e.message);
             }
         }
 
-        async function triggerAirtelWithdrawal() {
-            const phone = document.getElementById('airtelPhone').value.trim();
-            const amount = document.getElementById('airtelAmount').value;
-
-            if (!phone || !amount) {
-                alert("Please fill in both your Airtel phone number and amount.");
+        async function mintCredits() {
+            const amount = document.getElementById('mintAmount').value;
+            if (!amount || amount <= 0) {
+                alert("Enter a valid amount to mint.");
                 return;
             }
-
             try {
-                const result = await apiRequest('/api/withdraw/airtel', {
+                const res = await apiRequest('/api/currency/mint', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         username: "test_user",
-                        amount_ugx: parseFloat(amount),
-                        airtel_phone: phone
+                        amount: parseFloat(amount)
                     })
                 });
-
-                alert(`Payout Initiated!\nReference: ${result.payout_id}\nStatus: ${result.message}`);
-                fetchWallet();
-                fetchLedger();
+                alert(res.message);
+                document.getElementById('mintAmount').value = "";
+                fetchLedgerBalance();
             } catch (err) {
-                alert(`Gateway Connection Failed: ${err.message}\n(Tip: If your backend was sleeping, try clicking withdraw again now that it is awake.)`);
+                alert(`Mint Error: ${err.message}`);
             }
         }
 
-        async function fetchLedger() {
+        async function withdrawToBTC() {
+            const credits = document.getElementById('withdrawCredits').value;
+            const btcAddress = document.getElementById('btcAddress').value.trim();
+
+            if (!credits || !btcAddress) {
+                alert("Enter both the credit amount and your Bitcoin wallet address.");
+                return;
+            }
+
             try {
-                const data = await apiRequest('/api/withdraw/list');
+                const res = await apiRequest('/api/withdraw/btc', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: "test_user",
+                        custom_amount_to_withdraw: parseFloat(credits),
+                        btc_address: btcAddress
+                    })
+                });
+
+                alert(`Withdrawal Broadcasted!\nTX ID: ${res.tx_id}\nSent: ${res.btc_amount}\nRemaining: ${res.remaining_custom_balance} Credits`);
+                document.getElementById('withdrawCredits').value = "";
+                fetchLedgerBalance();
+                fetchWithdrawals();
+            } catch (err) {
+                alert(`Withdrawal Failed: ${err.message}`);
+            }
+        }
+
+        async function fetchWithdrawals() {
+            try {
+                const res = await apiRequest('/api/withdraw/list');
                 const container = document.getElementById('ledgerList');
-                
-                if (data.status === "success" && data.data.length > 0) {
-                    container.innerHTML = data.data.map(item => `
+                if (res.status === "success" && res.data.length > 0) {
+                    container.innerHTML = res.data.map(item => `
                         <div class="ledger-item">
-                            <strong>${item.type}</strong> (${item.amount})<br>
-                            Dest: ${item.destination}<br>
+                            <strong>${item.btc_sent}</strong> (${item.spent_custom_credits} Credits)<br>
+                            To: ${item.destination}<br>
                             Status: ${item.status}<br>
                             <small style="color: #94a3b8;">${item.timestamp}</small>
                         </div>
                     `).join('');
                 } else {
-                    container.innerHTML = "No withdrawal requests yet.";
+                    container.innerHTML = "No BTC withdrawals yet.";
                 }
             } catch (e) {
-                document.getElementById('ledgerList').innerHTML = "Backend waking up... please wait.";
+                document.getElementById('ledgerList').innerHTML = "Waking up backend...";
             }
         }
 
-        // Initialize on page load
-        fetchWallet();
-        fetchLedger();
-        setInterval(fetchLedger, 10000); // Poll ledger state every 10s
+        fetchLedgerBalance();
+        fetchWithdrawals();
+        setInterval(fetchWithdrawals, 10000);
     </script>
 </body>
 </html>
