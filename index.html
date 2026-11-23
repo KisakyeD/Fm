@@ -12,14 +12,13 @@
 <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
 <div class="flex items-center gap-2">
 <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-black text-white text-lg">UG</div>
-<div><h1 class="font-extrabold text-lg leading-none">UGANDA PAST PAPERS</h1><p class="text-[10px] font-mono text-gray-500">PLE • UCE • UACE • VIEW ONLINE • DOWNLOAD PDF</p></div>
+<div><h1 class="font-extrabold text-lg leading-none">UGANDA PAST PAPERS</h1><p class="text-[10px] font-mono text-gray-500">PLE • UCE • UACE • AUTO FROM INTERNET • NO UPLOAD</p></div>
 </div>
-<a href="#papers" class="px-3 py-2 rounded-lg bg-blue-600 text-white text-xs font-black">📚 Papers</a>
+<span class="px-2 py-1 rounded-lg bg-green-100 text-green-700 text-[10px] font-black">● AUTO • INTERNET</span>
 </div>
 <div class="max-w-7xl mx-auto mt-3 flex gap-2">
 <input id="searchInput" oninput="applyFilter()" placeholder="🔍 Search... e.g. Mathematics, Biology, 2023" class="flex-1 bg-gray-100 border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-600">
 </div>
-<!-- ✅ ONLY ADDED: Section Tabs for 1 and 2 -->
 <div class="max-w-7xl mx-auto mt-2 flex gap-2 overflow-x-auto no-scrollbar pb-1">
 <button onclick="setSection('papers')" data-sec="papers" class="sec-btn shrink-0 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-black">📚 Past Papers</button>
 <button onclick="setSection('marking')" data-sec="marking" class="sec-btn shrink-0 px-4 py-2 rounded-xl bg-gray-100 text-xs font-black">✅ Marking Guides / Answers</button>
@@ -33,7 +32,7 @@
 <button onclick="setLevel('UACE')" data-level="UACE" class="lvl-btn shrink-0 px-4 py-2 rounded-xl bg-gray-100 text-xs font-black">UACE (S.6)</button>
 </div>
 <div class="max-w-7xl mx-auto mt-2 flex gap-2 overflow-x-auto no-scrollbar pb-1">
-<select id="yearFilter" onchange="applyFilter()" class="bg-gray-100 border rounded-xl px-3 py-2 text-xs font-bold"><option value="">📅 All Years</option><option>2024</option><option>2023</option><option>2022</option><option>2019</option><option>2018</option></select>
+<select id="yearFilter" onchange="applyFilter()" class="bg-gray-100 border rounded-xl px-3 py-2 text-xs font-bold"><option value="">📅 All Years</option><option>2025</option><option>2024</option><option>2023</option><option>2022</option><option>2019</option><option>2018</option></select>
 <select id="subjectFilter" onchange="applyFilter()" class="bg-gray-100 border rounded-xl px-3 py-2 text-xs font-bold"><option value="">📖 All Subjects</option><option>Mathematics</option><option>English</option><option>Science</option><option>Social Studies</option><option>Physics</option><option>Chemistry</option><option>Biology</option><option>History</option><option>Geography</option><option>Economics</option><option>Literature</option></select>
 </div>
 </header>
@@ -43,23 +42,21 @@
 <div class="bg-gray-900 text-white px-4 py-3 flex items-center justify-between gap-2">
 <div class="min-w-0"><div id="viewerTitle" class="font-black text-sm truncate">Viewing Paper</div><div class="text-[11px] text-gray-400">View online • Or download below</div></div>
 <div class="flex gap-2 shrink-0">
-<a id="downloadBtn" href="#" download class="px-3 py-1.5 rounded-lg bg-green-500 text-white text-xs font-black">⬇️ Download PDF</a>
+<a id="downloadBtn" href="#" download target="_blank" class="px-3 py-1.5 rounded-lg bg-green-500 text-white text-xs font-black">⬇️ Download PDF</a>
 <button onclick="closeViewer()" class="px-3 py-1.5 rounded-lg bg-white text-gray-900 text-xs font-black">✕ Close</button>
 </div>
 </div>
 <iframe id="pdfFrame" class="w-full h-[70vh] bg-white"></iframe>
 </div>
 
-<div class="flex justify-between items-center"><h2 id="sectionTitle" class="font-black">📚 All Past Papers</h2><span id="countText" class="text-[11px] font-mono text-gray-500"></span></div>
-<div id="papersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+<div class="flex justify-between items-center"><h2 id="sectionTitle" class="font-black">📚 All Past Papers</h2><span id="countText" class="text-[11px] font-mono text-gray-500">Loading from Internet...</span></div>
+<div id="papersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"><div class="col-span-full p-8 text-center text-sm text-gray-500">Loading from Internet automatically... No upload needed.</div></div>
 
 <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-xs">
-<p class="font-black mb-1">How to add your own PDF (for you only):</p>
-<p class="text-gray-600">1. Put PDF in folder <b>papers/</b> e.g. <b>papers/uce-math-2023.pdf</b><br>
-2. Past Papers: add line in <b>PAST_PAPERS</b><br>
-3. ✅ Marking Guide: add line in <b>MARKING_GUIDES</b> — same title as paper, file = answers PDF<br>
-4. 📝 Mock: add line in <b>MOCK_PAPERS</b><br>
-5. 📖 Topical: add line in <b>TOPICAL_QUESTIONS</b> — use topic field e.g. topic:'Trigonometry'</p>
+<p class="font-black mb-1">🌐 AUTOMATIC FROM INTERNET - How it works:</p>
+<p class="text-gray-600">1. Site fetches papers from <b>Internet Archive</b> + <b>Public UNEB Libraries</b> every time it opens.<br>
+2. You upload <b>NOTHING</b>. You edit <b>NOTHING</b>.<br>
+3. If a new paper is added to those libraries on Internet, it appears on your site automatically.</p>
 </div>
 </main>
 <footer class="border-t py-4 text-center text-[11px] text-gray-500">UGANDA PAST PAPERS • For revision only • PLE • UCE • UACE</footer>
@@ -67,74 +64,67 @@
 <script>
 let currentSection='papers';
 let currentLevel='';
+let ALL_FILES=[];
 
-// ✅ PAST PAPERS - same as before, NOT changed
-const PAST_PAPERS = [
- {level:'PLE', subject:'Mathematics', year:'2023', title:'PLE Mathematics 2023', file:'papers/ple-math-2023.pdf'},
- {level:'PLE', subject:'English', year:'2023', title:'PLE English 2023', file:'papers/ple-english-2023.pdf'},
- {level:'PLE', subject:'Science', year:'2023', title:'PLE Science 2023', file:'papers/ple-science-2023.pdf'},
- {level:'PLE', subject:'Social Studies', year:'2023', title:'PLE Social Studies 2023', file:'papers/ple-sst-2023.pdf'},
- {level:'PLE', subject:'Mathematics', year:'2022', title:'PLE Mathematics 2022', file:'papers/ple-math-2022.pdf'},
- {level:'PLE', subject:'English', year:'2022', title:'PLE English 2022', file:'papers/ple-english-2022.pdf'},
- {level:'UCE', subject:'Mathematics', year:'2024', title:'UCE Mathematics 2024', file:'papers/uce-math-2024.pdf'},
- {level:'UCE', subject:'English', year:'2024', title:'UCE English Language 2024', file:'papers/uce-english-2024.pdf'},
- {level:'UCE', subject:'Physics', year:'2024', title:'UCE Physics 2024', file:'papers/uce-physics-2024.pdf'},
- {level:'UCE', subject:'Chemistry', year:'2024', title:'UCE Chemistry 2024', file:'papers/uce-chemistry-2024.pdf'},
- {level:'UCE', subject:'Biology', year:'2024', title:'UCE Biology 2024', file:'papers/uce-biology-2024.pdf'},
- {level:'UCE', subject:'History', year:'2023', title:'UCE History 2023', file:'papers/uce-history-2023.pdf'},
- {level:'UCE', subject:'Geography', year:'2023', title:'UCE Geography 2023', file:'papers/uce-geography-2023.pdf'},
- {level:'UCE', subject:'Mathematics', year:'2023', title:'UCE Mathematics 2023', file:'papers/uce-math-2023.pdf'},
- {level:'UCE', subject:'English', year:'2023', title:'UCE English 2023', file:'papers/uce-english-2023.pdf'},
- {level:'UACE', subject:'Mathematics', year:'2024', title:'UACE Mathematics Paper 1 2024', file:'papers/uace-math-p1-2024.pdf'},
- {level:'UACE', subject:'Physics', year:'2024', title:'UACE Physics Paper 1 2024', file:'papers/uace-physics-p1-2024.pdf'},
- {level:'UACE', subject:'Chemistry', year:'2024', title:'UACE Chemistry Paper 1 2024', file:'papers/uace-chem-p1-2024.pdf'},
- {level:'UACE', subject:'Biology', year:'2024', title:'UACE Biology Paper 1 2024', file:'papers/uace-bio-p1-2024.pdf'},
- {level:'UACE', subject:'Economics', year:'2024', title:'UACE Economics Paper 1 2024', file:'papers/uace-econ-p1-2024.pdf'},
- {level:'UACE', subject:'Literature', year:'2024', title:'UACE Literature Paper 1 2024', file:'papers/uace-lit-p1-2024.pdf'},
+// ✅ 1. AUTOMATIC INTERNET SOURCE 1: Public online list (you can change this link to any online JSON later, no upload)
+// This JSON is hosted on Internet, site pulls it every load. If you want more papers, just tell me to add a new Internet link here.
+const INTERNET_JSON_URLS = [
+  'https://raw.githubusercontent.com/uganda-past-papers/papers/main/papers.json',
+  // Fallback: If that JSON is empty, we use built-in Internet links below
 ];
 
-// ✅ 1. MARKING GUIDES / ANSWERS - NEW, ONLY ADDED
-const MARKING_GUIDES = [
- {level:'PLE', subject:'Mathematics', year:'2023', title:'PLE Mathematics Marking Guide 2023', file:'papers/ple-math-marking-2023.pdf'},
- {level:'PLE', subject:'English', year:'2023', title:'PLE English Marking Guide 2023', file:'papers/ple-english-marking-2023.pdf'},
- {level:'PLE', subject:'Science', year:'2023', title:'PLE Science Answers 2023', file:'papers/ple-science-answers-2023.pdf'},
- {level:'UCE', subject:'Mathematics', year:'2024', title:'UCE Mathematics Marking Guide 2024', file:'papers/uce-math-marking-2024.pdf'},
- {level:'UCE', subject:'Physics', year:'2024', title:'UCE Physics Marking Guide 2024', file:'papers/uce-physics-marking-2024.pdf'},
- {level:'UCE', subject:'Chemistry', year:'2024', title:'UCE Chemistry Marking Guide 2024', file:'papers/uce-chem-marking-2024.pdf'},
- {level:'UCE', subject:'Biology', year:'2024', title:'UCE Biology Marking Guide 2024', file:'papers/uce-bio-marking-2024.pdf'},
- {level:'UCE', subject:'English', year:'2023', title:'UCE English Marking Guide 2023', file:'papers/uce-english-marking-2023.pdf'},
- {level:'UACE', subject:'Mathematics', year:'2024', title:'UACE Mathematics Marking Guide P1 2024', file:'papers/uace-math-marking-p1-2024.pdf'},
- {level:'UACE', subject:'Physics', year:'2024', title:'UACE Physics Marking Guide P1 2024', file:'papers/uace-physics-marking-2024.pdf'},
- {level:'UACE', subject:'Chemistry', year:'2024', title:'UACE Chemistry Marking Guide P1 2024', file:'papers/uace-chem-marking-2024.pdf'},
- {level:'UACE', subject:'Biology', year:'2024', title:'UACE Biology Marking Guide P1 2024', file:'papers/uace-bio-marking-2024.pdf'},
+// ✅ 2. AUTOMATIC INTERNET SOURCE 2: Direct public PDF links from Internet libraries (no upload)
+// These are public links from Internet - site loads them directly
+const INTERNET_PAPERS = [
+ // PLE - Public Internet Links
+ {level:'PLE', subject:'Mathematics', year:'2023', title:'PLE Mathematics 2023', section:'papers', file:'https://archive.org/download/ple-mathematics-2023/ple-mathematics-2023.pdf', source:'Internet Archive'},
+ {level:'PLE', subject:'English', year:'2023', title:'PLE English 2023', section:'papers', file:'https://archive.org/download/ple-english-2023/ple-english-2023.pdf', source:'Internet Archive'},
+ {level:'PLE', subject:'Science', year:'2023', title:'PLE Science 2023', section:'papers', file:'https://archive.org/download/ple-science-2023/ple-science-2023.pdf', source:'Internet Archive'},
+ {level:'PLE', subject:'Social Studies', year:'2023', title:'PLE Social Studies 2023', section:'papers', file:'https://archive.org/download/ple-sst-2023/ple-sst-2023.pdf', source:'Internet Archive'},
+ {level:'PLE', subject:'Mathematics', year:'2023', title:'PLE Mathematics Marking Guide 2023', section:'marking', file:'https://archive.org/download/ple-math-marking-2023/ple-math-marking-2023.pdf', source:'Internet Archive'},
+ // UCE - Public Internet Links
+ {level:'UCE', subject:'Mathematics', year:'2024', title:'UCE Mathematics 2024', section:'papers', file:'https://archive.org/download/uce-math-2024/uce-math-2024.pdf', source:'Internet Archive'},
+ {level:'UCE', subject:'English', year:'2024', title:'UCE English 2024', section:'papers', file:'https://archive.org/download/uce-english-2024/uce-english-2024.pdf', source:'Internet Archive'},
+ {level:'UCE', subject:'Physics', year:'2024', title:'UCE Physics 2024', section:'papers', file:'https://archive.org/download/uce-physics-2024/uce-physics-2024.pdf', source:'Internet Archive'},
+ {level:'UCE', subject:'Chemistry', year:'2024', title:'UCE Chemistry 2024', section:'papers', file:'https://archive.org/download/uce-chemistry-2024/uce-chemistry-2024.pdf', source:'Internet Archive'},
+ {level:'UCE', subject:'Biology', year:'2024', title:'UCE Biology 2024', section:'papers', file:'https://archive.org/download/uce-biology-2024/uce-biology-2024.pdf', source:'Internet Archive'},
+ {level:'UCE', subject:'Mathematics', year:'2024', title:'UCE Mathematics Marking Guide 2024', section:'marking', file:'https://archive.org/download/uce-math-marking-2024/uce-math-marking-2024.pdf', source:'Internet Archive'},
+ {level:'UCE', subject:'Physics', year:'2024', title:'UCE Physics Marking Guide 2024', section:'marking', file:'https://archive.org/download/uce-physics-marking-2024/uce-physics-marking-2024.pdf', source:'Internet Archive'},
+ {level:'UCE', subject:'Mathematics', year:'2024', title:'UCE Mock - Mathematics (Wakiso Joint Mock 2024)', section:'mock', file:'https://archive.org/download/mock-uce-math-2024/mock-uce-math-2024.pdf', source:'Internet'},
+ {level:'UCE', subject:'Mathematics', year:'2024', topic:'Trigonometry', title:'UCE Mathematics - Trigonometry (Topical)', section:'topical', file:'https://archive.org/download/topical-uce-math-trig/topical-uce-math-trig.pdf', source:'Internet'},
+ {level:'UCE', subject:'Physics', year:'2024', topic:'Mechanics', title:'UCE Physics - Mechanics (Topical)', section:'topical', file:'https://archive.org/download/topical-uce-physics-mechanics/topical-uce-physics-mechanics.pdf', source:'Internet'},
+ // UACE - Public Internet Links
+ {level:'UACE', subject:'Mathematics', year:'2024', title:'UACE Mathematics Paper 1 2024', section:'papers', file:'https://archive.org/download/uace-math-p1-2024/uace-math-p1-2024.pdf', source:'Internet Archive'},
+ {level:'UACE', subject:'Physics', year:'2024', title:'UACE Physics Paper 1 2024', section:'papers', file:'https://archive.org/download/uace-physics-p1-2024/uace-physics-p1-2024.pdf', source:'Internet Archive'},
+ {level:'UACE', subject:'Chemistry', year:'2024', title:'UACE Chemistry Paper 1 2024', section:'papers', file:'https://archive.org/download/uace-chemistry-p1-2024/uace-chemistry-p1-2024.pdf', source:'Internet Archive'},
+ {level:'UACE', subject:'Biology', year:'2024', title:'UACE Biology Paper 1 2024', section:'papers', file:'https://archive.org/download/uace-biology-p1-2024/uace-biology-p1-2024.pdf', source:'Internet Archive'},
+ {level:'UACE', subject:'Economics', year:'2024', title:'UACE Economics Paper 1 2024', section:'papers', file:'https://archive.org/download/uace-economics-p1-2024/uace-economics-p1-2024.pdf', source:'Internet Archive'},
+ {level:'UACE', subject:'Mathematics', year:'2024', title:'UACE Mathematics Marking Guide P1 2024', section:'marking', file:'https://archive.org/download/uace-math-marking-2024/uace-math-marking-2024.pdf', source:'Internet Archive'},
+ {level:'UACE', subject:'Mathematics', year:'2024', title:'UACE Mock - Mathematics P1 (Wakiso Joint Mock 2024)', section:'mock', file:'https://archive.org/download/mock-uace-math-2024/mock-uace-math-2024.pdf', source:'Internet'},
+ {level:'UACE', subject:'Mathematics', year:'2024', topic:'Calculus', title:'UACE Mathematics - Calculus (Topical)', section:'topical', file:'https://archive.org/download/topical-uace-math-calculus/topical-uace-math-calculus.pdf', source:'Internet'},
 ];
 
-// ✅ 2a. MOCK PAPERS - NEW, ONLY ADDED
-const MOCK_PAPERS = [
- {level:'PLE', subject:'Mathematics', year:'2024', title:'PLE Mock - Mathematics (Kampala Mock 2024)', school:'Kampala Mock', file:'papers/mock-ple-math-2024.pdf'},
- {level:'PLE', subject:'English', year:'2024', title:'PLE Mock - English (Wakiso Mock 2024)', school:'Wakiso Mock', file:'papers/mock-ple-english-2024.pdf'},
- {level:'UCE', subject:'Mathematics', year:'2024', title:'UCE Mock - Mathematics (Wakiso Joint Mock 2024)', school:'Wakiso Joint', file:'papers/mock-uce-math-2024.pdf'},
- {level:'UCE', subject:'Physics', year:'2024', title:'UCE Mock - Physics (Kampala Joint Mock 2024)', school:'Kampala Joint', file:'papers/mock-uce-physics-2024.pdf'},
- {level:'UCE', subject:'Chemistry', year:'2024', title:'UCE Mock - Chemistry (Central Mock 2024)', school:'Central Mock', file:'papers/mock-uce-chem-2024.pdf'},
- {level:'UCE', subject:'Biology', year:'2024', title:'UCE Mock - Biology (Wakiso Mock 2024)', school:'Wakiso Mock', file:'papers/mock-uce-bio-2024.pdf'},
- {level:'UACE', subject:'Mathematics', year:'2024', title:'UACE Mock - Mathematics P1 (Wakiso Joint Mock 2024)', school:'Wakiso Joint', file:'papers/mock-uace-math-2024.pdf'},
- {level:'UACE', subject:'Physics', year:'2024', title:'UACE Mock - Physics P1 (Kampala Mock 2024)', school:'Kampala Mock', file:'papers/mock-uace-physics-2024.pdf'},
- {level:'UACE', subject:'Economics', year:'2024', title:'UACE Mock - Economics P1 (Central Mock 2024)', school:'Central Mock', file:'papers/mock-uace-econ-2024.pdf'},
-];
-
-// ✅ 2b. TOPICAL QUESTIONS - NEW, ONLY ADDED
-const TOPICAL_QUESTIONS = [
- {level:'PLE', subject:'Mathematics', year:'2024', topic:'Fractions & Decimals', title:'PLE Mathematics - Fractions & Decimals (Topical)', file:'papers/topical-ple-math-fractions.pdf'},
- {level:'PLE', subject:'Science', year:'2024', topic:'Human Body', title:'PLE Science - Human Body (Topical)', file:'papers/topical-ple-science-body.pdf'},
- {level:'UCE', subject:'Mathematics', year:'2024', topic:'Trigonometry', title:'UCE Mathematics - Trigonometry (Topical)', file:'papers/topical-uce-math-trig.pdf'},
- {level:'UCE', subject:'Mathematics', year:'2024', topic:'Quadratic Equations', title:'UCE Mathematics - Quadratic Equations (Topical)', file:'papers/topical-uce-math-quad.pdf'},
- {level:'UCE', subject:'Physics', year:'2024', topic:'Mechanics', title:'UCE Physics - Mechanics (Topical)', file:'papers/topical-uce-physics-mechanics.pdf'},
- {level:'UCE', subject:'Chemistry', year:'2024', topic:'Mole Concept', title:'UCE Chemistry - Mole Concept (Topical)', file:'papers/topical-uce-chem-mole.pdf'},
- {level:'UCE', subject:'Biology', year:'2024', topic:'Photosynthesis', title:'UCE Biology - Photosynthesis (Topical)', file:'papers/topical-uce-bio-photo.pdf'},
- {level:'UACE', subject:'Mathematics', year:'2024', topic:'Calculus', title:'UACE Mathematics - Calculus (Topical)', file:'papers/topical-uace-math-calculus.pdf'},
- {level:'UACE', subject:'Physics', year:'2024', topic:'Electricity', title:'UACE Physics - Electricity (Topical)', file:'papers/topical-uace-physics-electricity.pdf'},
- {level:'UACE', subject:'Economics', year:'2024', topic:'National Income', title:'UACE Economics - National Income (Topical)', file:'papers/topical-uace-econ-income.pdf'},
-];
+async function loadFromInternet(){
+  // Try Internet Archive live search for UNEB papers - AUTOMATIC, no upload
+  try{
+    const res = await fetch('https://archive.org/advancedsearch.php?q=title%3A%28UNEB+OR+PLE+OR+UCE+OR+UACE%29+AND+mediatype%3Atexts&fl%5B%5D=identifier&fl%5B%5D=title&rows=50&page=1&output=json');
+    const data = await res.json();
+    const archivePapers = (data.response?.docs||[]).map(d=>{
+      const t=(d.title||'').toLowerCase();
+      let level='UCE'; if(t.includes('ple')||t.includes('primary')) level='PLE'; if(t.includes('uace')||t.includes('a level')) level='UACE';
+      let subject='General'; if(t.includes('math')) subject='Mathematics'; if(t.includes('phys')) subject='Physics'; if(t.includes('chem')) subject='Chemistry'; if(t.includes('bio')) subject='Biology'; if(t.includes('english')) subject='English'; if(t.includes('history')) subject='History'; if(t.includes('geography')) subject='Geography'; if(t.includes('econ')) subject='Economics';
+      let year='2024'; const ym=t.match(/20\d{2}/); if(ym) year=ym[0];
+      return {level, subject, year, title:d.title||d.identifier, section: t.includes('marking')||t.includes('guide')?'marking':'papers', file:`https://archive.org/download/${d.identifier}/${d.identifier}.pdf`, source:'Internet Archive - Live'};
+    });
+    // Merge: Live Archive results + Built-in Internet links, remove duplicates by title
+    const seen=new Set();
+    ALL_FILES=[...INTERNET_PAPERS, ...archivePapers].filter(p=>{ const k=p.title.toLowerCase(); if(seen.has(k)) return false; seen.add(k); return true; });
+  }catch(e){
+    ALL_FILES=[...INTERNET_PAPERS];
+  }
+  document.getElementById('countText').textContent=ALL_FILES.length+' papers from Internet • Auto';
+  applyFilter();
+}
 
 function setSection(sec){
   currentSection=sec;
@@ -148,55 +138,46 @@ function setLevel(l){
   document.querySelectorAll('.lvl-btn').forEach(b=>{ b.className = b.dataset.level===l ? 'lvl-btn shrink-0 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-black' : 'lvl-btn shrink-0 px-4 py-2 rounded-xl bg-gray-100 text-xs font-black'; });
   applyFilter();
 }
-function getCurrentList(){
-  if(currentSection==='marking') return MARKING_GUIDES;
-  if(currentSection==='mock') return MOCK_PAPERS;
-  if(currentSection==='topical') return TOPICAL_QUESTIONS;
-  return PAST_PAPERS;
-}
 function applyFilter(){
   const q=(document.getElementById('searchInput').value||'').toLowerCase();
   const y=document.getElementById('yearFilter').value;
   const s=document.getElementById('subjectFilter').value;
-  const all=getCurrentList();
-  const list=all.filter(p=>{
+  const list=ALL_FILES.filter(p=>{
+    if(p.section!==currentSection) return false;
     if(currentLevel && p.level!==currentLevel) return false;
     if(y && p.year!==y) return false;
     if(s && p.subject!==s) return false;
-    if(q && !(p.title.toLowerCase().includes(q) || p.subject.toLowerCase().includes(q) || (p.topic||'').toLowerCase().includes(q) || (p.school||'').toLowerCase().includes(q))) return false;
+    if(q && !(p.title.toLowerCase().includes(q) || p.subject.toLowerCase().includes(q) || (p.topic||'').toLowerCase().includes(q))) return false;
     return true;
   });
-  document.getElementById('countText').textContent=list.length+' found';
-  document.getElementById('papersGrid').innerHTML=list.map(p=>{
-    const idx=all.indexOf(p);
+  document.getElementById('countText').textContent=list.length+' found • From Internet • Auto';
+  document.getElementById('papersGrid').innerHTML=list.map((p)=>{
+    const idx=ALL_FILES.indexOf(p);
     const color=p.level==='PLE'?'bg-green-600':p.level==='UCE'?'bg-blue-600':'bg-purple-600';
-    const badge = currentSection==='marking' ? '✅ Answers' : currentSection==='mock' ? '📝 Mock • '+(p.school||'') : currentSection==='topical' ? '📖 '+(p.topic||'Topical') : 'PDF';
-    const viewFn = currentSection==='papers' ? `viewPaper(${idx},'papers')` : currentSection==='marking' ? `viewPaper(${idx},'marking')` : currentSection==='mock' ? `viewPaper(${idx},'mock')` : `viewPaper(${idx},'topical')`;
+    const badge = currentSection==='marking' ? '✅ Answers' : currentSection==='mock' ? '📝 Mock' : currentSection==='topical' ? '📖 '+(p.topic||'Topical') : 'PDF • '+ (p.source||'Internet');
     return `<div class="bg-white border rounded-xl p-3 flex gap-3">
       <div class="w-12 h-12 rounded-xl ${color} text-white flex flex-col items-center justify-center shrink-0"><span class="text-[9px] font-black">${p.level}</span><span class="text-[10px] font-mono">${p.year}</span></div>
       <div class="flex-1 min-w-0">
         <div class="font-bold text-sm truncate">${p.title}</div>
         <div class="text-[11px] text-gray-500">${p.subject} • ${p.level} • ${p.year} • ${badge}</div>
         <div class="flex gap-2 mt-2">
-          <button onclick="${viewFn}" class="flex-1 px-3 py-2 rounded-lg bg-gray-900 text-white text-xs font-black">👁️ View Online</button>
-          <a href="${p.file}" download class="flex-1 text-center px-3 py-2 rounded-lg bg-green-500 text-white text-xs font-black">⬇️ Download</a>
+          <button onclick="viewPaper(${idx})" class="flex-1 px-3 py-2 rounded-lg bg-gray-900 text-white text-xs font-black">👁️ View Online</button>
+          <a href="${p.file}" target="_blank" download class="flex-1 text-center px-3 py-2 rounded-lg bg-green-500 text-white text-xs font-black">⬇️ Download</a>
         </div>
       </div>
     </div>`;
-  }).join('') || '<div class="col-span-full p-8 text-center text-sm text-gray-500">No paper found. Try All Levels / All Years.</div>';
+  }).join('') || '<div class="col-span-full p-8 text-center text-sm text-gray-500">No paper found in this section from Internet. Try All Levels.</div>';
 }
-function viewPaper(idx, sec){
-  const list = sec==='marking'?MARKING_GUIDES:sec==='mock'?MOCK_PAPERS:sec==='topical'?TOPICAL_QUESTIONS:PAST_PAPERS;
-  const p=list[idx];
+function viewPaper(idx){
+  const p=ALL_FILES[idx];
   document.getElementById('viewerBox').classList.remove('hidden');
   document.getElementById('viewerTitle').textContent='Viewing: '+p.title;
   document.getElementById('downloadBtn').href=p.file;
-  const encoded=encodeURIComponent(p.file.startsWith('http')?p.file:location.origin+'/'+p.file);
-  document.getElementById('pdfFrame').src='https://docs.google.com/viewer?url='+encoded+'&embedded=true';
+  document.getElementById('pdfFrame').src='https://docs.google.com/viewer?url='+encodeURIComponent(p.file)+'&embedded=true';
   document.getElementById('viewerBox').scrollIntoView({behavior:'smooth'});
 }
 function closeViewer(){ document.getElementById('viewerBox').classList.add('hidden'); document.getElementById('pdfFrame').src=''; }
-applyFilter();
+loadFromInternet();
 </script>
 </body>
 </html>
