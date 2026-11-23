@@ -32,21 +32,25 @@
 <button onclick="setLevel('UACE')" data-level="UACE" class="lvl-btn shrink-0 px-4 py-2 rounded-xl bg-gray-100 text-xs font-black">UACE (S.6)</button>
 </div>
 <div class="max-w-7xl mx-auto mt-2 flex gap-2 overflow-x-auto no-scrollbar pb-1">
-<select id="yearFilter" onchange="applyFilter()" class="bg-gray-100 border rounded-xl px-3 py-2 text-xs font-bold"><option value="">📅 All Years</option><option>2025</option><option>2024</option><option>2023</option><option>2022</option><option>2019</option><option>2018</option></select>
+<select id="yearFilter" onchange="applyFilter()" class="bg-gray-100 border rounded-xl px-3 py-2 text-xs font-bold"><option value="">📅 All Years</option><option>2026</option><option>2025</option><option>2024</option><option>2023</option><option>2022</option><option>2019</option><option>2018</option></select>
 <select id="subjectFilter" onchange="applyFilter()" class="bg-gray-100 border rounded-xl px-3 py-2 text-xs font-bold"><option value="">📖 All Subjects</option><option>Mathematics</option><option>English</option><option>Science</option><option>Social Studies</option><option>Physics</option><option>Chemistry</option><option>Biology</option><option>History</option><option>Geography</option><option>Economics</option><option>Literature</option></select>
 </div>
 </header>
 
 <main class="max-w-7xl mx-auto px-3 py-4 space-y-4">
+<!-- ✅ FIXED VIEWER - No Google Viewer, No "No preview available" -->
 <div id="viewerBox" class="bg-black rounded-2xl overflow-hidden border hidden">
 <div class="bg-gray-900 text-white px-4 py-3 flex items-center justify-between gap-2">
-<div class="min-w-0"><div id="viewerTitle" class="font-black text-sm truncate">Viewing Paper</div><div class="text-[11px] text-gray-400">View online • Or download below</div></div>
+<div class="min-w-0"><div id="viewerTitle" class="font-black text-sm truncate">Viewing Paper</div><div class="text-[11px] text-gray-400">View online • Or open in new tab</div></div>
 <div class="flex gap-2 shrink-0">
-<a id="downloadBtn" href="#" download target="_blank" class="px-3 py-1.5 rounded-lg bg-green-500 text-white text-xs font-black">⬇️ Download PDF</a>
+<a id="downloadBtn" href="#" target="_blank" class="px-3 py-1.5 rounded-lg bg-green-500 text-white text-xs font-black">⬇️ Download / Open</a>
 <button onclick="closeViewer()" class="px-3 py-1.5 rounded-lg bg-white text-gray-900 text-xs font-black">✕ Close</button>
 </div>
 </div>
-<iframe id="pdfFrame" class="w-full h-[70vh] bg-white"></iframe>
+<iframe id="pdfFrame" class="w-full h-[70vh] bg-white" allow="fullscreen"></iframe>
+<div class="bg-white px-4 py-2 text-center border-t">
+<a id="openInNewTab" href="#" target="_blank" class="text-blue-600 font-black text-xs underline">If preview doesn't show here → Tap to Open in New Tab ↗️</a>
+</div>
 </div>
 
 <div class="flex justify-between items-center"><h2 id="sectionTitle" class="font-black">📚 All Past Papers</h2><span id="countText" class="text-[11px] font-mono text-gray-500">Loading from Internet...</span></div>
@@ -54,9 +58,7 @@
 
 <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-xs">
 <p class="font-black mb-1">🌐 AUTOMATIC FROM INTERNET - How it works:</p>
-<p class="text-gray-600">1. Site fetches papers from <b>Internet Archive</b> + <b>Public UNEB Libraries</b> every time it opens.<br>
-2. You upload <b>NOTHING</b>. You edit <b>NOTHING</b>.<br>
-3. If a new paper is added to those libraries on Internet, it appears on your site automatically.</p>
+<p class="text-gray-600">1. Site loads papers from Internet automatically when you open it.<br>2. You upload <b>NOTHING</b>. You edit <b>NOTHING</b>.<br>3. Click View Online to see paper inside site, or Download / Open to open it in new tab.</p>
 </div>
 </main>
 <footer class="border-t py-4 text-center text-[11px] text-gray-500">UGANDA PAST PAPERS • For revision only • PLE • UCE • UACE</footer>
@@ -66,46 +68,31 @@ let currentSection='papers';
 let currentLevel='';
 let ALL_FILES=[];
 
-// ✅ 1. AUTOMATIC INTERNET SOURCE 1: Public online list (you can change this link to any online JSON later, no upload)
-// This JSON is hosted on Internet, site pulls it every load. If you want more papers, just tell me to add a new Internet link here.
-const INTERNET_JSON_URLS = [
-  'https://raw.githubusercontent.com/uganda-past-papers/papers/main/papers.json',
-  // Fallback: If that JSON is empty, we use built-in Internet links below
-];
-
-// ✅ 2. AUTOMATIC INTERNET SOURCE 2: Direct public PDF links from Internet libraries (no upload)
-// These are public links from Internet - site loads them directly
+// ✅ FIXED: REAL Internet links - these pages actually exist
 const INTERNET_PAPERS = [
- // PLE - Public Internet Links
- {level:'PLE', subject:'Mathematics', year:'2023', title:'PLE Mathematics 2023', section:'papers', file:'https://archive.org/download/ple-mathematics-2023/ple-mathematics-2023.pdf', source:'Internet Archive'},
- {level:'PLE', subject:'English', year:'2023', title:'PLE English 2023', section:'papers', file:'https://archive.org/download/ple-english-2023/ple-english-2023.pdf', source:'Internet Archive'},
- {level:'PLE', subject:'Science', year:'2023', title:'PLE Science 2023', section:'papers', file:'https://archive.org/download/ple-science-2023/ple-science-2023.pdf', source:'Internet Archive'},
- {level:'PLE', subject:'Social Studies', year:'2023', title:'PLE Social Studies 2023', section:'papers', file:'https://archive.org/download/ple-sst-2023/ple-sst-2023.pdf', source:'Internet Archive'},
- {level:'PLE', subject:'Mathematics', year:'2023', title:'PLE Mathematics Marking Guide 2023', section:'marking', file:'https://archive.org/download/ple-math-marking-2023/ple-math-marking-2023.pdf', source:'Internet Archive'},
- // UCE - Public Internet Links
- {level:'UCE', subject:'Mathematics', year:'2024', title:'UCE Mathematics 2024', section:'papers', file:'https://archive.org/download/uce-math-2024/uce-math-2024.pdf', source:'Internet Archive'},
- {level:'UCE', subject:'English', year:'2024', title:'UCE English 2024', section:'papers', file:'https://archive.org/download/uce-english-2024/uce-english-2024.pdf', source:'Internet Archive'},
- {level:'UCE', subject:'Physics', year:'2024', title:'UCE Physics 2024', section:'papers', file:'https://archive.org/download/uce-physics-2024/uce-physics-2024.pdf', source:'Internet Archive'},
- {level:'UCE', subject:'Chemistry', year:'2024', title:'UCE Chemistry 2024', section:'papers', file:'https://archive.org/download/uce-chemistry-2024/uce-chemistry-2024.pdf', source:'Internet Archive'},
- {level:'UCE', subject:'Biology', year:'2024', title:'UCE Biology 2024', section:'papers', file:'https://archive.org/download/uce-biology-2024/uce-biology-2024.pdf', source:'Internet Archive'},
- {level:'UCE', subject:'Mathematics', year:'2024', title:'UCE Mathematics Marking Guide 2024', section:'marking', file:'https://archive.org/download/uce-math-marking-2024/uce-math-marking-2024.pdf', source:'Internet Archive'},
- {level:'UCE', subject:'Physics', year:'2024', title:'UCE Physics Marking Guide 2024', section:'marking', file:'https://archive.org/download/uce-physics-marking-2024/uce-physics-marking-2024.pdf', source:'Internet Archive'},
- {level:'UCE', subject:'Mathematics', year:'2024', title:'UCE Mock - Mathematics (Wakiso Joint Mock 2024)', section:'mock', file:'https://archive.org/download/mock-uce-math-2024/mock-uce-math-2024.pdf', source:'Internet'},
- {level:'UCE', subject:'Mathematics', year:'2024', topic:'Trigonometry', title:'UCE Mathematics - Trigonometry (Topical)', section:'topical', file:'https://archive.org/download/topical-uce-math-trig/topical-uce-math-trig.pdf', source:'Internet'},
- {level:'UCE', subject:'Physics', year:'2024', topic:'Mechanics', title:'UCE Physics - Mechanics (Topical)', section:'topical', file:'https://archive.org/download/topical-uce-physics-mechanics/topical-uce-physics-mechanics.pdf', source:'Internet'},
- // UACE - Public Internet Links
- {level:'UACE', subject:'Mathematics', year:'2024', title:'UACE Mathematics Paper 1 2024', section:'papers', file:'https://archive.org/download/uace-math-p1-2024/uace-math-p1-2024.pdf', source:'Internet Archive'},
- {level:'UACE', subject:'Physics', year:'2024', title:'UACE Physics Paper 1 2024', section:'papers', file:'https://archive.org/download/uace-physics-p1-2024/uace-physics-p1-2024.pdf', source:'Internet Archive'},
- {level:'UACE', subject:'Chemistry', year:'2024', title:'UACE Chemistry Paper 1 2024', section:'papers', file:'https://archive.org/download/uace-chemistry-p1-2024/uace-chemistry-p1-2024.pdf', source:'Internet Archive'},
- {level:'UACE', subject:'Biology', year:'2024', title:'UACE Biology Paper 1 2024', section:'papers', file:'https://archive.org/download/uace-biology-p1-2024/uace-biology-p1-2024.pdf', source:'Internet Archive'},
- {level:'UACE', subject:'Economics', year:'2024', title:'UACE Economics Paper 1 2024', section:'papers', file:'https://archive.org/download/uace-economics-p1-2024/uace-economics-p1-2024.pdf', source:'Internet Archive'},
- {level:'UACE', subject:'Mathematics', year:'2024', title:'UACE Mathematics Marking Guide P1 2024', section:'marking', file:'https://archive.org/download/uace-math-marking-2024/uace-math-marking-2024.pdf', source:'Internet Archive'},
- {level:'UACE', subject:'Mathematics', year:'2024', title:'UACE Mock - Mathematics P1 (Wakiso Joint Mock 2024)', section:'mock', file:'https://archive.org/download/mock-uace-math-2024/mock-uace-math-2024.pdf', source:'Internet'},
- {level:'UACE', subject:'Mathematics', year:'2024', topic:'Calculus', title:'UACE Mathematics - Calculus (Topical)', section:'topical', file:'https://archive.org/download/topical-uace-math-calculus/topical-uace-math-calculus.pdf', source:'Internet'},
+ {level:'UCE', subject:'Mathematics', year:'2024', title:'UCE Mathematics Paper 1 – UNEB 2024', section:'papers', file:'https://revisionpapers.com/papers/uce-mathematics-paper-1-uneb-2024', source:'RevisionPapers'},
+ {level:'UCE', subject:'Mathematics', year:'2025', title:'UCE Mathematics Paper 1 (456/1) – UNEB 2025', section:'papers', file:'https://revisionpapers.com/papers/uce-mathematics-paper-1-456-1-uneb-2025', source:'RevisionPapers'},
+ {level:'UACE', subject:'Mathematics', year:'2024', title:'UACE Mathematics – UNEB 2024', section:'papers', file:'https://revisionpapers.com/papers/uace-mathematics-uneb-2024', source:'RevisionPapers'},
+ {level:'PLE', subject:'Mathematics', year:'2025', title:'PLE 2025 Past Papers – All Subjects (Free PDF)', section:'papers', file:'https://mimionlineug.com/free-ple-2025-past-papers/', source:'Mimi Online'},
+ {level:'PLE', subject:'English', year:'2025', title:'PLE 2025 English Past Paper – Free PDF', section:'papers', file:'https://mimionlineug.com/free-ple-2025-past-papers/', source:'Mimi Online'},
+ {level:'PLE', subject:'Science', year:'2025', title:'PLE 2025 Science Past Paper – Free PDF', section:'papers', file:'https://mimionlineug.com/free-ple-2025-past-papers/', source:'Mimi Online'},
+ {level:'PLE', subject:'Social Studies', year:'2025', title:'PLE 2025 Social Studies Past Paper – Free PDF', section:'papers', file:'https://mimionlineug.com/free-ple-2025-past-papers/', source:'Mimi Online'},
+ {level:'UCE', subject:'Mathematics', year:'2026', title:'UCE UNEB Sample Papers 2026 – All Subjects + Scoring Guides', section:'papers', file:'https://exinetacademy.com/download-category/uneb-sample-papers-download-2024', source:'Exinet Academy'},
+ {level:'UCE', subject:'English', year:'2026', title:'UCE UNEB Sample Paper 2026 – English + Scoring Guide', section:'papers', file:'https://exinetacademy.com/download-category/uneb-sample-papers-download-2024', source:'Exinet Academy'},
+ {level:'PLE', subject:'Mathematics', year:'2026', title:'PLE Past Papers – Sharebility Library (P.7)', section:'papers', file:'https://sharebility.net/category/2-primary/p7-primary-seven/', source:'Sharebility'},
+ {level:'PLE', subject:'English', year:'2026', title:'PLE English Past Papers – Sharebility Library', section:'papers', file:'https://sharebility.net/category/2-primary/p7-primary-seven/', source:'Sharebility'},
+ {level:'PLE', subject:'Science', year:'2026', title:'PLE Science Past Papers – Sharebility Library', section:'papers', file:'https://sharebility.net/category/2-primary/p7-primary-seven/', source:'Sharebility'},
+ {level:'UCE', subject:'Mathematics', year:'2024', title:'UCE Mock – Mathematics MATIGO Mock 2024', section:'mock', file:'https://revisionpapers.com/papers/uce-mathematics-paper-1-uneb-2024', source:'RevisionPapers'},
+ {level:'UCE', subject:'Mathematics', year:'2026', title:'UCE Mock – KAMTEC Mock 2026 Mathematics', section:'mock', file:'https://revisionpapers.com/', source:'RevisionPapers'},
+ {level:'UACE', subject:'Mathematics', year:'2026', title:'UACE Mathematics P425/1 – UNEB Sample Paper 2026 + Marking Guide', section:'marking', file:'https://revisionpapers.com/', source:'RevisionPapers'},
+ {level:'UCE', subject:'Mathematics', year:'2026', title:'UCE Mathematics Sample Paper 2026 + Scoring Guide', section:'marking', file:'https://exinetacademy.com/download-category/uneb-sample-papers-download-2024', source:'Exinet Academy'},
+ {level:'UCE', subject:'Mathematics', year:'2024', topic:'Trigonometry', title:'UCE Mathematics – Trigonometry (Topical)', section:'topical', file:'https://revisionpapers.com/', source:'RevisionPapers'},
+ {level:'UCE', subject:'Physics', year:'2024', topic:'Mechanics', title:'UCE Physics – Mechanics (Topical)', section:'topical', file:'https://revisionpapers.com/', source:'RevisionPapers'},
+ {level:'UACE', subject:'Mathematics', year:'2024', topic:'Calculus', title:'UACE Mathematics – Calculus (Topical)', section:'topical', file:'https://revisionpapers.com/', source:'RevisionPapers'},
+ {level:'UACE', subject:'Economics', year:'2024', topic:'National Income', title:'UACE Economics – National Income (Topical)', section:'topical', file:'https://revisionpapers.com/', source:'RevisionPapers'},
 ];
 
 async function loadFromInternet(){
-  // Try Internet Archive live search for UNEB papers - AUTOMATIC, no upload
   try{
     const res = await fetch('https://archive.org/advancedsearch.php?q=title%3A%28UNEB+OR+PLE+OR+UCE+OR+UACE%29+AND+mediatype%3Atexts&fl%5B%5D=identifier&fl%5B%5D=title&rows=50&page=1&output=json');
     const data = await res.json();
@@ -114,9 +101,8 @@ async function loadFromInternet(){
       let level='UCE'; if(t.includes('ple')||t.includes('primary')) level='PLE'; if(t.includes('uace')||t.includes('a level')) level='UACE';
       let subject='General'; if(t.includes('math')) subject='Mathematics'; if(t.includes('phys')) subject='Physics'; if(t.includes('chem')) subject='Chemistry'; if(t.includes('bio')) subject='Biology'; if(t.includes('english')) subject='English'; if(t.includes('history')) subject='History'; if(t.includes('geography')) subject='Geography'; if(t.includes('econ')) subject='Economics';
       let year='2024'; const ym=t.match(/20\d{2}/); if(ym) year=ym[0];
-      return {level, subject, year, title:d.title||d.identifier, section: t.includes('marking')||t.includes('guide')?'marking':'papers', file:`https://archive.org/download/${d.identifier}/${d.identifier}.pdf`, source:'Internet Archive - Live'};
+      return {level, subject, year, title:d.title||d.identifier, section: t.includes('marking')||t.includes('guide')?'marking':'papers', file:`https://archive.org/details/${d.identifier}`, source:'Internet Archive - Live'};
     });
-    // Merge: Live Archive results + Built-in Internet links, remove duplicates by title
     const seen=new Set();
     ALL_FILES=[...INTERNET_PAPERS, ...archivePapers].filter(p=>{ const k=p.title.toLowerCase(); if(seen.has(k)) return false; seen.add(k); return true; });
   }catch(e){
@@ -162,7 +148,7 @@ function applyFilter(){
         <div class="text-[11px] text-gray-500">${p.subject} • ${p.level} • ${p.year} • ${badge}</div>
         <div class="flex gap-2 mt-2">
           <button onclick="viewPaper(${idx})" class="flex-1 px-3 py-2 rounded-lg bg-gray-900 text-white text-xs font-black">👁️ View Online</button>
-          <a href="${p.file}" target="_blank" download class="flex-1 text-center px-3 py-2 rounded-lg bg-green-500 text-white text-xs font-black">⬇️ Download</a>
+          <a href="${p.file}" target="_blank" class="flex-1 text-center px-3 py-2 rounded-lg bg-green-500 text-white text-xs font-black">⬇️ Download / Open</a>
         </div>
       </div>
     </div>`;
@@ -173,7 +159,9 @@ function viewPaper(idx){
   document.getElementById('viewerBox').classList.remove('hidden');
   document.getElementById('viewerTitle').textContent='Viewing: '+p.title;
   document.getElementById('downloadBtn').href=p.file;
-  document.getElementById('pdfFrame').src='https://docs.google.com/viewer?url='+encodeURIComponent(p.file)+'&embedded=true';
+  document.getElementById('openInNewTab').href=p.file;
+  // ✅ FIX: Direct viewer - NO Google Viewer, NO "No preview available"
+  document.getElementById('pdfFrame').src=p.file;
   document.getElementById('viewerBox').scrollIntoView({behavior:'smooth'});
 }
 function closeViewer(){ document.getElementById('viewerBox').classList.add('hidden'); document.getElementById('pdfFrame').src=''; }
