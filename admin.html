@@ -9,181 +9,58 @@
 <style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#030712;color:#fff}</style>
 </head>
 <body class="max-w-[500px] mx-auto min-h-screen">
-
-<!-- LOGIN SCREEN -->
 <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
   <div class="bg-slate-900 w-full max-w-sm rounded-2xl p-6 border border-red-500/40">
     <h1 class="text-2xl font-black text-center mb-1"><span class="text-sky-400">M</span><span class="text-orange-400">planet</span> <span class="text-red-400">Admin</span></h1>
-    <p class="text-xs text-slate-400 text-center mb-5">Private - Only Owner. Do not share this link.</p>
+    <p class="text-xs text-slate-400 text-center mb-5">Private - Only Owner</p>
     <form onsubmit="adminLogin(event)" class="space-y-3">
-      <input id="admin-user" type="text" placeholder="Username" class="w-full bg-slate-800 rounded-xl p-3 outline-none focus:ring-1 focus:ring-red-500" required>
-      <input id="admin-pass" type="password" placeholder="Password" class="w-full bg-slate-800 rounded-xl p-3 outline-none focus:ring-1 focus:ring-red-500" required>
-      <button class="w-full bg-gradient-to-r from-red-600 to-orange-500 py-3 rounded-xl font-bold">Login as Admin</button>
+      <input id="admin-user" type="text" placeholder="Username" autocomplete="off" class="w-full bg-slate-800 rounded-xl p-3 outline-none" required>
+      <input id="admin-pass" type="password" placeholder="Password" autocomplete="off" class="w-full bg-slate-800 rounded-xl p-3 outline-none" required>
+      <button id="login-btn" class="w-full bg-gradient-to-r from-red-600 to-orange-500 py-3 rounded-xl font-bold">Login as Admin</button>
     </form>
-    <p class="text-[11px] text-slate-500 text-center mt-3">If you forget password, change ADMIN_USER / ADMIN_PASS in admin.html</p>
+    <p class="text-[11px] text-slate-500 text-center mt-3">Password is NOT in this file. Only SHA-256 hash.</p>
   </div>
 </div>
-
-<!-- ADMIN PANEL -->
 <div id="admin-panel" class="hidden">
   <div class="sticky top-0 z-20 flex justify-between items-center px-4 py-3 bg-slate-950 border-b border-red-500/30">
-    <span class="font-bold text-red-400"><i class="fa-solid fa-shield-halved"></i> Mplanet Admin</span>
-    <div class="flex gap-2">
-      <a href="index.html" class="text-xs bg-slate-800 px-3 py-1.5 rounded-lg font-bold">View Site</a>
-      <button onclick="adminLogout()" class="text-sm text-orange-400 font-semibold">Log Out</button>
-    </div>
+    <span class="font-bold text-red-400">Mplanet Admin</span>
+    <div class="flex gap-2"><a href="index.html" class="text-xs bg-slate-800 px-3 py-1.5 rounded-lg font-bold">View Site</a><button onclick="adminLogout()" class="text-sm text-orange-400 font-semibold">Log Out</button></div>
   </div>
-
-  <!-- STATS -->
   <div class="grid grid-cols-4 gap-2 p-4">
     <div class="bg-slate-900 rounded-xl p-3 text-center border border-blue-500/20"><div id="stat-videos" class="font-black text-xl">0</div><div class="text-[11px] text-slate-400">Videos</div></div>
     <div class="bg-slate-900 rounded-xl p-3 text-center border border-blue-500/20"><div id="stat-users" class="font-black text-xl text-sky-400">0</div><div class="text-[11px] text-slate-400">Users</div></div>
     <div class="bg-slate-900 rounded-xl p-3 text-center border border-blue-500/20"><div id="stat-likes" class="font-black text-xl text-orange-400">0</div><div class="text-[11px] text-slate-400">Likes</div></div>
     <div class="bg-slate-900 rounded-xl p-3 text-center border border-blue-500/20"><div id="stat-coins" class="font-black text-xl text-amber-400">0</div><div class="text-[11px] text-slate-400">Coins</div></div>
   </div>
-
-  <!-- TABS -->
   <div class="flex gap-2 px-4 pb-3">
     <button onclick="switchTab('videos')" id="tab-videos" class="flex-1 py-2.5 rounded-xl bg-red-500 font-bold text-sm">Videos</button>
     <button onclick="switchTab('users')" id="tab-users" class="flex-1 py-2.5 rounded-xl bg-slate-800 font-bold text-sm">Users</button>
     <button onclick="switchTab('withdraw')" id="tab-withdraw" class="flex-1 py-2.5 rounded-xl bg-slate-800 font-bold text-sm">Withdraws</button>
     <button onclick="switchTab('coins')" id="tab-coins" class="flex-1 py-2.5 rounded-xl bg-slate-800 font-bold text-sm">Coins</button>
   </div>
-
   <div id="admin-content" class="px-4 pb-8 space-y-3"></div>
 </div>
-
 <script>
-// ===== CHANGE YOUR ADMIN PASSWORD HERE - ONLY YOU KNOW IT =====
 const ADMIN_USER = 'brian';
-const ADMIN_PASS = 'MplanetAdmin2026!'; // <-- CHANGE THIS NOW
-
+const ADMIN_PASS_HASH = 'd370fee7e394e306c31ee3ac8e0cc32c420fed91179435d26bdc9efd0c8fb34f';
 let adminTab = 'videos';
-// Demo data - when you connect real database, replace this with fetch()
 let allVideos = JSON.parse(localStorage.getItem('mplanet_videos') || '[]');
 let adminUsers = JSON.parse(localStorage.getItem('mplanet_users') || '[{"id":"local-user","username":"briank","display_name":"Brian K","bio":"Funny videos from Kampala","coins":850}]');
 let walletTransactions = JSON.parse(localStorage.getItem('mplanet_transactions') || '[]');
-
-function saveAll(){
-  localStorage.setItem('mplanet_videos', JSON.stringify(allVideos));
-  localStorage.setItem('mplanet_users', JSON.stringify(adminUsers));
-  localStorage.setItem('mplanet_transactions', JSON.stringify(walletTransactions));
-}
-
-function adminLogin(e){
-  e.preventDefault();
-  const u = document.getElementById('admin-user').value.trim();
-  const p = document.getElementById('admin-pass').value.trim();
-  if(u===ADMIN_USER && p===ADMIN_PASS){
-    sessionStorage.setItem('mplanet_admin','1');
-    showPanel();
-  } else alert('Wrong username or password');
-}
-function adminLogout(){
-  sessionStorage.removeItem('mplanet_admin');
-  document.getElementById('admin-panel').classList.add('hidden');
-  document.getElementById('login-screen').classList.remove('hidden');
-}
-function showPanel(){
-  document.getElementById('login-screen').classList.add('hidden');
-  document.getElementById('admin-panel').classList.remove('hidden');
-  renderAdmin();
-}
+function saveAll(){ localStorage.setItem('mplanet_videos', JSON.stringify(allVideos)); localStorage.setItem('mplanet_users', JSON.stringify(adminUsers)); localStorage.setItem('mplanet_transactions', JSON.stringify(walletTransactions)); }
+async function sha256(text){ const d=new TextEncoder().encode(text); const h=await crypto.subtle.digest('SHA-256',d); return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
+async function adminLogin(e){ e.preventDefault(); const btn=document.getElementById('login-btn'); btn.textContent='Checking...'; const u=document.getElementById('admin-user').value.trim(); const p=document.getElementById('admin-pass').value; const hash=await sha256(p); if(u===ADMIN_USER && hash===ADMIN_PASS_HASH){ sessionStorage.setItem('mplanet_admin','1'); showPanel(); } else { alert('Wrong username or password'); btn.textContent='Login as Admin'; } }
+function adminLogout(){ sessionStorage.removeItem('mplanet_admin'); document.getElementById('admin-panel').classList.add('hidden'); document.getElementById('login-screen').classList.remove('hidden'); }
+function showPanel(){ document.getElementById('login-screen').classList.add('hidden'); document.getElementById('admin-panel').classList.remove('hidden'); renderAdmin(); }
 if(sessionStorage.getItem('mplanet_admin')==='1') showPanel();
-
-function switchTab(tab){
-  adminTab = tab;
-  ['videos','users','withdraw','coins'].forEach(t=>{
-    document.getElementById('tab-'+t).className = t===tab ? 'flex-1 py-2.5 rounded-xl bg-red-500 font-bold text-sm' : 'flex-1 py-2.5 rounded-xl bg-slate-800 font-bold text-sm';
-  });
-  renderAdmin();
-}
-
-function renderAdmin(){
-  document.getElementById('stat-videos').textContent = allVideos.length;
-  document.getElementById('stat-users').textContent = adminUsers.length;
-  document.getElementById('stat-likes').textContent = allVideos.reduce((s,v)=>s+(v.likes_count||0),0);
-  document.getElementById('stat-coins').textContent = adminUsers.reduce((s,u)=>s+(u.coins||0),0);
-  const box = document.getElementById('admin-content');
-
-  if(adminTab==='videos'){
-    if(!allVideos.length) box.innerHTML = `<div class="bg-slate-900 rounded-xl p-6 text-center text-slate-400 text-sm">No videos yet.<br><span class="text-xs">When you connect real database, videos from index.html will show here.</span></div>`;
-    else box.innerHTML = allVideos.map(v=>`
-      <div class="bg-slate-900 rounded-xl p-3 border border-blue-500/20 flex gap-3">
-        <video src="${v.video_url}" class="w-16 h-24 object-cover rounded-lg bg-black" muted></video>
-        <div class="flex-1 min-w-0">
-          <p class="font-bold text-sm">@${v.profiles?.username||'user'}</p>
-          <p class="text-xs text-slate-400 line-clamp-2">${v.caption||''}</p>
-          <p class="text-xs text-sky-300 mt-1">❤️ ${v.likes_count||0} • 💬 ${v.comments_count||0}</p>
-          <button onclick="deleteVideo('${v.id}')" class="mt-2 px-3 py-1.5 rounded-lg bg-red-500 text-xs font-bold">Delete Video</button>
-        </div>
-      </div>`).join('');
-  }
-  if(adminTab==='users'){
-    box.innerHTML = adminUsers.map(u=>`
-      <div class="bg-slate-900 rounded-xl p-3 border border-blue-500/20 flex items-center justify-between">
-        <div><p class="font-bold">@${u.username}</p><p class="text-xs text-slate-400">${u.display_name||''} • ${u.coins||0} Coins</p><p class="text-xs text-slate-500">${u.bio||''}</p></div>
-        <div class="flex flex-col gap-1">
-          <button onclick="addCoinsToUser('${u.id}')" class="px-3 py-1.5 rounded-lg bg-amber-400 text-black text-xs font-bold">+ Coins</button>
-          <button onclick="banUser('${u.id}')" class="px-3 py-1.5 rounded-lg bg-red-500/20 text-red-400 text-xs font-bold border border-red-500/30">Ban</button>
-        </div>
-      </div>`).join('');
-  }
-  if(adminTab==='withdraw'){
-    const list = walletTransactions.filter(t=>t.type==='withdraw');
-    if(!list.length) box.innerHTML = `<p class="text-slate-400 text-center py-6 text-sm">No withdraw requests yet</p>`;
-    else box.innerHTML = list.map(t=>`
-      <div class="bg-slate-900 rounded-xl p-3 border border-orange-500/30">
-        <p class="font-bold text-sm">${t.coins} Coins • ${t.method} • ${t.destination}</p>
-        <p class="text-xs text-slate-400">Status: <b>${t.status}</b> • ${t.id}</p>
-        ${t.status==='pending'?`<div class="flex gap-2 mt-2"><button onclick="approveWithdraw('${t.id}')" class="flex-1 py-2 rounded-lg bg-green-500 font-bold text-sm">Approve & Pay</button><button onclick="rejectWithdraw('${t.id}')" class="flex-1 py-2 rounded-lg bg-red-500 font-bold text-sm">Reject</button></div>`:''}
-      </div>`).join('');
-  }
-  if(adminTab==='coins'){
-    box.innerHTML = `
-      <div class="bg-slate-900 rounded-xl p-4 border border-amber-500/30">
-        <p class="font-bold mb-2">Quick Add Coins to @briank (you)</p>
-        <div class="flex gap-2">
-          <input id="coins-amount" type="number" placeholder="e.g. 1000" class="flex-1 bg-slate-800 rounded-xl p-3 outline-none">
-          <button onclick="addCoinsToMe()" class="px-4 py-3 rounded-xl bg-amber-400 text-black font-bold text-sm">Add</button>
-        </div>
-        <p class="text-xs text-slate-500 mt-2">Use Users tab to add coins to other users.</p>
-      </div>
-      <div class="bg-slate-900 rounded-xl p-4 border border-blue-500/20">
-        <p class="font-bold mb-1">Coin Price Settings</p>
-        <p class="text-xs text-slate-400">Deposit rate: 1 coin = $0.0071<br>Payout rate: 1 coin = $0.00178<br>Change these in index.html when you launch real payments.</p>
-      </div>`;
-  }
-}
-function deleteVideo(id){
-  if(!confirm('Delete this video?')) return;
-  allVideos = allVideos.filter(v=>v.id!==id); saveAll(); renderAdmin();
-}
-function banUser(id){
-  if(!confirm('Ban this user?')) return;
-  adminUsers = adminUsers.filter(u=>u.id!==id); saveAll(); renderAdmin();
-}
-function addCoinsToUser(id){
-  const amt = parseInt(prompt('How many coins to add?'));
-  if(!amt) return;
-  const u = adminUsers.find(x=>x.id===id); if(u) u.coins = (u.coins||0)+amt;
-  saveAll(); renderAdmin(); alert(amt+' coins added');
-}
-function addCoinsToMe(){
-  const amt = parseInt(document.getElementById('coins-amount').value);
-  if(!amt) return alert('Enter amount');
-  const u = adminUsers[0]; if(u) u.coins = (u.coins||0)+amt;
-  saveAll(); renderAdmin();
-}
-function approveWithdraw(id){
-  const tx = walletTransactions.find(t=>t.id===id); if(tx) tx.status='confirmed';
-  saveAll(); renderAdmin(); alert('Approved! Now send money manually via MTN/Airtel');
-}
-function rejectWithdraw(id){
-  const tx = walletTransactions.find(t=>t.id===id);
-  if(tx){ tx.status='rejected'; const u = adminUsers[0]; if(u) u.coins = (u.coins||0)+tx.coins; }
-  saveAll(); renderAdmin();
-}
+function switchTab(tab){ adminTab=tab; ['videos','users','withdraw','coins'].forEach(t=>{ document.getElementById('tab-'+t).className = t===tab ? 'flex-1 py-2.5 rounded-xl bg-red-500 font-bold text-sm' : 'flex-1 py-2.5 rounded-xl bg-slate-800 font-bold text-sm'; }); renderAdmin(); }
+function renderAdmin(){ document.getElementById('stat-videos').textContent=allVideos.length; document.getElementById('stat-users').textContent=adminUsers.length; document.getElementById('stat-likes').textContent=allVideos.reduce((s,v)=>s+(v.likes_count||0),0); document.getElementById('stat-coins').textContent=adminUsers.reduce((s,u)=>s+(u.coins||0),0); const box=document.getElementById('admin-content'); if(adminTab==='videos'){ if(!allVideos.length) box.innerHTML=`<div class="bg-slate-900 rounded-xl p-6 text-center text-slate-400 text-sm">No videos yet.</div>`; else box.innerHTML=allVideos.map(v=>`<div class="bg-slate-900 rounded-xl p-3 border border-blue-500/20 flex gap-3"><video src="${v.video_url}" class="w-16 h-24 object-cover rounded-lg bg-black" muted></video><div class="flex-1"><p class="font-bold text-sm">@${v.profiles?.username||'user'}</p><p class="text-xs text-slate-400">${v.caption||''}</p><p class="text-xs text-sky-300 mt-1">❤️ ${v.likes_count||0}</p><button onclick="deleteVideo('${v.id}')" class="mt-2 px-3 py-1.5 rounded-lg bg-red-500 text-xs font-bold">Delete Video</button></div></div>`).join(''); } if(adminTab==='users'){ box.innerHTML=adminUsers.map(u=>`<div class="bg-slate-900 rounded-xl p-3 border border-blue-500/20 flex items-center justify-between"><div><p class="font-bold">@${u.username}</p><p class="text-xs text-slate-400">${u.display_name||''} • ${u.coins||0} Coins</p></div><div class="flex flex-col gap-1"><button onclick="addCoinsToUser('${u.id}')" class="px-3 py-1.5 rounded-lg bg-amber-400 text-black text-xs font-bold">+ Coins</button><button onclick="banUser('${u.id}')" class="px-3 py-1.5 rounded-lg bg-red-500/20 text-red-400 text-xs font-bold border border-red-500/30">Ban</button></div></div>`).join(''); } if(adminTab==='withdraw'){ const list=walletTransactions.filter(t=>t.type==='withdraw'); if(!list.length) box.innerHTML=`<p class="text-slate-400 text-center py-6 text-sm">No withdraw requests yet</p>`; else box.innerHTML=list.map(t=>`<div class="bg-slate-900 rounded-xl p-3 border border-orange-500/30"><p class="font-bold text-sm">${t.coins} Coins • ${t.method} • ${t.destination}</p><p class="text-xs text-slate-400">Status: <b>${t.status}</b> • ${t.id}</p>${t.status==='pending'?`<div class="flex gap-2 mt-2"><button onclick="approveWithdraw('${t.id}')" class="flex-1 py-2 rounded-lg bg-green-500 font-bold text-sm">Approve & Pay</button><button onclick="rejectWithdraw('${t.id}')" class="flex-1 py-2 rounded-lg bg-red-500 font-bold text-sm">Reject</button></div>`:''}</div>`).join(''); } if(adminTab==='coins'){ box.innerHTML=`<div class="bg-slate-900 rounded-xl p-4 border border-amber-500/30"><p class="font-bold mb-2">Quick Add Coins</p><div class="flex gap-2"><input id="coins-amount" type="number" placeholder="e.g. 1000" class="flex-1 bg-slate-800 rounded-xl p-3 outline-none"><button onclick="addCoinsToMe()" class="px-4 py-3 rounded-xl bg-amber-400 text-black font-bold text-sm">Add</button></div></div>`; } }
+function deleteVideo(id){ if(!confirm('Delete this video?')) return; allVideos=allVideos.filter(v=>v.id!==id); saveAll(); renderAdmin(); }
+function banUser(id){ if(!confirm('Ban this user?')) return; adminUsers=adminUsers.filter(u=>u.id!==id); saveAll(); renderAdmin(); }
+function addCoinsToUser(id){ const amt=parseInt(prompt('How many coins to add?')); if(!amt) return; const u=adminUsers.find(x=>x.id===id); if(u) u.coins=(u.coins||0)+amt; saveAll(); renderAdmin(); alert(amt+' coins added'); }
+function addCoinsToMe(){ const amt=parseInt(document.getElementById('coins-amount').value); if(!amt) return alert('Enter amount'); const u=adminUsers[0]; if(u) u.coins=(u.coins||0)+amt; saveAll(); renderAdmin(); }
+function approveWithdraw(id){ const tx=walletTransactions.find(t=>t.id===id); if(tx) tx.status='confirmed'; saveAll(); renderAdmin(); alert('Approved! Now send money manually via MTN/Airtel'); }
+function rejectWithdraw(id){ const tx=walletTransactions.find(t=>t.id===id); if(tx){ tx.status='rejected'; const u=adminUsers[0]; if(u) u.coins=(u.coins||0)+tx.coins; } saveAll(); renderAdmin(); }
 </script>
 </body>
 </html>
