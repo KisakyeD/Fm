@@ -107,8 +107,40 @@ function doubleTap(e,id){let card=e.currentTarget;let h=document.createElement('
   await sb.from('Videos').update({likes_count: newCount}).eq('id', id);
 }
 function toggleSave(id){let s=saved.has(id);s?saved.delete(id):saved.add(id);let el=document.getElementById('save-'+id);if(el)el.className=`fa-solid fa-bookmark text-2xl ${!s?'text-blue-400':'text-white'}`}
-function openComments(id){toggleModal('comments-modal',true);document.getElementById('comments-list').innerHTML=`<div class="bg-slate-800 p-3 rounded-xl"><b class="text-sky-400">@alex_ug</b>: Love Mplanet! 🚀</div>`}
-function submitComment(e){e.preventDefault();let inp=document.getElementById('comment-input');let txt=inp.value.trim();if(!txt)return;document.getElementById('comments-list').innerHTML+=`<div class="bg-slate-800 p-3 rounded-xl"><b class="text-orange-400">@${currentProfile.username}</b>: ${escapeHtml(txt)}</div>`;inp.value=''}
+let currentCommentVideoId = null;
+async function openComments(id){
+  currentCommentVideoId = id;
+  toggleModal('comments-modal',true);
+  let list = document.getElementById('comments-list');
+  list.innerHTML = `<div class="text-center text-slate-400 text-sm py-4">Loading comments...</div>`;
+  if(String(id).startsWith('demo-')){
+    list.innerHTML = `<div class="bg-slate-800 p-3 rounded-xl"><b class="text-sky-400">@alex_ug</b>: Love Mplanet! 🚀</div>`;
+    return;
+  }
+  let {data, error} = await sb.from('Comments').select('*').eq('video_id', id).order('created_at',{ascending:true});
+  if(error){ list.innerHTML = `<div class="text-center text-red-400 text-sm">Error: ${error.message}</div>`; return; }
+  if(!data || !data.length){ list.innerHTML = `<div class="text-center text-slate-400 text-sm py-4">No comments yet. Be first!</div>`; return; }
+  list.innerHTML = data.map(c=>`<div class="bg-slate-800 p-3 rounded-xl"><b class="text-sky-400">@${escapeHtml(c.username||'user')}</b>: ${escapeHtml(c.comment_text)}</div>`).join('');
+}
+async function submitComment(e){
+  e.preventDefault();
+  let inp=document.getElementById('comment-input');
+  let txt=inp.value.trim();
+  if(!txt || !currentCommentVideoId) return;
+  let vid = currentCommentVideoId;
+  // Show instantly
+  document.getElementById('comments-list').innerHTML+=`<div class="bg-slate-800 p-3 rounded-xl"><b class="text-orange-400">@${currentProfile.username}</b>: ${escapeHtml(txt)}</div>`;
+  inp.value='';
+  if(String(vid).startsWith('demo-')) return;
+  // 1. Save comment to Supabase
+  let {error} = await sb.from('Comments').insert([{video_id: vid, username: currentProfile.username, comment_text: txt}]);
+  if(error){ alert('Comment save failed: '+error.message); return; }
+  // 2. Update comments_count in Videos so Admin sees it
+  let v = allVideos.find(x=>String(x.id)===String(vid));
+  let newCount = (v ? (v.comments_count||0) : 0) + 1;
+  if(v) v.comments_count = newCount;
+  await sb.from('Videos').update({comments_count: newCount}).eq('id', vid);
+}(e){e.preventDefault();let inp=document.getElementById('comment-input');let txt=inp.value.trim();if(!txt)return;document.getElementById('comments-list').innerHTML+=`<div class="bg-slate-800 p-3 rounded-xl"><b class="text-orange-400">@${currentProfile.username}</b>: ${escapeHtml(txt)}</div>`;inp.value=''}
 function shareVideo(){if(navigator.share)navigator.share({title:'Mplanet',url:location.href}).catch(()=>{});else{ navigator.clipboard.writeText(location.href); alert('Link copied!')}}
 function filterVideos(q){let res=allVideos.filter(v=>(v.caption||'').toLowerCase().includes(q.toLowerCase()));document.getElementById('search-results').innerHTML=res.map(v=>`<div class="bg-slate-900 rounded-xl overflow-hidden"><div class="aspect-[9/16] bg-slate-800 flex items-center justify-center text-4xl">🎬</div><p class="p-2 text-sm line-clamp-2">${escapeHtml(v.caption)}</p></div>`).join('')||'No results'}
 document.getElementById('video-file').addEventListener('change', function(){
