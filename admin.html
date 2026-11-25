@@ -1,210 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mplanet Admin - REAL DATA</title>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin</title>
+<style>body{font-family:Arial;background:#111;color:#fff;padding:10px}input{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none;box-sizing:border-box}button{background:#ffcc00;border:none;padding:12px;border-radius:8px;font-weight:bold;width:100%;margin:5px 0}.card{background:#222;padding:10px;border-radius:10px;margin:10px 0}.card img{width:100%;border-radius:8px}</style></head>
+<body><h2>Admin Panel</h2>
+<input id="title" placeholder="Video Title">
+<input id="url" placeholder="Paste YouTube Link - https://youtu.be/...">
+<input id="reward" type="number" placeholder="Reward" value="100">
+<button onclick="addVideo()">+ Add Video (YouTube)</button>
+<p id="msg"></p>
+<h3>Videos (<span id="count">0</span>)</h3><div id="list">Loading...</div>
+<h3>Withdraw Requests</h3><div id="wd">Loading...</div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#0f0f1a;color:#fff;font-family:Arial,sans-serif;padding:15px}
-h1{font-size:22px;margin-bottom:5px}
-.small{color:#aaa;font-size:13px;margin-bottom:15px}
-.card{background:#1c1c2e;padding:15px;border-radius:12px;margin-bottom:15px}
-input,select{width:100%;padding:12px;margin:6px 0;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-size:15px}
-button{width:100%;padding:12px;border:none;border-radius:8px;background:#e91e63;color:#fff;font-weight:bold;font-size:16px;margin-top:8px;cursor:pointer}
-button.green{background:#00c853}
-button.blue{background:#2196f3}
-button.gray{background:#333}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat{background:#1c1c2e;padding:15px;border-radius:12px;text-align:center}
-.stat b{font-size:28px;display:block}
-.stat span{color:#aaa;font-size:13px}
-.item{background:#111;padding:12px;border-radius:10px;margin:8px 0;display:flex;justify-content:space-between;align-items:center;gap:10px}
-.item small{color:#aaa;display:block;word-break:break-all}
-.item button{width:auto;padding:8px 12px;font-size:13px;margin:0}
-.flex{display:flex;gap:10px}
-.flex button{flex:1}
-.hidden{display:none}
-.tabs{display:flex;gap:8px;margin:15px 0}
-.tabs button{flex:1;background:#222}
-.tabs button.active{background:#e91e63}
-</style>
-</head>
-<body>
-
-<div id="loginBox">
-  <h1>Mplanet Admin</h1>
-  <p class="small">Admin Panel REAL DATA - Supabase</p>
-  <div class="card">
-    <input id="u" placeholder="Username" value="brian">
-    <input id="p" type="password" placeholder="Password" value="MplanetAdimin2026!">
-    <button onclick="login()">Login</button>
-  </div>
-</div>
-
-<div id="adminBox" class="hidden">
-  <h1>Admin Panel <span style="color:#00e676;font-size:14px">REAL DATA - Supabase</span></h1>
-  <p class="small">kisakyed.github.io/Fm/admin.html</p>
-
-  <div class="grid">
-    <div class="stat"><b id="cUsers">...</b><span>Users</span></div>
-    <div class="stat"><b id="cVideos">...</b><span>Videos</span></div>
-    <div class="stat"><b id="cWithdraws">...</b><span>Withdraws</span></div>
-    <div class="stat"><b id="cCoins">...</b><span>Coins Paid</span></div>
-  </div>
-
-  <button class="blue" onclick="loadAll()">🔄 Refresh</button>
-
-  <div class="tabs">
-    <button id="tabAdd" class="active" onclick="showTab('add')">Add Video</button>
-    <button id="tabUsers" onclick="showTab('users')">Users</button>
-    <button id="tabVideos" onclick="showTab('videos')">Videos</button>
-    <button id="tabWith" onclick="showTab('with')">Withdraws</button>
-  </div>
-
-  <!-- ADD VIDEO -->
-  <div id="tab-add" class="card">
-    <h3>Add Video</h3>
-    <input id="vTitle" placeholder="Video Title">
-    <input type="file" id="vFile" accept="video/*">
-    <input id="vUrl" placeholder="OR paste Video URL (YouTube / MP4)">
-    <input id="vCoins" type="number" placeholder="Coins" value="10">
-    <button onclick="addVideo()">+ Add Video</button>
-    <p class="small" style="margin-top:8px">Pick from device OR paste URL. Device upload goes to Supabase Storage bucket "Videos".</p>
-  </div>
-
-  <!-- USERS -->
-  <div id="tab-users" class="card hidden">
-    <h3>Users</h3>
-    <div id="usersList">Loading...</div>
-  </div>
-
-  <!-- VIDEOS -->
-  <div id="tab-videos" class="card hidden">
-    <h3>Videos</h3>
-    <div id="videosList">Loading...</div>
-  </div>
-
-  <!-- WITHDRAWS -->
-  <div id="tab-with" class="card hidden">
-    <h3>Withdraw Requests</h3>
-    <div id="withList">Loading...</div>
-  </div>
-
-  <button class="gray" onclick="logout()">Logout</button>
-</div>
-
 <script>
-const SUPABASE_URL = 'https://leqcrtwocznlkkfveqz.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_b1SFZR3ADng4sue_N5ApQA_J3s03UvE';
-const supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-function login(){
-  const u=document.getElementById('u').value.trim();
-  const p=document.getElementById('p').value;
-  if(u==='brian' && p==='MplanetAdimin2026!'){
-    localStorage.setItem('mplanet_admin','1');
-    document.getElementById('loginBox').classList.add('hidden');
-    document.getElementById('adminBox').classList.remove('hidden');
-    loadAll();
-  } else alert('Wrong login');
-}
-function logout(){ localStorage.removeItem('mplanet_admin'); location.reload(); }
-if(localStorage.getItem('mplanet_admin')==='1'){
-  document.getElementById('loginBox').classList.add('hidden');
-  document.getElementById('adminBox').classList.remove('hidden');
-  loadAll();
-}
-
-function showTab(name){
-  ['add','users','videos','with'].forEach(t=>{
-    document.getElementById('tab-'+t).classList.toggle('hidden', t!==name);
-  });
-  ['Add','Users','Videos','With'].forEach((t,i)=>{
-    const names=['add','users','videos','with'];
-    document.getElementById('tab'+t).classList.toggle('active', names[i]===name);
-  });
-}
-
-async function loadAll(){
-  document.getElementById('cUsers').innerText='...';
-  document.getElementById('cVideos').innerText='...';
-  document.getElementById('cWithdraws').innerText='...';
-  document.getElementById('cCoins').innerText='...';
-
-  const {data:users} = await supa.from('users').select('*').order('created_at',{ascending:false});
-  const {data:videos} = await supa.from('videos').select('*').order('created_at',{ascending:false});
-  const {data:withs} = await supa.from('withdraws').select('*').order('created_at',{ascending:false});
-
-  document.getElementById('cUsers').innerText = users ? users.length : 0;
-  document.getElementById('cVideos').innerText = videos ? videos.length : 0;
-  document.getElementById('cWithdraws').innerText = withs ? withs.length : 0;
-
-  let totalCoins = 0;
-  if(videos) videos.forEach(v=> totalCoins += (v.coins||0));
-  document.getElementById('cCoins').innerText = totalCoins;
-
-  // Users list
-  document.getElementById('usersList').innerHTML = (!users || users.length===0) ? 'No users yet' : users.map(u=>`
-    <div class="item"><div><b>@${u.username||'user'}</b><small>${u.phone||''} • Balance: ${u.balance||0} coins • ${u.created_at?new Date(u.created_at).toLocaleDateString():''}</small></div>
-    <div class="flex"><button class="blue" onclick="addCoins('${u.id}',100)">+100</button><button onclick="delUser('${u.id}')">Del</button></div></div>
-  `).join('');
-
-  // Videos list
-  document.getElementById('videosList').innerHTML = (!videos || videos.length===0) ? 'No videos yet' : videos.map(v=>`
-    <div class="item"><div><b>${v.title||'No title'}</b><small>${v.coins||0} coins • ${v.video_url||''}</small></div>
-    <div><button onclick="delVideo('${v.id}')">Delete</button></div></div>
-  `).join('');
-
-  // Withdraws list
-  document.getElementById('withList').innerHTML = (!withs || withs.length===0) ? 'No withdraws yet' : withs.map(w=>`
-    <div class="item"><div><b>${w.amount||0} coins - ${w.method||''}</b><small>${w.username||''} • ${w.phone||''} • ${w.status||'pending'}</small></div>
-    <div class="flex"><button class="green" onclick="approveWith('${w.id}')">Approve</button><button onclick="delWith('${w.id}')">Del</button></div></div>
-  `).join('');
-}
-
+const SUPABASE_URL="https://leqcrtwoczcnlkkfveqz.supabase.co";
+const SUPABASE_KEY="sb_publishable_b1SFZR3ADng4sue_N5ApQA_J3s03UvE";
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 async function addVideo(){
-  const title=document.getElementById('vTitle').value.trim();
-  let url=document.getElementById('vUrl').value.trim();
-  const coins=parseInt(document.getElementById('vCoins').value)||10;
-  const file=document.getElementById('vFile').files[0];
-  if(!title) return alert('Fill title');
-  if(file){
-    alert('Uploading from device... wait, do not close');
-    const fileName = Date.now()+'-'+file.name.replaceAll(' ','_');
-    const {error} = await supa.storage.from('Videos').upload(fileName, file);
-    if(error) return alert('Upload error: '+error.message);
-    const {data:pub} = supa.storage.from('Videos').getPublicUrl(fileName);
-    url = pub.publicUrl;
-  }
-  if(!url) return alert('Pick a video file OR paste URL');
-  const {error}=await supa.from('videos').insert([{title,video_url:url,coins}]);
-  if(error) alert('DB error: '+error.message);
-  else {
-    alert('Video added!');
-    document.getElementById('vTitle').value='';
-    document.getElementById('vUrl').value='';
-    document.getElementById('vFile').value='';
-    loadAll();
-  }
-}
-
-async function delVideo(id){ if(confirm('Delete video?')){ await supa.from('videos').delete().eq('id',id); loadAll(); } }
-async function delUser(id){ if(confirm('Delete user?')){ await supa.from('users').delete().eq('id',id); loadAll(); } }
-async function delWith(id){ if(confirm('Delete withdraw?')){ await supa.from('withdraws').delete().eq('id',id); loadAll(); } }
-async function addCoins(id,amt){
-  const {data} = await supa.from('users').select('balance').eq('id',id).single();
-  const nb = (data?.balance||0)+amt;
-  await supa.from('users').update({balance:nb}).eq('id',id);
-  alert('Added '+amt+' coins');
+  let t=document.getElementById('title').value, u=document.getElementById('url').value, r=parseInt(document.getElementById('reward').value)||100;
+  if(!t||!u) return alert('Enter title + YouTube link');
+  const {error}=await sb.from('Videos').insert([{title:t,video_url:u,reward:r}]);
+  if(error) return alert(error.message);
+  document.getElementById('msg').innerText='Video added!'; document.getElementById('title').value=''; document.getElementById('url').value='';
   loadAll();
 }
-async function approveWith(id){
-  await supa.from('withdraws').update({status:'approved'}).eq('id',id);
-  alert('Approved');
-  loadAll();
+function ytThumb(u){ try{ let id=u.includes('youtu.be')?u.split('youtu.be/')[1].split('?')[0]:new URL(u).searchParams.get('v'); return `https://i.ytimg.com/vi/${id}/hqdefault.jpg`; }catch(e){ return ''; } }
+async function loadAll(){
+  let {data}=await sb.from('Videos').select('*').order('created_at',{ascending:false}).limit(20);
+  document.getElementById('count').innerText=data?data.length:0;
+  document.getElementById('list').innerHTML=(data||[]).map(v=>`<div class="card"><b>${v.title}</b><br><img src="${ytThumb(v.video_url)}"><p>Reward: ${v.reward} | ${v.video_url}</p><button onclick="delVideo(${v.id})" style="background:#ff4444;color:#fff">Delete</button></div>`).join('')||'No videos';
+  let {data:w}=await sb.from('Withdraws').select('*').order('created_at',{ascending:false}).limit(20);
+  document.getElementById('wd').innerHTML=(w||[]).map(x=>`<div class="card">${x.phone} - ${x.amount} UGX - <b>${x.status}</b><br><button onclick="approve(${x.id})">Approve</button></div>`).join('')||'No withdraws';
 }
-</script>
-</body>
-</html>
+async function delVideo(id){ if(confirm('Delete?')){ await sb.from('Videos').delete().eq('id',id); loadAll(); } }
+async function approve(id){ await sb.from('Withdraws').update({status:'paid'}).eq('id',id); loadAll(); }
+loadAll();
+</script></body></html>
