@@ -1,36 +1,81 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin</title>
-<style>body{font-family:Arial;background:#111;color:#fff;padding:10px}input{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none;box-sizing:border-box}button{background:#ffcc00;border:none;padding:12px;border-radius:8px;font-weight:bold;width:100%;margin:5px 0}.card{background:#222;padding:10px;border-radius:10px;margin:10px 0}.card img{width:100%;border-radius:8px}</style></head>
-<body><h2>Admin Panel</h2>
-<input id="title" placeholder="Video Title">
-<input id="url" placeholder="Paste YouTube Link - https://youtu.be/...">
-<input id="reward" type="number" placeholder="Reward" value="100">
-<button onclick="addVideo()">+ Add Video (YouTube)</button>
-<p id="msg"></p>
-<h3>Videos (<span id="count">0</span>)</h3><div id="list">Loading...</div>
-<h3>Withdraw Requests</h3><div id="wd">Loading...</div>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mplanet Admin</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-white min-h-screen max-w-[600px] mx-auto">
+<div class="flex justify-between items-center px-4 py-4 border-b border-blue-500/20 sticky top-0 bg-slate-950 z-10">
+<div class="font-black text-2xl"><span class="text-blue-500">M</span><span class="text-orange-500">planet</span> <span class="text-sm text-red-400">ADMIN</span></div>
+<a href="index.html" class="text-orange-400 font-semibold text-sm">← Back to App</a>
+</div>
+
+<div class="p-4">
+<div class="grid grid-cols-3 gap-2 mb-4">
+<div class="bg-slate-900 rounded-xl p-3 text-center border border-blue-500/20"><b id="stat-total" class="text-xl">0</b><br><span class="text-xs text-slate-400">Videos</span></div>
+<div class="bg-slate-900 rounded-xl p-3 text-center border border-blue-500/20"><b id="stat-likes" class="text-xl text-orange-400">0</b><br><span class="text-xs text-slate-400">Total Likes</span></div>
+<div class="bg-slate-900 rounded-xl p-3 text-center border border-blue-500/20"><b id="stat-rewards" class="text-xl text-amber-400">0</b><br><span class="text-xs text-slate-400">Total Rewards</span></div>
+</div>
+
+<input id="admin-search" oninput="filterAdmin(this.value)" placeholder="Search @username, caption..." class="w-full bg-slate-800 rounded-full px-4 py-2.5 outline-none mb-4">
+
+<div id="admin-list" class="space-y-4"><p class="text-slate-400 text-sm text-center py-10">Loading videos...</p></div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL="https://leqcrtwoczcnlkkfveqz.supabase.co";
-const SUPABASE_KEY="sb_publishable_b1SFZR3ADng4sue_N5ApQA_J3s03UvE";
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-async function addVideo(){
-  let t=document.getElementById('title').value, u=document.getElementById('url').value, r=parseInt(document.getElementById('reward').value)||100;
-  if(!t||!u) return alert('Enter title + YouTube link');
-  const {error}=await sb.from('Videos').insert([{title:t,video_url:u,reward:r}]);
+const sb = supabase.createClient("https://leqcrtwoczcnlkkfveqz.supabase.co","sb_publishable_b1SFZR3ADng4sue_N5ApQA_J3s03UvE");
+let all = [];
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function loadAdmin(){
+  let {data, error} = await sb.from('Videos').select('*').order('created_at',{ascending:false}).limit(50);
+  if(error){ document.getElementById('admin-list').innerHTML = '<p class="text-red-400">Error: '+error.message+'</p>'; return; }
+  all = data || [];
+  document.getElementById('stat-total').textContent = all.length;
+  document.getElementById('stat-likes').textContent = all.reduce((s,v)=>s+(v.likes_count||0),0);
+  document.getElementById('stat-rewards').textContent = all.reduce((s,v)=>s+((v.reward ?? v.coins ?? 0)),0);
+  renderAdmin(all);
+}
+function renderAdmin(list){
+  let box = document.getElementById('admin-list');
+  if(!list.length){ box.innerHTML = '<p class="text-slate-400 text-center">No videos yet</p>'; return; }
+  box.innerHTML = list.map(v=>{
+    let reward = v.reward ?? v.coins ?? 0;
+    let isYT = v.video_url && (v.video_url.includes('youtube')||v.video_url.includes('youtu.be'));
+    let media = isYT ? `<p class="text-xs text-sky-300 break-all">YouTube: ${esc(v.video_url)}</p>` : `<video src="${v.video_url}" controls preload="metadata" class="w-full h-48 object-cover rounded-xl bg-black"></video>`;
+    return `<div class="bg-slate-900 border border-blue-500/20 rounded-2xl p-3">
+      ${media}
+      <p class="font-bold mt-2">@${esc(v.username||'user')}</p>
+      <p class="text-sm text-slate-300">${esc(v.caption||'')}</p>
+      <p class="text-xs text-slate-400 mt-1">${new Date(v.created_at).toLocaleString()}</p>
+      <p class="text-sm mt-1">❤️ ${v.likes_count||0} | 💬 ${v.comments_count||0} | <b class="text-amber-400">Reward: ${reward} coins</b></p>
+      <div class="flex gap-2 mt-3">
+        <input id="reward-${v.id}" type="number" placeholder="Set reward coins" value="${reward}" class="flex-1 bg-slate-800 rounded-lg px-3 py-2 outline-none text-sm">
+        <button onclick="saveReward('${v.id}')" class="bg-amber-500 text-black px-3 py-2 rounded-lg text-sm font-bold">Save Reward</button>
+        <button onclick="deleteVideo('${v.id}')" class="bg-red-500 px-3 py-2 rounded-lg text-sm font-bold">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function filterAdmin(q){
+  let f = all.filter(v=> (v.username||'').toLowerCase().includes(q.toLowerCase()) || (v.caption||'').toLowerCase().includes(q.toLowerCase()));
+  renderAdmin(f);
+}
+async function saveReward(id){
+  let val = parseInt(document.getElementById('reward-'+id).value) || 0;
+  let {error} = await sb.from('Videos').update({reward: val}).eq('id', id);
+  if(error) return alert('Error: '+error.message+'\n\nRun in Supabase SQL: ALTER TABLE "Videos" ADD COLUMN IF NOT EXISTS reward int default 0;');
+  alert('Reward saved: '+val+' coins'); loadAdmin();
+}
+async function deleteVideo(id){
+  if(!confirm('Delete this video?')) return;
+  let {error} = await sb.from('Videos').delete().eq('id', id);
   if(error) return alert(error.message);
-  document.getElementById('msg').innerText='Video added!'; document.getElementById('title').value=''; document.getElementById('url').value='';
-  loadAll();
+  alert('Deleted'); loadAdmin();
 }
-function ytThumb(u){ try{ let id=u.includes('youtu.be')?u.split('youtu.be/')[1].split('?')[0]:new URL(u).searchParams.get('v'); return `https://i.ytimg.com/vi/${id}/hqdefault.jpg`; }catch(e){ return ''; } }
-async function loadAll(){
-  let {data}=await sb.from('Videos').select('*').order('created_at',{ascending:false}).limit(20);
-  document.getElementById('count').innerText=data?data.length:0;
-  document.getElementById('list').innerHTML=(data||[]).map(v=>`<div class="card"><b>${v.title}</b><br><img src="${ytThumb(v.video_url)}"><p>Reward: ${v.reward} | ${v.video_url}</p><button onclick="delVideo(${v.id})" style="background:#ff4444;color:#fff">Delete</button></div>`).join('')||'No videos';
-  let {data:w}=await sb.from('Withdraws').select('*').order('created_at',{ascending:false}).limit(20);
-  document.getElementById('wd').innerHTML=(w||[]).map(x=>`<div class="card">${x.phone} - ${x.amount} UGX - <b>${x.status}</b><br><button onclick="approve(${x.id})">Approve</button></div>`).join('')||'No withdraws';
-}
-async function delVideo(id){ if(confirm('Delete?')){ await sb.from('Videos').delete().eq('id',id); loadAll(); } }
-async function approve(id){ await sb.from('Withdraws').update({status:'paid'}).eq('id',id); loadAll(); }
-loadAll();
-</script></body></html>
+loadAdmin();
+</script>
+</body>
+</html>
