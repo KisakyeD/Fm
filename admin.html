@@ -50,7 +50,8 @@ function renderAdmin(list){
       <p class="font-bold mt-2">@${esc(v.username||'user')}</p>
       <p class="text-sm text-slate-300">${esc(v.caption||'')}</p>
       <p class="text-xs text-slate-400 mt-1">${new Date(v.created_at).toLocaleString()}</p>
-      <p class="text-sm mt-1">❤️ ${v.likes_count||0} | 💬 ${v.comments_count||0} | <b class="text-amber-400">Reward: ${reward} coins</b></p>
+      <p class="text-sm mt-1">❤️ ${v.likes_count||0} | 💬 ${v.comments_count||0} | <b class="text-amber-400">Reward: ${reward} coins</b></p><button onclick="loadCommentsAdmin('${v.id}')" class="mt-2 text-xs bg-sky-600 px-3 py-1.5 rounded-lg font-bold">💬 View Comments (${v.comments_count||0})</button>
+<div id="comments-${v.id}" class="mt-2 space-y-2"></div>
       <div class="flex gap-2 mt-3">
         <input id="reward-${v.id}" type="number" placeholder="Set reward coins" value="${reward}" class="flex-1 bg-slate-800 rounded-lg px-3 py-2 outline-none text-sm">
         <button onclick="saveReward('${v.id}')" class="bg-amber-500 text-black px-3 py-2 rounded-lg text-sm font-bold">Save Reward</button>
@@ -69,7 +70,26 @@ async function saveReward(id){
   if(error) return alert('Error: '+error.message+'\n\nRun in Supabase SQL: ALTER TABLE "Videos" ADD COLUMN IF NOT EXISTS reward int default 0;');
   alert('Reward saved: '+val+' coins'); loadAdmin();
 }
-async function deleteVideo(id){
+async function loadCommentsAdmin(vid){
+  let box = document.getElementById('comments-'+vid);
+  box.innerHTML = '<p class="text-xs text-slate-400">Loading...</p>';
+  let {data, error} = await sb.from('Comments').select('*').eq('video_id', vid).order('created_at',{ascending:true});
+  if(error){ box.innerHTML = '<p class="text-xs text-red-400">'+error.message+'</p>'; return; }
+  if(!data || !data.length){ box.innerHTML = '<p class="text-xs text-slate-400">No comments yet</p>'; return; }
+  box.innerHTML = data.map(c=>{
+    let isReply = c.parent_id ? '<span class="text-orange-400 text-[10px]">↩ REPLY</span> ' : '';
+    return `<div class="bg-slate-800 p-2 rounded-lg text-sm flex justify-between gap-2">
+      <span>${isReply}<b class="text-sky-400">@${esc(c.username||'user')}</b>: ${esc(c.comment_text)}</span>
+      <button onclick="deleteCommentAdmin('${c.id}','${vid}')" class="text-red-400 text-xs font-bold shrink-0">Delete</button>
+    </div>`;
+  }).join('');
+}
+async function deleteCommentAdmin(cid, vid){
+  if(!confirm('Delete this comment?')) return;
+  let {error} = await sb.from('Comments').delete().eq('id', cid);
+  if(error) return alert(error.message);
+  loadCommentsAdmin(vid); loadAdmin();
+}async function deleteVideo(id){
   if(!confirm('Delete this video?')) return;
   let {error} = await sb.from('Videos').delete().eq('id', id);
   if(error) return alert(error.message);
