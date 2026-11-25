@@ -140,7 +140,7 @@ async function submitComment(e){
   let newCount = (v ? (v.comments_count||0) : 0) + 1;
   if(v) v.comments_count = newCount;
   await sb.from('Videos').update({comments_count: newCount}).eq('id', vid);
-}(e){e.preventDefault();let inp=document.getElementById('comment-input');let txt=inp.value.trim();if(!txt)return;document.getElementById('comments-list').innerHTML+=`<div class="bg-slate-800 p-3 rounded-xl"><b class="text-orange-400">@${currentProfile.username}</b>: ${escapeHtml(txt)}</div>`;inp.value=''}
+}
 function shareVideo(){if(navigator.share)navigator.share({title:'Mplanet',url:location.href}).catch(()=>{});else{ navigator.clipboard.writeText(location.href); alert('Link copied!')}}
 function filterVideos(q){let res=allVideos.filter(v=>(v.caption||'').toLowerCase().includes(q.toLowerCase()));document.getElementById('search-results').innerHTML=res.map(v=>`<div class="bg-slate-900 rounded-xl overflow-hidden"><div class="aspect-[9/16] bg-slate-800 flex items-center justify-center text-4xl">🎬</div><p class="p-2 text-sm line-clamp-2">${escapeHtml(v.caption)}</p></div>`).join('')||'No results'}
 document.getElementById('video-file').addEventListener('change', function(){
