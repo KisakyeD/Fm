@@ -1,0 +1,5 @@
+# Mplanet - Never push secrets / admin
+admin.html
+.env
+config.js
+.DS_Store
