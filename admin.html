@@ -1,66 +1,80 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mplanet Admin - Private</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#030712;color:#fff}</style>
-</head>
-<body class="max-w-[500px] mx-auto min-h-screen">
-<div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
-  <div class="bg-slate-900 w-full max-w-sm rounded-2xl p-6 border border-red-500/40">
-    <h1 class="text-2xl font-black text-center mb-1"><span class="text-sky-400">M</span><span class="text-orange-400">planet</span> <span class="text-red-400">Admin</span></h1>
-    <p class="text-xs text-slate-400 text-center mb-5">Private - Only Owner</p>
-    <form onsubmit="adminLogin(event)" class="space-y-3">
-      <input id="admin-user" type="text" placeholder="Username" autocomplete="off" class="w-full bg-slate-800 rounded-xl p-3 outline-none" required>
-      <input id="admin-pass" type="password" placeholder="Password" autocomplete="off" class="w-full bg-slate-800 rounded-xl p-3 outline-none" required>
-      <button id="login-btn" class="w-full bg-gradient-to-r from-red-600 to-orange-500 py-3 rounded-xl font-bold">Login as Admin</button>
-    </form>
-    <p class="text-[11px] text-slate-500 text-center mt-3">Password is NOT in this file. Only SHA-256 hash.</p>
-  </div>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mplanet Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>body{background:#0f0f0f;color:#fff;font-family:sans-serif;padding:16px}input,select{width:100%;padding:12px;margin:6px 0;border-radius:10px;background:#222;color:#fff;border:1px solid #444;box-sizing:border-box}button{padding:12px 16px;border:none;border-radius:10px;background:#e50914;color:#fff;font-weight:bold;width:100%;margin:6px 0}.card{background:#1c1c1c;padding:14px;border-radius:12px;margin:8px 0}.tabs{display:flex;gap:8px} .tabs button{background:#333}.tabs button.active{background:#e50914}.hidden{display:none}small{color:#aaa}</style>
+</head><body>
+<div id="login">
+<h2>🔐 Mplanet Admin</h2>
+<input id="u" placeholder="Username"><input id="p" type="password" placeholder="Password">
+<button onclick="login()">Login as Admin</button><p id="msg"></p>
 </div>
-<div id="admin-panel" class="hidden">
-  <div class="sticky top-0 z-20 flex justify-between items-center px-4 py-3 bg-slate-950 border-b border-red-500/30">
-    <span class="font-bold text-red-400">Mplanet Admin</span>
-    <div class="flex gap-2"><a href="index.html" class="text-xs bg-slate-800 px-3 py-1.5 rounded-lg font-bold">View Site</a><button onclick="adminLogout()" class="text-sm text-orange-400 font-semibold">Log Out</button></div>
-  </div>
-  <div class="grid grid-cols-4 gap-2 p-4">
-    <div class="bg-slate-900 rounded-xl p-3 text-center border border-blue-500/20"><div id="stat-videos" class="font-black text-xl">0</div><div class="text-[11px] text-slate-400">Videos</div></div>
-    <div class="bg-slate-900 rounded-xl p-3 text-center border border-blue-500/20"><div id="stat-users" class="font-black text-xl text-sky-400">0</div><div class="text-[11px] text-slate-400">Users</div></div>
-    <div class="bg-slate-900 rounded-xl p-3 text-center border border-blue-500/20"><div id="stat-likes" class="font-black text-xl text-orange-400">0</div><div class="text-[11px] text-slate-400">Likes</div></div>
-    <div class="bg-slate-900 rounded-xl p-3 text-center border border-blue-500/20"><div id="stat-coins" class="font-black text-xl text-amber-400">0</div><div class="text-[11px] text-slate-400">Coins</div></div>
-  </div>
-  <div class="flex gap-2 px-4 pb-3">
-    <button onclick="switchTab('videos')" id="tab-videos" class="flex-1 py-2.5 rounded-xl bg-red-500 font-bold text-sm">Videos</button>
-    <button onclick="switchTab('users')" id="tab-users" class="flex-1 py-2.5 rounded-xl bg-slate-800 font-bold text-sm">Users</button>
-    <button onclick="switchTab('withdraw')" id="tab-withdraw" class="flex-1 py-2.5 rounded-xl bg-slate-800 font-bold text-sm">Withdraws</button>
-    <button onclick="switchTab('coins')" id="tab-coins" class="flex-1 py-2.5 rounded-xl bg-slate-800 font-bold text-sm">Coins</button>
-  </div>
-  <div id="admin-content" class="px-4 pb-8 space-y-3"></div>
+
+<div id="panel" class="hidden">
+<h2>Admin Panel <small>REAL DATA - Supabase</small></h2>
+<div class="tabs"><button onclick="show('dash',this)" class="active">Dashboard</button><button onclick="show('users',this)">Users</button><button onclick="show('videos',this)">Videos</button><button onclick="show('with',this)">Withdraws</button></div>
+<button onclick="loadAll()" style="background:#333">🔄 Refresh</button>
+
+<div id="dash">
+<div class="card"><h3 id="cUsers">Users: ...</h3><h3 id="cVideos">Videos: ...</h3><h3 id="cWith">Withdraws: ...</h3></div>
+<div class="card"><h3>Add Video</h3>
+<input id="vTitle" placeholder="Video Title"><input id="vUrl" placeholder="Video URL (YouTube / MP4 link)"><input id="vCoins" type="number" value="10" placeholder="Coins">
+<button onclick="addVideo()">+ Add Video</button></div>
 </div>
+
+<div id="users" class="hidden"></div>
+<div id="videos" class="hidden"></div>
+<div id="with" class="hidden"></div>
+<button onclick="logout()" style="background:#333">Logout</button>
+</div>
+
 <script>
-const ADMIN_USER = 'brian';
-const ADMIN_PASS_HASH = 'd370fee7e394e306c31ee3ac8e0cc32c420fed91179435d26bdc9efd0c8fb34f';
-let adminTab = 'videos';
-let allVideos = JSON.parse(localStorage.getItem('mplanet_videos') || '[]');
-let adminUsers = JSON.parse(localStorage.getItem('mplanet_users') || '[{"id":"local-user","username":"briank","display_name":"Brian K","bio":"Funny videos from Kampala","coins":850}]');
-let walletTransactions = JSON.parse(localStorage.getItem('mplanet_transactions') || '[]');
-function saveAll(){ localStorage.setItem('mplanet_videos', JSON.stringify(allVideos)); localStorage.setItem('mplanet_users', JSON.stringify(adminUsers)); localStorage.setItem('mplanet_transactions', JSON.stringify(walletTransactions)); }
-async function sha256(text){ const d=new TextEncoder().encode(text); const h=await crypto.subtle.digest('SHA-256',d); return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
-async function adminLogin(e){ e.preventDefault(); const btn=document.getElementById('login-btn'); btn.textContent='Checking...'; const u=document.getElementById('admin-user').value.trim(); const p=document.getElementById('admin-pass').value; const hash=await sha256(p); if(u===ADMIN_USER && hash===ADMIN_PASS_HASH){ sessionStorage.setItem('mplanet_admin','1'); showPanel(); } else { alert('Wrong username or password'); btn.textContent='Login as Admin'; } }
-function adminLogout(){ sessionStorage.removeItem('mplanet_admin'); document.getElementById('admin-panel').classList.add('hidden'); document.getElementById('login-screen').classList.remove('hidden'); }
-function showPanel(){ document.getElementById('login-screen').classList.add('hidden'); document.getElementById('admin-panel').classList.remove('hidden'); renderAdmin(); }
-if(sessionStorage.getItem('mplanet_admin')==='1') showPanel();
-function switchTab(tab){ adminTab=tab; ['videos','users','withdraw','coins'].forEach(t=>{ document.getElementById('tab-'+t).className = t===tab ? 'flex-1 py-2.5 rounded-xl bg-red-500 font-bold text-sm' : 'flex-1 py-2.5 rounded-xl bg-slate-800 font-bold text-sm'; }); renderAdmin(); }
-function renderAdmin(){ document.getElementById('stat-videos').textContent=allVideos.length; document.getElementById('stat-users').textContent=adminUsers.length; document.getElementById('stat-likes').textContent=allVideos.reduce((s,v)=>s+(v.likes_count||0),0); document.getElementById('stat-coins').textContent=adminUsers.reduce((s,u)=>s+(u.coins||0),0); const box=document.getElementById('admin-content'); if(adminTab==='videos'){ if(!allVideos.length) box.innerHTML=`<div class="bg-slate-900 rounded-xl p-6 text-center text-slate-400 text-sm">No videos yet.</div>`; else box.innerHTML=allVideos.map(v=>`<div class="bg-slate-900 rounded-xl p-3 border border-blue-500/20 flex gap-3"><video src="${v.video_url}" class="w-16 h-24 object-cover rounded-lg bg-black" muted></video><div class="flex-1"><p class="font-bold text-sm">@${v.profiles?.username||'user'}</p><p class="text-xs text-slate-400">${v.caption||''}</p><p class="text-xs text-sky-300 mt-1">❤️ ${v.likes_count||0}</p><button onclick="deleteVideo('${v.id}')" class="mt-2 px-3 py-1.5 rounded-lg bg-red-500 text-xs font-bold">Delete Video</button></div></div>`).join(''); } if(adminTab==='users'){ box.innerHTML=adminUsers.map(u=>`<div class="bg-slate-900 rounded-xl p-3 border border-blue-500/20 flex items-center justify-between"><div><p class="font-bold">@${u.username}</p><p class="text-xs text-slate-400">${u.display_name||''} • ${u.coins||0} Coins</p></div><div class="flex flex-col gap-1"><button onclick="addCoinsToUser('${u.id}')" class="px-3 py-1.5 rounded-lg bg-amber-400 text-black text-xs font-bold">+ Coins</button><button onclick="banUser('${u.id}')" class="px-3 py-1.5 rounded-lg bg-red-500/20 text-red-400 text-xs font-bold border border-red-500/30">Ban</button></div></div>`).join(''); } if(adminTab==='withdraw'){ const list=walletTransactions.filter(t=>t.type==='withdraw'); if(!list.length) box.innerHTML=`<p class="text-slate-400 text-center py-6 text-sm">No withdraw requests yet</p>`; else box.innerHTML=list.map(t=>`<div class="bg-slate-900 rounded-xl p-3 border border-orange-500/30"><p class="font-bold text-sm">${t.coins} Coins • ${t.method} • ${t.destination}</p><p class="text-xs text-slate-400">Status: <b>${t.status}</b> • ${t.id}</p>${t.status==='pending'?`<div class="flex gap-2 mt-2"><button onclick="approveWithdraw('${t.id}')" class="flex-1 py-2 rounded-lg bg-green-500 font-bold text-sm">Approve & Pay</button><button onclick="rejectWithdraw('${t.id}')" class="flex-1 py-2 rounded-lg bg-red-500 font-bold text-sm">Reject</button></div>`:''}</div>`).join(''); } if(adminTab==='coins'){ box.innerHTML=`<div class="bg-slate-900 rounded-xl p-4 border border-amber-500/30"><p class="font-bold mb-2">Quick Add Coins</p><div class="flex gap-2"><input id="coins-amount" type="number" placeholder="e.g. 1000" class="flex-1 bg-slate-800 rounded-xl p-3 outline-none"><button onclick="addCoinsToMe()" class="px-4 py-3 rounded-xl bg-amber-400 text-black font-bold text-sm">Add</button></div></div>`; } }
-function deleteVideo(id){ if(!confirm('Delete this video?')) return; allVideos=allVideos.filter(v=>v.id!==id); saveAll(); renderAdmin(); }
-function banUser(id){ if(!confirm('Ban this user?')) return; adminUsers=adminUsers.filter(u=>u.id!==id); saveAll(); renderAdmin(); }
-function addCoinsToUser(id){ const amt=parseInt(prompt('How many coins to add?')); if(!amt) return; const u=adminUsers.find(x=>x.id===id); if(u) u.coins=(u.coins||0)+amt; saveAll(); renderAdmin(); alert(amt+' coins added'); }
-function addCoinsToMe(){ const amt=parseInt(document.getElementById('coins-amount').value); if(!amt) return alert('Enter amount'); const u=adminUsers[0]; if(u) u.coins=(u.coins||0)+amt; saveAll(); renderAdmin(); }
-function approveWithdraw(id){ const tx=walletTransactions.find(t=>t.id===id); if(tx) tx.status='confirmed'; saveAll(); renderAdmin(); alert('Approved! Now send money manually via MTN/Airtel'); }
-function rejectWithdraw(id){ const tx=walletTransactions.find(t=>t.id===id); if(tx){ tx.status='rejected'; const u=adminUsers[0]; if(u) u.coins=(u.coins||0)+tx.coins; } saveAll(); renderAdmin(); }
-</script>
-</body>
-</html>
+const SUPA_URL='https://leqcrtwocznlkkfveqz.supabase.co';
+const SUPA_KEY='sb_publishable_b1SFZR3ADng4sue_N5ApQA_J3s03UvE';
+const supa=supabase.createClient(SUPA_URL,SUPA_KEY);
+const ADMIN_USER='brian';
+const ADMIN_PASS_HASH='d370fee7e394e306c31ee3ac8e0cc32c420fed91179435d26bdc9efd0c8fb34f';
+
+async function login(){
+  const u=document.getElementById('u').value.trim();
+  const p=document.getElementById('p').value;
+  if(u!==ADMIN_USER){document.getElementById('msg').textContent='Wrong username';return;}
+  const d=new TextEncoder().encode(p);
+  const h=await crypto.subtle.digest('SHA-256',d);
+  const hash=Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  if(hash!==ADMIN_PASS_HASH){document.getElementById('msg').textContent='Wrong password';return;}
+  document.getElementById('login').classList.add('hidden');
+  document.getElementById('panel').classList.remove('hidden');
+  loadAll();
+}
+function logout(){location.reload();}
+function show(id,btn){
+  document.querySelectorAll('#dash,#users,#videos,#with').forEach(e=>e.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+async function loadAll(){
+  const {data:users}=await supa.from('users').select('*').order('created_at',{ascending:false});
+  const {data:videos}=await supa.from('videos').select('*').order('created_at',{ascending:false});
+  const {data:withs}=await supa.from('withdraws').select('*').order('created_at',{ascending:false});
+  document.getElementById('cUsers').textContent='Users: '+(users?.length||0);
+  document.getElementById('cVideos').textContent='Videos: '+(videos?.length||0);
+  document.getElementById('cWith').textContent='Withdraws: '+(withs?.length||0);
+  document.getElementById('users').innerHTML='<h3>Users</h3>'+(users||[]).map(x=>`<div class="card"><b>${x.username||'No name'}</b><br>Phone: ${x.phone||'-'}<br>Balance: ${x.balance||0} coins<br><button onclick="delUser('${x.id}')" style="background:#333">Delete</button></div>`).join('')||'No users yet';
+  document.getElementById('videos').innerHTML='<h3>Videos</h3>'+(videos||[]).map(x=>`<div class="card"><b>${x.title}</b><br>${x.video_url}<br>Coins: ${x.coins}<br><button onclick="delVideo('${x.id}')" style="background:#333">Delete</button></div>`).join('')||'No videos yet';
+  document.getElementById('with').innerHTML='<h3>Withdraws</h3>'+(withs||[]).map(x=>`<div class="card"><b>${x.username}</b> - ${x.amount} coins<br>Phone: ${x.phone}<br>Status: ${x.status}<br>${x.status==='pending'?`<button onclick="approveWith('${x.id}')">Approve</button><button onclick="rejectWith('${x.id}')" style="background:#333">Reject</button>`:''}</div>`).join('')||'No withdraws yet';
+}
+async function addVideo(){
+  const title=document.getElementById('vTitle').value;
+  const url=document.getElementById('vUrl').value;
+  const coins=parseInt(document.getElementById('vCoins').value)||10;
+  if(!title||!url) return alert('Fill title + URL');
+  const {error}=await supa.from('videos').insert([{title,video_url:url,coins}]);
+  if(error) alert(error.message); else {alert('Video added!'); loadAll();}
+}
+async function delVideo(id){ if(confirm('Delete video?')){ await supa.from('videos').delete().eq('id',id); loadAll(); } }
+async function delUser(id){ if(confirm('Delete user?')){ await supa.from('users').delete().eq('id',id); loadAll(); } }
+async function approveWith(id){ await supa.from('withdraws').update({status:'approved'}).eq('id',id); loadAll(); }
+async function rejectWith(id){ await supa.from('withdraws').update({status:'rejected'}).eq('id',id); loadAll(); }
+</script></body></html>
