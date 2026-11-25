@@ -95,8 +95,17 @@ c.innerHTML=videos.map(v=>{let l=liked.has(v.id),s=saved.has(v.id);return `<div 
 let first=c.querySelector('video'); if(first){first.muted=isMuted; first.play().catch(()=>{})}
 }
 function toggleMute(){isMuted=!isMuted;document.querySelectorAll('video').forEach(v=>v.muted=isMuted); loadFeed(document.getElementById('tab-following').className.includes('border-orange')?'following':'foryou')}
-function doubleTap(e,id){let card=e.currentTarget;let h=document.createElement('i');h.className='fa-solid fa-heart heart-burst';h.style.left='40%';h.style.top='40%';card.appendChild(h);setTimeout(()=>h.remove(),700);if(!liked.has(id))toggleLike(id)}
-async function toggleLike(id){let isL=liked.has(id);isL?liked.delete(id):liked.add(id);let el=document.getElementById('like-'+id);let c=document.getElementById('like-c-'+id);if(el)el.className=`fa-solid fa-heart text-2xl ${!isL?'text-orange-500':'text-white'}`;if(c)c.textContent=parseInt(c.textContent)+(isL?-1:1)}
+function doubleTap(e,id){let card=e.currentTarget;let h=document.createElement('i');h.className='fa-solid fa-heart heart-burst';h.style.left='40%';h.style.top='40%';card.appendChild(h);setTimeout(()=>h.remove(),700);if(!liked.has(id))toggleLike(id)}async function toggleLike(id){
+  let isL = liked.has(id);
+  if(isL) liked.delete(id); else liked.add(id);
+  let el = document.getElementById('like-'+id);
+  let c = document.getElementById('like-c-'+id);
+  if(el) el.className = `fa-solid fa-heart text-2xl ${!isL?'text-orange-500':'text-white'}`;
+  let newCount = c ? parseInt(c.textContent) + (isL?-1:1) : 0;
+  if(c) c.textContent = newCount;
+  if(String(id).startsWith('demo-')) return;
+  await sb.from('Videos').update({likes_count: newCount}).eq('id', id);
+}
 function toggleSave(id){let s=saved.has(id);s?saved.delete(id):saved.add(id);let el=document.getElementById('save-'+id);if(el)el.className=`fa-solid fa-bookmark text-2xl ${!s?'text-blue-400':'text-white'}`}
 function openComments(id){toggleModal('comments-modal',true);document.getElementById('comments-list').innerHTML=`<div class="bg-slate-800 p-3 rounded-xl"><b class="text-sky-400">@alex_ug</b>: Love Mplanet! 🚀</div>`}
 function submitComment(e){e.preventDefault();let inp=document.getElementById('comment-input');let txt=inp.value.trim();if(!txt)return;document.getElementById('comments-list').innerHTML+=`<div class="bg-slate-800 p-3 rounded-xl"><b class="text-orange-400">@${currentProfile.username}</b>: ${escapeHtml(txt)}</div>`;inp.value=''}
