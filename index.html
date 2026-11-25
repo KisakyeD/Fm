@@ -107,20 +107,44 @@ function doubleTap(e,id){let card=e.currentTarget;let h=document.createElement('
   await sb.from('Videos').update({likes_count: newCount}).eq('id', id);
 }
 function toggleSave(id){let s=saved.has(id);s?saved.delete(id):saved.add(id);let el=document.getElementById('save-'+id);if(el)el.className=`fa-solid fa-bookmark text-2xl ${!s?'text-blue-400':'text-white'}`}
-let currentCommentVideoId = null;
+let currentCommentVideoId = null;let replyToId = null; let replyToUser = '';
 async function openComments(id){
-  currentCommentVideoId = id;
+  currentCommentVideoId = id; replyToId = null;
   toggleModal('comments-modal',true);
   let list = document.getElementById('comments-list');
   list.innerHTML = `<div class="text-center text-slate-400 text-sm py-4">Loading comments...</div>`;
-  if(String(id).startsWith('demo-')){
-    list.innerHTML = `<div class="bg-slate-800 p-3 rounded-xl"><b class="text-sky-400">@alex_ug</b>: Love Mplanet! 🚀</div>`;
-    return;
-  }
+  if(String(id).startsWith('demo-')){ list.innerHTML = `<div class="bg-slate-800 p-3 rounded-xl"><b class="text-sky-400">@alex_ug</b>: Love Mplanet! 🚀</div>`; return; }
   let {data, error} = await sb.from('Comments').select('*').eq('video_id', id).order('created_at',{ascending:true});
   if(error){ list.innerHTML = `<div class="text-center text-red-400 text-sm">Error: ${error.message}</div>`; return; }
   if(!data || !data.length){ list.innerHTML = `<div class="text-center text-slate-400 text-sm py-4">No comments yet. Be first!</div>`; return; }
-  list.innerHTML = data.map(c=>`<div class="bg-slate-800 p-3 rounded-xl"><b class="text-sky-400">@${escapeHtml(c.username||'user')}</b>: ${escapeHtml(c.comment_text)}</div>`).join('');
+  list.innerHTML = data.map(c=>{
+    let isMine = c.username === currentProfile.username;
+    let replyTag = c.parent_id ? `<span class="text-orange-400 text-[10px]">↩ reply</span> ` : '';
+    return `<div class="bg-slate-800 p-3 rounded-xl" id="comment-${c.id}"><b class="text-sky-400">@${escapeHtml(c.username||'user')}</b>: ${replyTag}<span id="ctext-${c.id}">${escapeHtml(c.comment_text)}</span>
+    <div class="flex gap-3 mt-1 text-xs">
+      <button onclick="startReply('${c.id}','${escapeHtml(c.username||'user')}')" class="text-sky-300 font-bold">↩ Reply</button>
+      ${isMine ? `<button onclick="editComment('${c.id}')" class="text-amber-400 font-bold">Edit</button><button onclick="deleteComment('${c.id}')" class="text-red-400 font-bold">Delete</button>` : ''}
+    </div></div>`;
+  }).join('');
+}
+function startReply(cid, user){
+  replyToId = cid; replyToUser = user;
+  let inp = document.getElementById('comment-input');
+  inp.value = '@'+user+' '; inp.focus();
+}
+async function deleteComment(cid){
+  if(!confirm('Delete this comment?')) return;
+  let {error} = await sb.from('Comments').delete().eq('id', cid);
+  if(error) return alert(error.message);
+  document.getElementById('comment-'+cid)?.remove();
+}
+async function editComment(cid){
+  let oldText = document.getElementById('ctext-'+cid)?.textContent || '';
+  let nt = prompt('Edit comment:', oldText);
+  if(nt===null || !nt.trim()) return;
+  let {error} = await sb.from('Comments').update({comment_text: nt.trim()}).eq('id', cid);
+  if(error) return alert(error.message);
+  document.getElementById('ctext-'+cid).textContent = nt.trim();
 }
 async function submitComment(e){
   e.preventDefault();
@@ -133,7 +157,8 @@ async function submitComment(e){
   inp.value='';
   if(String(vid).startsWith('demo-')) return;
   // 1. Save comment to Supabase
-  let {error} = await sb.from('Comments').insert([{video_id: vid, username: currentProfile.username, comment_text: txt}]);
+  let {error} = await sb.from('Comments').insert([{video_id: vid, username: currentProfile.username, comment_text: txt, parent_id: replyToId}]);
+  replyToId = null;
   if(error){ alert('Comment save failed: '+error.message); return; }
   // 2. Update comments_count in Videos so Admin sees it
   let v = allVideos.find(x=>String(x.id)===String(vid));
