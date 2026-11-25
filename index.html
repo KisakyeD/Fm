@@ -96,15 +96,24 @@ let first=c.querySelector('video'); if(first){first.muted=isMuted; first.play().
 }
 function toggleMute(){isMuted=!isMuted;document.querySelectorAll('video').forEach(v=>v.muted=isMuted); loadFeed(document.getElementById('tab-following').className.includes('border-orange')?'following':'foryou')}
 function doubleTap(e,id){let card=e.currentTarget;let h=document.createElement('i');h.className='fa-solid fa-heart heart-burst';h.style.left='40%';h.style.top='40%';card.appendChild(h);setTimeout(()=>h.remove(),700);if(!liked.has(id))toggleLike(id)}async function toggleLike(id){
-  let isL = liked.has(id);
-  if(isL) liked.delete(id); else liked.add(id);
+async function toggleLike(id, owner){
+  if(window.liking) return; window.liking = true;
+  if(liked.has(id)){ window.liking = false; alert('You already liked this post ❤️'); return; }
   let el = document.getElementById('like-'+id);
-  let c = document.getElementById('like-c-'+id);
-  if(el) el.className = `fa-solid fa-heart text-2xl ${!isL?'text-orange-500':'text-white'}`;
-  let newCount = c ? parseInt(c.textContent) + (isL?-1:1) : 0;
-  if(c) c.textContent = newCount;
-  if(String(id).startsWith('demo-')) return;
-  await sb.from('Videos').update({likes_count: newCount}).eq('id', id);
+  let {data, error} = await sb.rpc('like_post', {p_video_id: id, p_liker: currentProfile.username, p_owner: owner});
+  window.liking = false;
+  if(error){ alert('Error: '+error.message); return; }
+  if(data === 'already_liked'){ liked.add(id); alert('You already liked this post ❤️'); return; }
+  if(data === 'no_coins'){
+    document.getElementById('buy-coins-box').classList.remove('hidden');
+    return;
+  }
+  // Success - 1 coin moved, 1 like added, no reload = no freeze
+  liked.add(id);
+  if(el){ el.classList.add('text-red-500'); let n = parseInt(el.textContent.replace(/\D/g,''))||0; el.innerHTML = '❤️ ' + (n+1); }
+  currentProfile.coins = (currentProfile.coins||0) - 1;
+  localStorage.setItem('local-user', JSON.stringify(currentProfile));
+  if(typeof updateCoinsUI === 'function') updateCoinsUI();
 }
 function toggleSave(id){let s=saved.has(id);s?saved.delete(id):saved.add(id);let el=document.getElementById('save-'+id);if(el)el.className=`fa-solid fa-bookmark text-2xl ${!s?'text-blue-400':'text-white'}`}
 let currentCommentVideoId = null;let replyToId = null; let replyToUser = '';
