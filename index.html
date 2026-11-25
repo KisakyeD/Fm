@@ -21,17 +21,12 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 </head>
 <body>
 
-<!-- HEADER -->
 <header class="fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-3 py-3 bg-gradient-to-b from-slate-950/90 to-transparent max-w-[500px] mx-auto">
-<div class="flex items-center gap-2">
-<button onclick="openDrawer()" class="p-1.5"><i class="fa-solid fa-bars text-2xl"></i></button>
-<div class="font-black text-2xl"><span class="text-blue-500">M</span><span class="text-orange-500">planet</span> 🌍</div>
-</div>
+<div class="flex items-center gap-2"><button onclick="openDrawer()" class="p-1.5"><i class="fa-solid fa-bars text-2xl"></i></button><div class="font-black text-2xl"><span class="text-blue-500">M</span><span class="text-orange-500">planet</span> 🌍</div></div>
 <div class="flex gap-3 font-bold"><button id="tab-following" onclick="loadFeed('following')" class="text-white/60">Following</button><span class="text-white/30">|</span><button id="tab-foryou" onclick="loadFeed('foryou')" class="text-white border-b-2 border-orange-500">For You</button></div>
 <button onclick="openSearch()" class="p-1.5"><i class="fa-solid fa-magnifying-glass text-xl"></i></button>
 </header>
 
-<!-- DRAWER -->
 <div id="drawer-bg" onclick="closeDrawer()" class="hidden fixed inset-0 z-40 bg-slate-950/75"></div>
 <aside id="drawer" class="fixed top-0 left-0 bottom-0 z-50 w-72 bg-slate-950 border-r border-blue-500/20 p-5 flex flex-col justify-between transform -translate-x-full transition-transform duration-200">
 <div>
@@ -41,42 +36,27 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 <button onclick="closeDrawer();openSearch()" class="flex gap-4 px-3 py-3 rounded-xl hover:bg-blue-500/15 text-left font-semibold"><i class="fa-solid fa-compass w-6 text-blue-400 text-xl"></i>Discover</button>
 <button onclick="closeDrawer();toggleModal('live-modal',true)" class="flex justify-between px-3 py-3 rounded-xl hover:bg-orange-500/15 text-left font-semibold"><span class="flex gap-4"><i class="fa-solid fa-video w-6 text-orange-500 text-xl"></i>Live</span><span class="px-2 py-0.5 rounded bg-orange-500 text-xs font-extrabold">LIVE</span></button>
 <button onclick="closeDrawer();toggleModal('upload-modal',true)" class="planet-btn"><span class="text-2xl">🌍</span><span><b>Create / Upload</b><br><small class="text-sky-300">Share to the world.</small></span></button>
-<button onclick="closeDrawer();toggleModal('profile-modal',true);renderProfile()" class="flex gap-4 px-3 py-3 rounded-xl hover:bg-blue-500/15 text-left font-semibold"><i class="fa-regular fa-user w-6 text-orange-400 text-xl"></i>Profile <span id="nav-profile-label">@briank</span></button>
-</nav>
-</div>
+<button onclick="closeDrawer();toggleModal('profile-modal',true);renderProfile()" class="flex gap-4 px-3 py-3 rounded-xl hover:bg-blue-500/15 text-left font-semibold"><i class="fa-regular fa-user w-6 text-orange-400 text-xl"></i>Profile @briank</button>
+</nav></div>
 <div class="pt-4 border-t border-blue-500/20 text-sm text-slate-400">Mplanet Creator Platform</div>
 </aside>
 
-<!-- FEED -->
 <main id="video-feed" class="max-w-[500px] mx-auto relative"></main>
 
-<!-- LIVE -->
-<div id="live-modal" onclick="if(event.target===this)toggleModal('live-modal',false)" class="hidden fixed inset-0 z-50 bg-slate-950/90 flex items-center justify-center p-4"><div class="bg-slate-900 w-full max-w-md rounded-2xl p-5 border border-orange-500/35"><div class="flex justify-between mb-4"><span class="px-2 py-1 rounded-full text-xs font-extrabold bg-orange-500">MPLANET LIVE</span><button onclick="toggleModal('live-modal',false)"><i class="fa-solid fa-xmark"></i></button></div><div class="aspect-[9/12] rounded-xl bg-slate-950 flex flex-col items-center justify-center text-center p-6"><i class="fa-solid fa-video text-4xl text-orange-500 mb-3"></i><p class="font-bold">Broadcast to Mplanet</p><p class="text-sm text-slate-400">Go live with camera preview</p></div><button onclick="startLive()" class="w-full mt-4 bg-gradient-to-r from-blue-600 to-orange-500 py-3 rounded-xl font-bold">Go Live Now</button></div></div>
+<div id="live-modal" onclick="if(event.target===this)toggleModal('live-modal',false)" class="hidden fixed inset-0 z-50 bg-slate-950/90 flex items-center justify-center p-4"><div class="bg-slate-900 w-full max-w-md rounded-2xl p-5 border border-orange-500/35"><div class="flex justify-between mb-4"><span class="px-2 py-1 rounded-full text-xs font-extrabold bg-orange-500">MPLANET LIVE</span><button onclick="toggleModal('live-modal',false)"><i class="fa-solid fa-xmark"></i></button></div><div class="aspect-[9/12] rounded-xl bg-slate-950 flex flex-col items-center justify-center text-center p-6"><i class="fa-solid fa-video text-4xl text-orange-500 mb-3"></i><p class="font-bold">Broadcast to Mplanet</p><p class="text-sm text-slate-400">Allow camera to go live</p></div><button onclick="alert('Allow camera permission to go live')" class="w-full mt-4 bg-gradient-to-r from-blue-600 to-orange-500 py-3 rounded-xl font-bold">Go Live Now</button></div></div>
 
-<!-- COMMENTS -->
 <div id="comments-modal" onclick="if(event.target===this)toggleModal('comments-modal',false)" class="hidden fixed inset-0 z-50 bg-slate-950/70 flex items-end justify-center"><div class="bg-slate-900 w-full max-w-[500px] h-[65dvh] rounded-t-2xl flex flex-col p-4"><div class="flex justify-between border-b border-blue-500/20 pb-2"><button onclick="toggleModal('comments-modal',false)"><i class="fa-solid fa-arrow-left"></i></button><span class="font-bold text-sky-300">Comments</span><button onclick="toggleModal('comments-modal',false)"><i class="fa-solid fa-xmark"></i></button></div><div id="comments-list" class="flex-1 overflow-y-auto py-3 space-y-3"></div><form onsubmit="submitComment(event)" class="flex gap-2 pt-2 border-t border-blue-500/20"><input id="comment-input" required placeholder="Add a comment..." class="flex-1 bg-slate-800 rounded-full px-4 py-2 outline-none"><button class="bg-gradient-to-r from-blue-600 to-orange-500 px-5 py-2 rounded-full font-semibold">Post</button></form></div></div>
 
-<!-- UPLOAD - FIXED: LINK NOT FILE -->
-<div id="upload-modal" onclick="if(event.target===this)toggleModal('upload-modal',false)" class="hidden fixed inset-0 z-50 bg-slate-950/85 flex items-center justify-center p-4"><div class="bg-slate-900 w-full max-w-md rounded-2xl p-5 border border-blue-500/30"><div class="flex justify-between mb-4"><h2 class="font-bold text-xl text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-orange-400">Post to Mplanet</h2><button onclick="toggleModal('upload-modal',false)"><i class="fa-solid fa-xmark text-xl"></i></button></div><form onsubmit="handleUpload(event)" class="space-y-4"><div><label class="text-sm text-sky-300">Paste YouTube Link OR Direct MP4 Link</label><input id="video-url" type="text" required placeholder="https://youtu.be/... or https://...mp4" class="w-full bg-slate-800 rounded-xl p-3 outline-none"></div><div><label class="text-sm text-sky-300">Caption & Hashtags</label><textarea id="video-caption" rows="2" required placeholder="#mplanet #viral" class="w-full bg-slate-800 rounded-xl p-3 outline-none"></textarea></div><div><label class="text-sm text-sky-300">Sound / Track</label><input id="video-music" placeholder="Original Sound" class="w-full bg-slate-800 rounded-xl p-3 outline-none"></div><button class="w-full bg-gradient-to-r from-blue-600 to-orange-500 py-3 rounded-xl font-bold">Publish Video</button><p class="text-xs text-slate-400 text-center">Tip: YouTube links are FREE & FAST. No upload failure.</p></form></div></div>
+<!-- UPLOAD FROM DEVICE - FINAL -->
+<div id="upload-modal" onclick="if(event.target===this)toggleModal('upload-modal',false)" class="hidden fixed inset-0 z-50 bg-slate-950/85 flex items-center justify-center p-4"><div class="bg-slate-900 w-full max-w-md rounded-2xl p-5 border border-blue-500/30"><div class="flex justify-between mb-4"><h2 class="font-bold text-xl text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-orange-400">Post to Mplanet</h2><button onclick="toggleModal('upload-modal',false)"><i class="fa-solid fa-xmark text-xl"></i></button></div><form onsubmit="handleUpload(event)" class="space-y-4"><div><label class="text-sm text-sky-300 font-semibold">1. Select Video From Device</label><input id="video-file" type="file" accept="video/*" class="w-full mt-1 text-sm text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-orange-500 file:text-white"><p id="upload-status" class="text-xs text-sky-300 mt-1"></p><div class="w-full bg-slate-800 rounded-full h-2 mt-2 overflow-hidden hidden" id="progress-wrap"><div id="progress-bar" class="h-full bg-gradient-to-r from-blue-500 to-orange-500" style="width:0%"></div></div></div><div><label class="text-sm text-sky-300">OR Paste YouTube / MP4 Link (optional)</label><input id="video-url" type="text" placeholder="https://youtu.be/... (leave empty if uploading file)" class="w-full bg-slate-800 rounded-xl p-3 outline-none mt-1"></div><div><label class="text-sm text-sky-300">Caption & Hashtags</label><textarea id="video-caption" rows="2" required placeholder="#mplanet #viral" class="w-full bg-slate-800 rounded-xl p-3 outline-none"></textarea></div><div><label class="text-sm text-sky-300">Sound / Track</label><input id="video-music" placeholder="Original Sound" class="w-full bg-slate-800 rounded-xl p-3 outline-none"></div><button id="publish-btn" class="w-full bg-gradient-to-r from-blue-600 to-orange-500 py-3 rounded-xl font-bold">Publish Video</button><p class="text-xs text-slate-400 text-center">Use WiFi. Keep video under 50MB for fast upload.</p></form></div></div>
 
-<!-- PROFILE -->
 <div id="profile-modal" class="hidden fixed inset-0 z-50 bg-slate-950 flex flex-col max-w-[500px] mx-auto overflow-y-auto">
-<div class="flex justify-between px-4 py-3 border-b border-blue-500/20 sticky top-0 bg-slate-950 z-10"><button onclick="toggleModal('profile-modal',false)"><i class="fa-solid fa-arrow-left text-xl"></i></button><span id="profile-username" class="font-bold text-sky-300">@briank</span><button onclick="toggleModal('profile-modal',false)" class="text-orange-400 font-semibold">Close</button></div>
-<div class="px-5 pt-5 text-center">
-<div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-tr from-blue-600 via-sky-400 to-orange-500 p-0.5"><div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-3xl font-bold">B</div></div>
-<h3 class="font-extrabold text-xl mt-2">Brian K</h3><p class="text-sky-400 font-semibold text-sm">@briank</p><p class="text-sm text-white/90 mt-1">Funny videos from Kampala</p>
-<div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-blue-500/15"><div><b id="stat-posts">0</b><br><span class="text-slate-400 text-xs">Posts</span></div><div><b id="stat-followers" class="text-orange-400">0</b><br><span class="text-slate-400 text-xs">Followers</span></div><div><b id="stat-likes" class="text-amber-400">0</b><br><span class="text-slate-400 text-xs">Total Likes</span></div></div>
-</div>
-<div class="mx-4 mt-4 p-4 rounded-2xl bg-gradient-to-r from-blue-950/70 to-orange-950/50 border border-blue-500/30">
-<div class="flex justify-between mb-2"><span class="text-xs font-extrabold text-sky-300"><i class="fa-solid fa-coins text-amber-400"></i> Coins Wallet</span><span id="wallet-badge" class="text-xs text-slate-400">Payout: Not set</span></div>
-<div><span id="wallet-coins" class="text-2xl font-black">850</span> <span class="text-xs font-bold text-amber-400">Coins</span></div>
-<div class="grid grid-cols-2 gap-2 mt-3"><button onclick="openWithdraw()" class="py-2 rounded-xl bg-sky-500 text-slate-950 font-extrabold text-sm">+ Deposit</button><button onclick="openWithdraw()" class="py-2 rounded-xl bg-orange-500 font-extrabold text-sm">Withdraw</button></div>
-<div id="withdraw-box" class="hidden mt-3 space-y-2"><input id="wd-phone" placeholder="MTN/Airtel 077..." class="w-full bg-slate-800 rounded-xl p-3 outline-none"><input id="wd-amount" type="number" placeholder="Coins to withdraw" class="w-full bg-slate-800 rounded-xl p-3 outline-none"><button onclick="doWithdraw()" class="w-full bg-orange-500 py-2 rounded-xl font-bold">Request Withdraw</button><p id="wd-msg" class="text-xs text-green-400"></p></div>
-</div>
+<div class="flex justify-between px-4 py-3 border-b border-blue-500/20 sticky top-0 bg-slate-950 z-10"><button onclick="toggleModal('profile-modal',false)"><i class="fa-solid fa-arrow-left text-xl"></i></button><span class="font-bold text-sky-300">@briank</span><button onclick="toggleModal('profile-modal',false)" class="text-orange-400 font-semibold">Close</button></div>
+<div class="px-5 pt-5 text-center"><div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-tr from-blue-600 via-sky-400 to-orange-500 p-0.5"><div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-3xl font-bold">B</div></div><h3 class="font-extrabold text-xl mt-2">Brian K</h3><p class="text-sky-400 font-semibold text-sm">@briank</p><p class="text-sm text-white/90 mt-1">Funny videos from Kampala</p><div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-blue-500/15"><div><b id="stat-posts">0</b><br><span class="text-slate-400 text-xs">Posts</span></div><div><b id="stat-followers" class="text-orange-400">0</b><br><span class="text-slate-400 text-xs">Followers</span></div><div><b id="stat-likes" class="text-amber-400">0</b><br><span class="text-slate-400 text-xs">Total Likes</span></div></div></div>
+<div class="mx-4 mt-4 p-4 rounded-2xl bg-gradient-to-r from-blue-950/70 to-orange-950/50 border border-blue-500/30"><div class="flex justify-between mb-2"><span class="text-xs font-extrabold text-sky-300"><i class="fa-solid fa-coins text-amber-400"></i> Coins Wallet</span><span class="text-xs text-slate-400">Payout: Not set</span></div><div><span id="wallet-coins" class="text-2xl font-black">850</span> <span class="text-xs font-bold text-amber-400">Coins</span></div><div class="grid grid-cols-2 gap-2 mt-3"><button onclick="openWithdraw()" class="py-2 rounded-xl bg-sky-500 text-slate-950 font-extrabold text-sm">+ Deposit</button><button onclick="openWithdraw()" class="py-2 rounded-xl bg-orange-500 font-extrabold text-sm">Withdraw</button></div><div id="withdraw-box" class="hidden mt-3 space-y-2"><input id="wd-phone" placeholder="MTN/Airtel 077..." class="w-full bg-slate-800 rounded-xl p-3 outline-none"><input id="wd-amount" type="number" placeholder="Coins to withdraw" class="w-full bg-slate-800 rounded-xl p-3 outline-none"><button onclick="doWithdraw()" class="w-full bg-orange-500 py-2 rounded-xl font-bold">Request Withdraw</button><p id="wd-msg" class="text-xs text-green-400"></p></div></div>
 <div id="profile-grid" class="grid grid-cols-3 gap-0.5 p-0.5 mt-4"></div>
 </div>
 
-<!-- SEARCH -->
 <div id="search-modal" class="hidden fixed inset-0 z-50 bg-slate-950 max-w-[500px] mx-auto p-4 flex flex-col"><div class="flex gap-3 mb-4"><button onclick="toggleModal('search-modal',false)"><i class="fa-solid fa-arrow-left text-xl"></i></button><input id="search-input" oninput="filterVideos(this.value)" placeholder="Search captions, #hashtags..." class="flex-1 bg-slate-800 rounded-full px-4 py-2 outline-none"></div><div id="search-results" class="grid grid-cols-2 gap-2 overflow-y-auto"></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -84,11 +64,9 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 const SUPABASE_URL="https://leqcrtwoczcnlkkfveqz.supabase.co";
 const SUPABASE_KEY="sb_publishable_b1SFZR3ADng4sue_N5ApQA_J3s03UvE";
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-
-let allVideos=[], liked=new Set(), saved=new Set(), following=new Set(), activeCommentId=null, isMuted=false;
+let allVideos=[], liked=new Set(), saved=new Set(), following=new Set(), isMuted=false;
 let currentProfile={id:'local-user',username:'briank',display_name:'Brian K',coins:850};
 let coins=850;
-
 const DEMO=[
 {id:'demo-1',video_url:'https://assets.mixkit.co/videos/preview/mixkit-girl-in-neon-light-1282-large.mp4',caption:'Welcome to Mplanet! Cosmic vibes #mplanet #viral',music_name:'Orbit Pulse',likes_count:1420,comments_count:34,saves_count:56,profiles:{id:'u1',username:'maya_vibes'}},
 {id:'demo-2',video_url:'https://assets.mixkit.co/videos/preview/mixkit-tree-with-yellow-flowers-1173-large.mp4',caption:'Morning breeze in Kampala #nature #uganda',music_name:'Acoustic Breeze',likes_count:890,comments_count:19,saves_count:24,profiles:{id:'u2',username:'kampala_explorer'}}
@@ -97,12 +75,10 @@ function toggleModal(id,show){document.getElementById(id).classList.toggle('hidd
 function openDrawer(){document.getElementById('drawer-bg').classList.remove('hidden');document.getElementById('drawer').classList.remove('-translate-x-full')}
 function closeDrawer(){document.getElementById('drawer-bg').classList.add('hidden');document.getElementById('drawer').classList.add('-translate-x-full')}
 function openSearch(){toggleModal('search-modal',true);filterVideos('')}
-function startLive(){alert('Live preview needs camera permission. Allow camera to go live.')}
 function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function ytId(u){try{if(u.includes('youtu.be'))return u.split('youtu.be/')[1].split('?')[0];return new URL(u).searchParams.get('v')}catch(e){return null}}
-function isYT(u){return u.includes('youtube.com')||u.includes('youtu.be')}
-function mediaHtml(v){if(isYT(v.video_url)){let id=ytId(v.video_url);return `<iframe src="https://www.youtube.com/embed/${id}?autoplay=0&mute=0&playsinline=1" allowfullscreen allow="autoplay; encrypted-media"></iframe>`}return `<video src="${v.video_url}" loop playsinline onclick="this.paused?this.play():this.pause()"></video>`}
-
+function isYT(u){return u && (u.includes('youtube.com')||u.includes('youtu.be'))}
+function mediaHtml(v){if(isYT(v.video_url)){let id=ytId(v.video_url);return `<iframe src="https://www.youtube.com/embed/${id}?autoplay=0&mute=0&playsinline=1" allowfullscreen allow="autoplay; encrypted-media"></iframe>`}return `<video src="${v.video_url}" loop playsinline preload="metadata" onclick="this.paused?this.play():this.pause()"></video>`}
 async function loadFeed(mode='foryou'){
 document.getElementById('tab-foryou').className=mode==='foryou'?'text-white border-b-2 border-orange-500':'text-white/60';
 document.getElementById('tab-following').className=mode==='following'?'text-white border-b-2 border-orange-500':'text-white/60';
@@ -115,47 +91,55 @@ allVideos=videos; renderVideos(videos);
 function renderVideos(videos){
 let c=document.getElementById('video-feed');
 if(!videos.length){c.innerHTML=`<div class="h-full flex items-center justify-center p-6 text-center text-white/60">No videos yet. Be first to post!</div>`;return}
-c.innerHTML=videos.map(v=>{let likedNow=liked.has(v.id),savedNow=saved.has(v.id);return `
-<div class="video-card" ondblclick="doubleTap(event,'${v.id}')">
-${mediaHtml(v)}
-<div class="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-slate-950/95 to-transparent pt-12 pb-4 px-4">
-<div class="mb-3"><h3 class="font-bold text-lg text-sky-300">@${v.profiles.username}</h3><p class="text-base line-clamp-2">${escapeHtml(v.caption)}</p><div class="flex gap-2 text-sm text-orange-300"><i class="fa-solid fa-music"></i><span class="truncate">${escapeHtml(v.music_name)}</span></div></div>
-<div class="flex justify-between items-center pt-2 border-t border-blue-500/20">
-<div class="w-11 h-11 rounded-full bg-gradient-to-tr from-blue-600 to-orange-500 p-0.5"><div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center font-bold uppercase">${v.profiles.username[0]}</div></div>
-<button onclick="toggleLike('${v.id}')"><i id="like-${v.id}" class="fa-solid fa-heart text-2xl ${likedNow?'text-orange-500':'text-white'}"></i><br><span id="like-c-${v.id}" class="text-sm font-bold">${v.likes_count}</span></button>
-<button onclick="openComments('${v.id}')"><i class="fa-solid fa-comment-dots text-2xl text-sky-300"></i><br><span class="text-sm font-bold">${v.comments_count}</span></button>
-<button onclick="toggleSave('${v.id}')"><i id="save-${v.id}" class="fa-solid fa-bookmark text-2xl ${savedNow?'text-blue-400':'text-white'}"></i><br><span class="text-sm font-bold">${v.saves_count}</span></button>
-<button onclick="shareVideo('${v.id}')"><i class="fa-solid fa-share text-2xl"></i><br><span class="text-sm font-bold">Share</span></button>
-<button onclick="toggleMute()" class="w-10 h-10 rounded-full bg-slate-900 border-2 border-blue-500/60 flex items-center justify-center spinning-disc"><i class="fa-solid ${isMuted?'fa-volume-xmark text-orange-400':'fa-music text-sky-400'}"></i></button>
-</div></div></div>`}).join('');
-// autoplay first video
+c.innerHTML=videos.map(v=>{let l=liked.has(v.id),s=saved.has(v.id);return `<div class="video-card" ondblclick="doubleTap(event,'${v.id}')">${mediaHtml(v)}<div class="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-slate-950/95 to-transparent pt-12 pb-4 px-4"><div class="mb-3"><h3 class="font-bold text-lg text-sky-300">@${v.profiles.username}</h3><p class="text-base line-clamp-2">${escapeHtml(v.caption)}</p><div class="flex gap-2 text-sm text-orange-300"><i class="fa-solid fa-music"></i><span class="truncate">${escapeHtml(v.music_name)}</span></div></div><div class="flex justify-between items-center pt-2 border-t border-blue-500/20"><div class="w-11 h-11 rounded-full bg-gradient-to-tr from-blue-600 to-orange-500 p-0.5"><div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center font-bold uppercase">${v.profiles.username[0]}</div></div><button onclick="toggleLike('${v.id}')"><i id="like-${v.id}" class="fa-solid fa-heart text-2xl ${l?'text-orange-500':'text-white'}"></i><br><span id="like-c-${v.id}" class="text-sm font-bold">${v.likes_count}</span></button><button onclick="openComments('${v.id}')"><i class="fa-solid fa-comment-dots text-2xl text-sky-300"></i><br><span class="text-sm font-bold">${v.comments_count}</span></button><button onclick="toggleSave('${v.id}')"><i id="save-${v.id}" class="fa-solid fa-bookmark text-2xl ${s?'text-blue-400':'text-white'}"></i><br><span class="text-sm font-bold">${v.saves_count}</span></button><button onclick="shareVideo()"><i class="fa-solid fa-share text-2xl"></i><br><span class="text-sm font-bold">Share</span></button><button onclick="toggleMute()" class="w-10 h-10 rounded-full bg-slate-900 border-2 border-blue-500/60 flex items-center justify-center spinning-disc"><i class="fa-solid ${isMuted?'fa-volume-xmark text-orange-400':'fa-music text-sky-400'}"></i></button></div></div></div>`}).join('');
 let first=c.querySelector('video'); if(first){first.muted=isMuted; first.play().catch(()=>{})}
 }
 function toggleMute(){isMuted=!isMuted;document.querySelectorAll('video').forEach(v=>v.muted=isMuted)}
 function doubleTap(e,id){let card=e.currentTarget;let h=document.createElement('i');h.className='fa-solid fa-heart heart-burst';h.style.left='40%';h.style.top='40%';card.appendChild(h);setTimeout(()=>h.remove(),700);if(!liked.has(id))toggleLike(id)}
 async function toggleLike(id){let isL=liked.has(id);isL?liked.delete(id):liked.add(id);let el=document.getElementById('like-'+id);let c=document.getElementById('like-c-'+id);if(el)el.className=`fa-solid fa-heart text-2xl ${!isL?'text-orange-500':'text-white'}`;if(c)c.textContent=parseInt(c.textContent)+(isL?-1:1)}
 function toggleSave(id){let s=saved.has(id);s?saved.delete(id):saved.add(id);let el=document.getElementById('save-'+id);if(el)el.className=`fa-solid fa-bookmark text-2xl ${!s?'text-blue-400':'text-white'}`}
-function openComments(id){activeCommentId=id;toggleModal('comments-modal',true);document.getElementById('comments-list').innerHTML=`<div class="bg-slate-800 p-3 rounded-xl"><b class="text-sky-400">@alex_ug</b>: Love Mplanet! 🚀</div>`}
+function openComments(id){toggleModal('comments-modal',true);document.getElementById('comments-list').innerHTML=`<div class="bg-slate-800 p-3 rounded-xl"><b class="text-sky-400">@alex_ug</b>: Love Mplanet! 🚀</div>`}
 function submitComment(e){e.preventDefault();let inp=document.getElementById('comment-input');let txt=inp.value.trim();if(!txt)return;document.getElementById('comments-list').innerHTML+=`<div class="bg-slate-800 p-3 rounded-xl"><b class="text-orange-400">@${currentProfile.username}</b>: ${escapeHtml(txt)}</div>`;inp.value=''}
-function shareVideo(id){let url=location.href;if(navigator.share)navigator.share({title:'Mplanet',url}).catch(()=>{});else{ navigator.clipboard.writeText(url); alert('Link copied!')} }
+function shareVideo(){if(navigator.share)navigator.share({title:'Mplanet',url:location.href}).catch(()=>{});else{ navigator.clipboard.writeText(location.href); alert('Link copied!')}}
 function filterVideos(q){let res=allVideos.filter(v=>(v.caption||'').toLowerCase().includes(q.toLowerCase()));document.getElementById('search-results').innerHTML=res.map(v=>`<div class="bg-slate-900 rounded-xl overflow-hidden"><div class="aspect-[9/16] bg-slate-800 flex items-center justify-center text-4xl">🎬</div><p class="p-2 text-sm line-clamp-2">${escapeHtml(v.caption)}</p></div>`).join('')||'No results'}
 
 async function handleUpload(e){
 e.preventDefault();
-let url=document.getElementById('video-url').value.trim();
+let file=document.getElementById('video-file')?.files[0];
+let linkUrl=document.getElementById('video-url').value.trim();
 let caption=document.getElementById('video-caption').value.trim();
 let music=document.getElementById('video-music').value.trim()||'Original Sound';
-if(!url) return alert('Paste link');
-let {error}=await sb.from('Videos').insert([{title:caption,caption:caption,video_url:url,music_name:music,user_id:currentProfile.id,username:currentProfile.username}]);
-if(error) return alert('Error: '+error.message);
-alert('Published to MPlanet!'); e.target.reset(); toggleModal('upload-modal',false); loadFeed('foryou');
+let status=document.getElementById('upload-status');
+let bar=document.getElementById('progress-bar');
+let wrap=document.getElementById('progress-wrap');
+let btn=document.getElementById('publish-btn');
+let finalUrl=linkUrl;
+if(file){
+if(file.size>100*1024*1024) return alert('Video too big! Keep under 100MB. Compress it.');
+btn.disabled=true; btn.textContent='Uploading... Do not close';
+if(wrap) wrap.classList.remove('hidden');
+if(status) status.textContent='Uploading to MPlanet... 0%';
+let fileName=Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+let {error}=await sb.storage.from('videos').upload(fileName,file,{cacheControl:'3600',upsert:false,contentType:file.type||'video/mp4'});
+if(error){btn.disabled=false;btn.textContent='Publish Video';if(status)status.textContent='';return alert('Upload failed: '+error.message+'\nCheck: Bucket "videos" is Public? SQL in Step 2 run?')}
+let {data:pub}=sb.storage.from('videos').getPublicUrl(fileName);
+finalUrl=pub.publicUrl;
+if(bar) bar.style.width='100%';
+if(status) status.textContent='Upload done! Publishing...';
+}
+if(!finalUrl) return alert('Select a video file OR paste a link');
+let {error:dbError}=await sb.from('Videos').insert([{title:caption,caption:caption,video_url:finalUrl,music_name:music,user_id:currentProfile.id,username:currentProfile.username}]);
+if(dbError){btn.disabled=false;btn.textContent='Publish Video';return alert('Error: '+dbError.message)}
+alert('Published to MPlanet!'); if(status)status.textContent=''; if(bar)bar.style.width='0%'; if(wrap)wrap.classList.add('hidden');
+btn.disabled=false; btn.textContent='Publish Video';
+e.target.reset(); toggleModal('upload-modal',false); loadFeed('foryou');
 }
 function renderProfile(){
 let my=allVideos.filter(v=>v.profiles.id===currentProfile.id);
 document.getElementById('stat-posts').textContent=my.length;
 document.getElementById('stat-likes').textContent=my.reduce((s,v)=>s+(v.likes_count||0),0);
 document.getElementById('wallet-coins').textContent=coins;
-document.getElementById('profile-grid').innerHTML=my.map(v=>`<div class="aspect-[9/16] bg-slate-900 flex items-center justify-center text-3xl">🎬<span class="text-xs absolute">❤️ ${v.likes_count}</span></div>`).join('')||`<div class="col-span-3 py-10 text-center text-slate-400 text-sm">No posts yet</div>`;
+document.getElementById('profile-grid').innerHTML=my.map(v=>`<div class="aspect-[9/16] bg-slate-900 flex items-center justify-center text-3xl relative">🎬<span class="absolute bottom-1 text-xs">❤️ ${v.likes_count}</span></div>`).join('')||`<div class="col-span-3 py-10 text-center text-slate-400 text-sm">No posts yet</div>`;
 }
 function openWithdraw(){document.getElementById('withdraw-box').classList.toggle('hidden')}
 async function doWithdraw(){
