@@ -232,8 +232,35 @@ allVideos=videos; renderVideos(videos);
 const DEMO=[{id:'demo-1',video_url:'https://assets.mixkit.co/videos/preview/mixkit-girl-in-neon-light-1282-large.mp4',caption:'Welcome to Mplanet! Cosmic vibes #mplanet #viral',music_name:'Orbit Pulse',likes_count:1420,comments_count:34,saves_count:56,profiles:{id:'u1',username:'maya_vibes'}},{id:'demo-2',video_url:'https://assets.mixkit.co/videos/preview/mixkit-tree-with-yellow-flowers-1173-large.mp4',caption:'Morning breeze in Kampala #nature #uganda',music_name:'Acoustic Breeze',likes_count:890,comments_count:19,saves_count:24,profiles:{id:'u2',username:'kampala_explorer'}}];
 function renderVideos(videos){ let c=document.getElementById('video-feed'); if(!videos.length){c.innerHTML=`<div class="h-full flex items-center justify-center p-6 text-center text-white/60">No videos yet. Be first to post!</div>`;return}
 c.innerHTML=videos.map(v=>{let l=liked.has(v.id),s=saved.has(v.id);return `<div class="video-card" ondblclick="doubleTap(event,'${v.id}')">${mediaHtml(v)}<div class="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-slate-950/95 to-transparent pt-12 pb-4 px-4"><div class="mb-3"><h3 class="font-bold text-lg text-sky-300">@${v.profiles.username}</h3><p class="text-base line-clamp-2">${escapeHtml(v.caption)}</p><div class="flex gap-2 text-sm text-orange-300"><i class="fa-solid fa-music"></i><span class="truncate">${escapeHtml(v.music_name)}</span></div></div><div class="flex justify-between items-center pt-2 border-t border-blue-500/20"><div class="w-11 h-11 rounded-full bg-gradient-to-tr from-blue-600 to-orange-500 p-0.5"><div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center font-bold uppercase">${v.profiles.username[0]}</div></div><button onclick="toggleLike('${v.id}','${v.profiles.username}')"><i id="like-${v.id}" class="fa-solid fa-heart text-2xl ${l?'text-orange-500':'text-white'}"></i><br><span id="like-c-${v.id}" class="text-sm font-bold">${v.likes_count}</span></button><button onclick="openComments('${v.id}')"><i class="fa-solid fa-comment-dots text-2xl text-sky-300"></i><br><span class="text-sm font-bold">${v.comments_count}</span></button><button onclick="toggleSave('${v.id}')"><i id="save-${v.id}" class="fa-solid fa-bookmark text-2xl ${s?'text-blue-400':'text-white'}"></i><br><span class="text-sm font-bold">${v.saves_count}</span></button><button onclick="shareVideo()"><i class="fa-solid fa-share text-2xl"></i><br><span class="text-sm font-bold">Share</span></button><button onclick="toggleMute()" class="w-12 h-12 rounded-full bg-orange-500 border-2 border-white/80 flex items-center justify-center spinning-disc"><i class="fa-solid ${isMuted?'fa-volume-xmark':'fa-volume-high'} text-white"></i></button></div></div></div>`}).join('');
-let first=c.querySelector('video'); if(first){first.muted=isMuted; first.play().catch(()=>{})} }
-function toggleMute(){isMuted=!isMuted;document.querySelectorAll('video').forEach(v=>v.muted=isMuted); loadFeed('foryou')}
+setupVideoObserver();
+}
+  function setupVideoObserver(){
+  document.querySelectorAll('#video-feed video').forEach(v => {
+    v.pause();
+    v.muted = isMuted;
+  });
+  let observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      let video = entry.target.querySelector('video');
+      if(!video) return;
+      if(entry.isIntersecting && entry.intersectionRatio >= 0.6){
+        video.muted = isMuted;
+        video.play().catch(()=>{});
+      } else {
+        video.pause();
+      }
+    });
+  }, { root: document.getElementById('video-feed'), threshold: 0.6 });
+  document.querySelectorAll('.video-card').forEach(card => observer.observe(card));
+}
+function toggleMute(){
+  isMuted = !isMuted;
+  document.querySelectorAll('#video-feed video').forEach(v => v.muted = isMuted);
+  // Don't reload feed - just update the button icon
+  document.querySelectorAll('.video-card button').forEach(()=>{});
+  // Re-render icons only by re-running observer
+  setupVideoObserver();
+}
 function doubleTap(e,id){let card=e.currentTarget;let h=document.createElement('i');h.className='fa-solid fa-heart heart-burst';h.style.left='40%';h.style.top='40%';card.appendChild(h);setTimeout(()=>h.remove(),700);if(!liked.has(id)){let v=allVideos.find(x=>String(x.id)===String(id)); toggleLike(id, v?v.profiles.username:'')}}
 function applyLikeUI(id){ liked.add(id); let heart=document.getElementById('like-'+id); let cnt=document.getElementById('like-c-'+id); if(heart) heart.classList.add('text-orange-500'); if(cnt) cnt.textContent=(parseInt(cnt.textContent)||0)+1; }
 async function toggleLike(id, owner){
