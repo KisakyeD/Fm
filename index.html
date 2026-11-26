@@ -430,6 +430,7 @@ function renderProfileGrid(){
   document.getElementById('profile-grid').innerHTML=list.map(v=>`<div onclick="openProfileVideo('${v.id}')" class="aspect-[9/16] bg-slate-900 relative overflow-hidden cursor-pointer"><button onclick="event.stopPropagation(); openPostMenu('${v.id}')" class="absolute top-1 right-1 z-20 w-8 h-8 bg-black/70 rounded-full font-black">⋮</button><span class="absolute top-1 left-1 z-10 text-xs bg-black/70 px-1 rounded">${pinned.includes(String(v.id))?'📌':''}</span><video src="${v.video_url}" muted preload="metadata" class="w-full h-full object-cover"></video><span class="absolute bottom-1 left-1 text-xs bg-black/70 px-1 rounded">❤️ ${v.likes_count}</span><span class="absolute inset-0 flex items-center justify-center text-3xl pointer-events-none">▶️</span></div>`).join('')||`<div class="col-span-3 py-10 text-center text-slate-400 text-sm">No ${profileTab} yet</div>`;
 }
 let currentMenuPostId = null;
+let currentPlayerVideoId = null;
 function getPinned(){ try{ return JSON.parse(localStorage.getItem('pinned-posts')||'[]'); }catch(e){ return []; } }
 function openPostMenu(id){
   currentMenuPostId = id;
@@ -475,7 +476,7 @@ async function deletePost(){
   allVideos = allVideos.filter(x=>String(x.id)!==String(id));
   hideLoader(); closePostMenu(); renderProfileGrid(); alert('Post deleted 🗑️');
 }
-function openProfileVideo(id){ let v=allVideos.find(x=>String(x.id)===String(id)); if(!v) return; pauseAllVideos(); let vid=document.getElementById('profile-player-video'); vid.src=v.video_url; vid.muted=isMuted; document.getElementById('profile-player-caption').textContent=v.caption||''; document.getElementById('profile-player').classList.remove('hidden'); vid.play().catch(()=>{}); }
+function openProfileVideo(id){currentPlayerVideoId = id; let v=allVideos.find(x=>String(x.id)===String(id)); if(!v) return; pauseAllVideos(); let vid=document.getElementById('profile-player-video'); vid.src=v.video_url; vid.muted=isMuted; document.getElementById('profile-player-caption').textContent=v.caption||''; document.getElementById('profile-player').classList.remove('hidden'); vid.play().catch(()=>{}); }
 function closeProfilePlayer(){ let vid=document.getElementById('profile-player-video'); vid.pause(); vid.src=''; document.getElementById('profile-player').classList.add('hidden'); }
 async function loadWithdrawHistory(){ let {data}=await sb.from('Withdraws').select('*').eq('user_id', currentProfile.id).order('created_at',{ascending:false}).limit(5); let el=document.getElementById('withdraw-history'); if(!el) return; if(!data||!data.length){ el.innerHTML='No withdraws yet'; return; } el.innerHTML=data.map(w=>`<div class="flex justify-between bg-slate-800 p-2 rounded-lg"><span>${w.amount} coins = $${(w.amount*COIN_WITHDRAW_USD).toFixed(2)}</span><span class="${w.status==='pending'?'text-amber-400':'text-green-400'}">${w.status}</span></div>`).join(''); }
 function restoreProfilePic(){
@@ -558,7 +559,7 @@ closeDrawer = function(){ _origCloseDrawer(); setTimeout(resumeVisibleVideo, 300
 </div>
   <div id="profile-player" class="hidden fixed inset-0 z-[70] bg-black max-w-[500px] mx-auto flex flex-col">
   <div class="flex justify-between items-center px-3 py-3 bg-black/80 z-20">
-    <button onclick="closeProfilePlayer()" class="p-2"><i class="fa-solid fa-arrow-left text-2xl"></i> Back</button>
+    <button onclick="closeProfilePlayer()"<button onclick="openPostMenu(currentPlayerVideoId)" class="p-2 text-2xl font-black">⋮</button> class="p-2"><i class="fa-solid fa-arrow-left text-2xl"></i> Back</button>
     <span class="font-bold text-sky-300">@briank</span>
     <button onclick="closeProfilePlayer()" class="p-2"><i class="fa-solid fa-xmark text-2xl"></i></button>
   </div>
