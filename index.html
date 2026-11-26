@@ -368,7 +368,8 @@ function confirmBuy(){
   let w = document.getElementById('wallet-coins');
   if(w) w.textContent = coins;
   document.getElementById('buy-modal').classList.add('hidden');
-  alert('✅ Paid ' + payMethod + ' ' + phone + '\n+' + buyAmount + ' coins added!\nNew Balance: ' + coins + ' 🪙');
+ hideLoader();
+alert('✅ Paid ' + payMethod + ' ' + phone + '\n+' + buyAmount + ' coins added!\nNew Balance: ' + coins + ' 🪙');
 }
 async function giveReferralBonus(buyerUsername, depositCoins, depositUGX){
   if(depositUGX < MIN_DEPOSIT_UGX) return;
@@ -448,7 +449,9 @@ function toggleWalletMenu(){
 }
 function openWithdraw(){document.getElementById('withdraw-box').classList.toggle('hidden')}
 async function doWithdraw(){
-  let phone=document.getElementById('wd-phone').value.trim(); let amt=parseInt(document.getElementById('wd-amount').value);
+  showLoader();
+  setTimeout(hideLoader, 5000);
+  let phone=document.getElementById('wd-phone').value.trim();let amt=parseInt(document.getElementById('wd-amount').value);
   if(!phone||!amt) return alert('Enter phone + coins');
   if(amt>coins) return alert('Not enough coins');
   let ugxValue=amt*COIN_WITHDRAW_USD*LIVE_UGX;
