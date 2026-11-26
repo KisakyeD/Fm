@@ -212,7 +212,39 @@ async function loadLiveRate(){ try{ let r=await fetch('https://open.er-api.com/v
 }
 function updateCoinPrices(){ document.querySelectorAll('.buy-price').forEach(e=>e.textContent=(parseInt(e.dataset.coins)*COIN_RATE).toFixed(2)); let w=document.getElementById('wd-rate'); if(w) w.textContent=WITHDRAW_RATE; let d=document.getElementById('dep-rate'); if(d) d.textContent=COIN_RATE; }
 function updateWalletUSD(){ let w=document.getElementById('wallet-usd'); if(w) w.textContent='$'+(coins*COIN_WITHDRAW_USD).toFixed(2); let d=document.getElementById('wallet-deposit-usd'); if(d) d.textContent='$'+(coins*COIN_DEPOSIT_USD).toFixed(2); let ph=localStorage.getItem('payout-phone')||''; let pd=document.getElementById('payout-display'); if(pd) pd.textContent=ph||'Not set'; let wp=document.getElementById('wd-phone'); if(wp && ph) wp.value=ph; updatePrivateBadge(); }
-function toggleModal(id,show){document.getElementById(id).classList.toggle('hidden',!show)}
+function pauseAllVideos(){
+  document.querySelectorAll('#video-feed video').forEach(v => v.pause());
+}
+function resumeVisibleVideo(){
+  // Only resume if NO modal is open
+  let anyOpen = document.querySelectorAll('.fixed:not(.hidden)').length > 0;
+  // Check if profile/settings/comments/search/upload/live/buy modals are open
+  let modals = ['profile-modal','settings-modal','comments-modal','search-modal','upload-modal','live-modal','edit-modal','buy-modal'];
+  let isAnyModalOpen = modals.some(id => {
+    let el = document.getElementById(id);
+    return el && !el.classList.contains('hidden');
+  });
+  if(isAnyModalOpen) return;
+  // Find visible card and play it
+  let cards = document.querySelectorAll('.video-card');
+  cards.forEach(card => {
+    let rect = card.getBoundingClientRect();
+    if(rect.top >= -100 && rect.top < 200){
+      let v = card.querySelector('video');
+      if(v){ v.muted = isMuted; v.play().catch(()=>{}); }
+    }
+  });
+}
+function toggleModal(id,show){
+  document.getElementById(id).classList.toggle('hidden',!show);
+  if(show){
+    // Opening any modal = PAUSE video
+    pauseAllVideos();
+  } else {
+    // Closing modal = RESUME video after small delay
+    setTimeout(resumeVisibleVideo, 300);
+  }
+}
 function openDrawer(){document.getElementById('drawer-bg').classList.remove('hidden');document.getElementById('drawer').classList.remove('-translate-x-full')}
 function closeDrawer(){document.getElementById('drawer-bg').classList.add('hidden');document.getElementById('drawer').classList.add('-translate-x-full')}
 function openSearch(){toggleModal('search-modal',true);filterVideos('')}
