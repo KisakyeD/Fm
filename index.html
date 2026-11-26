@@ -314,5 +314,28 @@ document.addEventListener('input', e=>{ if(e.target.id==='wd-amount'){ let v=par
 loadFeed('foryou'); loadMyCoins(); loadLiveRate();
 document.getElementById('withdraw-box').classList.add('hidden');
 </script>
+<!-- BUY COINS BOX - NEW -->
+<div id="buy-modal" class="hidden fixed inset-0 z-[110] bg-black/80 flex items-center justify-center p-4">
+  <div class="bg-slate-900 w-full max-w-sm rounded-2xl p-5 border border-amber-500/40">
+    <div class="flex justify-between items-center">
+      <h3 class="font-black text-lg text-amber-400">🪙 Buy Coins</h3>
+      <button onclick="document.getElementById('buy-modal').classList.add('hidden')">✕</button>
+    </div>
+    <div class="text-center my-4">
+      <p class="text-5xl font-black" id="buy-modal-coins">50 🪙</p>
+      <p class="text-amber-400 font-bold mt-1" id="buy-modal-price">$0.40</p>
+      <p class="text-xs text-slate-400" id="buy-modal-ugx">≈ UGX 1,480 • Live $1 = UGX 3,700</p>
+      <p class="text-xs text-slate-400 mt-1">Your Balance: <b class="text-white" id="buy-modal-balance">850</b> 🪙</p>
+    </div>
+    <label class="text-xs text-slate-400">Payment Method</label>
+    <div class="grid grid-cols-2 gap-2 my-2">
+      <button onclick="setPayMethod('MTN',this)" id="pay-mtn" class="bg-amber-500 text-black py-2.5 rounded-xl font-bold">MTN MoMo</button>
+      <button onclick="setPayMethod('Airtel',this)" id="pay-airtel" class="bg-slate-800 py-2.5 rounded-xl font-bold">Airtel Money</button>
+    </div>
+    <input id="buy-phone" placeholder="Phone 077..." class="w-full bg-slate-800 rounded-xl p-3 outline-none mb-3">
+    <button onclick="confirmBuy()" class="w-full bg-gradient-to-r from-blue-600 to-orange-500 py-3 rounded-xl font-bold">Pay Now</button>
+    <p class="text-[11px] text-slate-500 text-center mt-2">Demo: No real money taken yet. Coins added instantly.</p>
+  </div>
+</div>
 </body>
 </html>
