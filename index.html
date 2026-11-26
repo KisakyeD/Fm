@@ -56,7 +56,7 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 <div class="px-5 -mt-10 text-center relative">
 <div class="w-24 h-24 mx-auto relative">
 <div class="w-full h-full rounded-full bg-gradient-to-tr from-blue-600 via-sky-400 to-orange-500 p-0.5"><div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-3xl font-bold overflow-hidden"><img id="profile-pic" class="hidden w-full h-full object-cover rounded-full"><span id="profile-letter">B</span></div></div>
-<button onclick="document.getElementById('profile-pic-input').click()" class="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-orange-500 border-2 border-white flex items-center justify-center text-xl font-black shadow-lg">+</button>
+<button onclick="event.stopPropagation(); document.getElementById('profile-pic-input').click()" class="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-orange-500 border-2 border-white flex items-center justify-center text-xl font-black shadow-lg z-10">+</button>
 <input id="profile-pic-input" type="file" accept="image/*" class="hidden" onchange="uploadProfilePic(event)">
 </div>
 <h3 class="font-extrabold text-xl mt-2">Brian K <span class="text-sky-400 text-base">✓</span></h3><p class="text-sky-400 font-semibold text-sm">@briank • Creator</p>
@@ -373,6 +373,8 @@ function uploadProfilePic(e){ let file=e.target.files[0]; if(!file) return; let 
 function drawEditor(){ let c=document.getElementById('editor-canvas'); let ctx=c.getContext('2d'); ctx.clearRect(0,0,300,300); if(!editorImg) return; ctx.save(); ctx.translate(150+editorX,150+editorY); ctx.rotate(editorRot*Math.PI/180); let s=Math.max(300/editorImg.width,300/editorImg.height)*editorZoom; ctx.drawImage(editorImg,-editorImg.width*s/2,-editorImg.height*s/2,editorImg.width*s,editorImg.height*s); ctx.restore(); }
 function editorRotate(){ editorRot+=90; drawEditor(); }
 function closePhotoEditor(){ document.getElementById('photo-editor').classList.add('hidden'); }
+function openProfilePicViewer(){ let img=document.getElementById('profile-pic'); if(img.classList.contains('hidden')){ document.getElementById('profile-pic-input').click(); return; } document.getElementById('pic-viewer-img').src=img.src; document.getElementById('pic-viewer').classList.remove('hidden'); }
+function closeProfilePicViewer(){ document.getElementById('pic-viewer').classList.add('hidden'); }
 function saveEditedPhoto(){ let c=document.getElementById('editor-canvas'); let small=c.toDataURL('image/jpeg',0.7); let img=document.getElementById('profile-pic'); img.src=small; img.classList.remove('hidden'); document.getElementById('profile-letter').classList.add('hidden'); localStorage.setItem('profile-pic', small); document.getElementById('photo-done-box').classList.remove('hidden'); setTimeout(()=>{ document.getElementById('photo-done-box').classList.add('hidden'); closePhotoEditor(); },1200); }
 // Drag to move
 let dragStart=null; document.addEventListener('pointerdown',e=>{ if(!document.getElementById('photo-editor')||document.getElementById('photo-editor').classList.contains('hidden')) return; if(e.target.id==='editor-canvas') dragStart={x:e.clientX,y:e.clientY,ox:editorX,oy:editorY}; });
@@ -457,6 +459,14 @@ closeDrawer = function(){ _origCloseDrawer(); setTimeout(resumeVisibleVideo, 300
     <button onclick="editorRotate()" class="bg-slate-800 px-4 py-2 rounded-xl font-bold">↻ Rotate</button>
     <button onclick="closePhotoEditor()" class="bg-slate-800 px-4 py-2 rounded-xl font-bold">Cancel</button>
     <button onclick="saveEditedPhoto()" class="bg-gradient-to-r from-blue-600 to-orange-500 px-6 py-2 rounded-xl font-bold">Save Photo ✅</button>
+  </div>
+</div>
+  <div id="pic-viewer" onclick="closeProfilePicViewer()" class="hidden fixed inset-0 z-[85] bg-black/95 flex flex-col items-center justify-center p-4 max-w-[500px] mx-auto">
+  <img id="pic-viewer-img" class="w-80 h-80 rounded-full object-cover border-4 border-orange-500">
+  <p class="mt-3 font-bold">Brian K • @briank</p>
+  <div class="flex gap-2 mt-4" onclick="event.stopPropagation()">
+    <button onclick="closeProfilePicViewer(); document.getElementById('profile-pic-input').click()" class="bg-gradient-to-r from-blue-600 to-orange-500 px-5 py-2.5 rounded-xl font-bold">Change Photo 📸</button>
+    <button onclick="closeProfilePicViewer()" class="bg-slate-800 px-5 py-2.5 rounded-xl font-bold">Close</button>
   </div>
 </div>
 <!-- BUY COINS BOX - NEW -->
