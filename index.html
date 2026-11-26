@@ -559,9 +559,12 @@ closeDrawer = function(){ _origCloseDrawer(); setTimeout(resumeVisibleVideo, 300
 </div>
   <div id="profile-player" class="hidden fixed inset-0 z-[70] bg-black max-w-[500px] mx-auto flex flex-col">
   <div class="flex justify-between items-center px-3 py-3 bg-black/80 z-20">
-    <button onclick="closeProfilePlayer()"<button onclick="openPostMenu(currentPlayerVideoId)" class="p-2 text-2xl font-black">⋮</button> class="p-2"><i class="fa-solid fa-arrow-left text-2xl"></i> Back</button>
+    <button onclick="closeProfilePlayer()" class="p-2"><i class="fa-solid fa-arrow-left text-2xl"></i> Back</button>
     <span class="font-bold text-sky-300">@briank</span>
-    <button onclick="closeProfilePlayer()" class="p-2"><i class="fa-solid fa-xmark text-2xl"></i></button>
+    <div class="flex gap-1">
+      <button onclick="openPostMenu(currentPlayerVideoId)" class="p-2 text-2xl font-black">⋮</button>
+      <button onclick="closeProfilePlayer()" class="p-2"><i class="fa-solid fa-xmark text-2xl"></i></button>
+    </div>
   </div>
   <div class="flex-1 flex items-center justify-center bg-black relative">
     <video id="profile-player-video" controls loop playsinline class="w-full h-full object-contain"></video>
