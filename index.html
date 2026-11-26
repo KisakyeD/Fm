@@ -398,7 +398,18 @@ async function doWithdraw(){
 async function loadMyCoins(){ let {data}=await sb.from('users').select('coins').eq('username', currentProfile.username).single(); if(data&&data.coins!==null){ coins=data.coins; currentProfile.coins=coins; updateWalletUSD(); let w=document.getElementById('wallet-coins'); if(w) w.textContent=coins; } }
 document.addEventListener('input', e=>{ if(e.target.id==='wd-amount'){ let v=parseInt(e.target.value)||0; let el=document.getElementById('wd-ugx'); if(el) el.textContent='$'+(v*WITHDRAW_RATE).toFixed(2)+' (≈ UGX '+Math.round(v*COIN_WITHDRAW_USD*LIVE_UGX).toLocaleString()+')'; let msg=document.getElementById('wd-msg'); if(msg && v>0){ let ugx=v*COIN_WITHDRAW_USD*LIVE_UGX; msg.textContent = ugx < MIN_WITHDRAW_UGX ? '⚠️ Below min UGX 5,000 — need ' + Math.ceil(MIN_WITHDRAW_UGX/(COIN_WITHDRAW_USD*LIVE_UGX)) + ' coins' : '✅ Above min — OK to withdraw'; msg.style.color = ugx < MIN_WITHDRAW_UGX ? '#f87171' : '#4ade80'; } } });
 loadFeed('foryou'); loadMyCoins(); loadLiveRate();
-document.getElementById('withdraw-box').classList.add('hidden');
+// Pause when you leave tab / lock phone / switch app
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden) pauseAllVideos();
+  else setTimeout(resumeVisibleVideo, 300);
+});
+
+// Pause when drawer opens too
+let _origOpenDrawer = openDrawer;
+openDrawer = function(){ pauseAllVideos(); _origOpenDrawer(); };
+let _origCloseDrawer = closeDrawer;
+closeDrawer = function(){ _origCloseDrawer(); setTimeout(resumeVisibleVideo, 300); };
+  document.getElementById('withdraw-box').classList.add('hidden');
 </script>
 <!-- BUY COINS BOX - NEW -->
 <div id="buy-modal" class="hidden fixed inset-0 z-[110] bg-black/80 flex items-center justify-center p-4">
