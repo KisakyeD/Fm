@@ -23,9 +23,34 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 .switch:after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.2s}
 .switch.on:after{left:22px}
 .set-section{transition:all .2s}
+/* MPLANET LOADER - BETTER THAN TIKTOK */
+#mplanet-loader{position:fixed;inset:0;z-index:9999;background:#030712;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+#mplanet-loader.show{display:flex}
+.mp-loader{position:relative;width:90px;height:90px}
+.mp-orbit{position:absolute;inset:0;border:3px solid transparent;border-top-color:#3b82f6;border-right-color:#f97316;border-radius:50%;animation:mpSpin 0.9s linear infinite}
+.mp-planet{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:42px;animation:mpPulse 1s ease-in-out infinite}
+.mp-dot1,.mp-dot2{position:absolute;width:16px;height:16px;border-radius:50%}
+.mp-dot1{background:#3b82f6;top:0;left:50%;animation:mpBounce 0.9s ease-in-out infinite}
+.mp-dot2{background:#f97316;bottom:0;left:50%;animation:mpBounce 0.9s ease-in-out infinite reverse}
+@keyframes mpSpin{to{transform:rotate(360deg)}}
+@keyframes mpPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+@keyframes mpBounce{0%,100%{transform:translateX(-50%) scale(1);opacity:1}50%{transform:translateX(-50%) scale(1.4);opacity:.7}}
+.mp-load-text{font-weight:900;letter-spacing:2px;font-size:13px}
+.mp-load-text span{color:#3b82f6}
+.mp-load-text b{color:#f97316}
 </style>
 </head>
 <body>
+<!-- MPLANET GLOBAL LOADER -->
+<div id="mplanet-loader">
+  <div class="mp-loader">
+    <div class="mp-orbit"></div>
+    <div class="mp-planet">🌍</div>
+    <div class="mp-dot1"></div>
+    <div class="mp-dot2"></div>
+  </div>
+  <div class="mp-load-text"><span>M</span><b>planet</b> LOADING...</div>
+</div>
 <header class="fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-3 py-3 bg-gradient-to-b from-slate-950/90 to-transparent max-w-[500px] mx-auto">
 <div class="flex items-center gap-2"><button onclick="openDrawer()" class="p-1.5"><i class="fa-solid fa-bars text-2xl"></i></button><div class="font-black text-2xl"><span class="text-blue-500">M</span><span class="text-orange-500">planet</span> 🌍</div></div>
 <div class="flex gap-3 font-bold"><button id="tab-following" onclick="loadFeed('following')" class="text-white/60">Following</button><span class="text-white/30">|</span><button id="tab-foryou" onclick="loadFeed('foryou')" class="text-white border-b-2 border-orange-500">For You</button></div>
@@ -147,6 +172,9 @@ let LIVE_UGX=3700;
 const COIN_DEPOSIT_USD=0.008, COIN_WITHDRAW_USD=0.0032;
 const MIN_DEPOSIT_UGX=2000, MIN_WITHDRAW_UGX=5000, REFERRAL_FROM_OWNER=0.15;
 let COIN_RATE=COIN_DEPOSIT_USD, WITHDRAW_RATE=COIN_WITHDRAW_USD;
+function showLoader(){ let l=document.getElementById('mplanet-loader'); if(l) l.classList.add('show'); }
+function hideLoader(){ let l=document.getElementById('mplanet-loader'); if(l) l.classList.remove('show'); }
+function showLoaderAuto(ms){ showLoader(); setTimeout(hideLoader, ms||4000); }
 function getSettings(){ try{ return JSON.parse(localStorage.getItem('mplanet-settings')||'{}'); }catch(e){ return {}; } }
 function saveSetting(k,v){ let s=getSettings(); s[k]=v; localStorage.setItem('mplanet-settings', JSON.stringify(s)); }
 function toggleSetting(k,el){ let s=getSettings(); let cur = s[k]!==undefined ? s[k] : el.classList.contains('on'); let next=!cur; s[k]=next; localStorage.setItem('mplanet-settings', JSON.stringify(s)); el.classList.toggle('on', next); if(k==='private') updatePrivateBadge(); if(k==='soundOn') isMuted=!next; alert(k+' '+(next?'ON':'OFF')); }
@@ -256,6 +284,7 @@ function ytId(u){try{if(u.includes('youtu.be'))return u.split('youtu.be/')[1].sp
 function isYT(u){return u && (u.includes('youtube.com')||u.includes('youtu.be'))}
 function mediaHtml(v){if(isYT(v.video_url)){let id=ytId(v.video_url);return `<iframe src="https://www.youtube.com/embed/${id}?autoplay=0&mute=0&playsinline=1" allowfullscreen allow="autoplay; encrypted-media"></iframe>`}return `<video src="${v.video_url}" loop playsinline preload="metadata" onclick="this.paused?this.play():this.pause()"></video>`}
 async function loadFeed(mode='foryou'){
+showLoader();
 document.getElementById('tab-foryou').className=mode==='foryou'?'text-white border-b-2 border-orange-500':'text-white/60';
 document.getElementById('tab-following').className=mode==='following'?'text-white border-b-2 border-orange-500':'text-white/60';
 let {data}=await sb.from('Videos').select('*').order('created_at',{ascending:false}).limit(20);
@@ -263,6 +292,7 @@ let videos=DEMO;
 if(data&&data.length){videos=data.map(v=>({id:String(v.id),video_url:v.video_url,caption:v.caption||v.title||'',music_name:v.music_name||'Original Sound',likes_count:v.likes_count||0,comments_count:v.comments_count||0,saves_count:v.saves_count||0,profiles:{id:v.user_id||'u',username:v.username||'mplanet_user'}}))}
 if(mode==='following') videos=videos.filter(v=>following.has(v.profiles.id));
 allVideos=videos; renderVideos(videos);
+hideLoader();
 }
 const DEMO=[{id:'demo-1',video_url:'https://assets.mixkit.co/videos/preview/mixkit-girl-in-neon-light-1282-large.mp4',caption:'Welcome to Mplanet! Cosmic vibes #mplanet #viral',music_name:'Orbit Pulse',likes_count:1420,comments_count:34,saves_count:56,profiles:{id:'u1',username:'maya_vibes'}},{id:'demo-2',video_url:'https://assets.mixkit.co/videos/preview/mixkit-tree-with-yellow-flowers-1173-large.mp4',caption:'Morning breeze in Kampala #nature #uganda',music_name:'Acoustic Breeze',likes_count:890,comments_count:19,saves_count:24,profiles:{id:'u2',username:'kampala_explorer'}}];
 function renderVideos(videos){ let c=document.getElementById('video-feed'); if(!videos.length){c.innerHTML=`<div class="h-full flex items-center justify-center p-6 text-center text-white/60">No videos yet. Be first to post!</div>`;return}
@@ -432,6 +462,7 @@ async function doWithdraw(){
 }
 async function loadMyCoins(){ let {data}=await sb.from('users').select('coins').eq('username', currentProfile.username).single(); if(data&&data.coins!==null){ coins=data.coins; currentProfile.coins=coins; updateWalletUSD(); let w=document.getElementById('wallet-coins'); if(w) w.textContent=coins; } }
 document.addEventListener('input', e=>{ if(e.target.id==='wd-amount'){ let v=parseInt(e.target.value)||0; let el=document.getElementById('wd-ugx'); if(el) el.textContent='$'+(v*WITHDRAW_RATE).toFixed(2)+' (≈ UGX '+Math.round(v*COIN_WITHDRAW_USD*LIVE_UGX).toLocaleString()+')'; let msg=document.getElementById('wd-msg'); if(msg && v>0){ let ugx=v*COIN_WITHDRAW_USD*LIVE_UGX; msg.textContent = ugx < MIN_WITHDRAW_UGX ? '⚠️ Below min UGX 5,000 — need ' + Math.ceil(MIN_WITHDRAW_UGX/(COIN_WITHDRAW_USD*LIVE_UGX)) + ' coins' : '✅ Above min — OK to withdraw'; msg.style.color = ugx < MIN_WITHDRAW_UGX ? '#f87171' : '#4ade80'; } } });
+showLoader();
 restoreProfilePic();
 let _wm = document.getElementById('wallet-menu');
 let _sec = document.getElementById('buy-coins-section');
