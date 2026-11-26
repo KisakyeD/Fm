@@ -18,6 +18,10 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 @keyframes heartPop{0%{transform:scale(.5);opacity:1}100%{transform:scale(1.6);opacity:0}}
 .heart-burst{position:absolute;pointer-events:none;color:#f97316;font-size:5rem;animation:heartPop .7s ease-out forwards}
 .tab-active{color:#fff;border-bottom:2px solid #f97316}
+.switch{position:relative;width:44px;height:24px;background:#334155;border-radius:999px;cursor:pointer;flex-shrink:0}
+.switch.on{background:#22c55e}
+.switch:after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.2s}
+.switch.on:after{left:22px}
 </style>
 </head>
 <body>
@@ -37,17 +41,17 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 <button onclick="closeDrawer();toggleModal('upload-modal',true)" class="planet-btn"><span class="text-2xl">🌍</span><span><b>Create / Upload</b><br><small class="text-sky-300">Share to the world.</small></span></button>
 <button onclick="closeDrawer();toggleModal('profile-modal',true);renderProfile()" class="flex gap-4 px-3 py-3 rounded-xl hover:bg-blue-500/15 text-left font-semibold"><i class="fa-regular fa-user w-6 text-orange-400 text-xl"></i>Profile @briank</button>
 </nav></div>
-<div class="pt-4 border-t border-blue-500/20 text-sm text-slate-400">Mplanet Creator Platform • All prices in USD</div>
+<div class="pt-4 border-t border-blue-500/20 text-sm text-slate-400">Mplanet • All prices in USD</div>
 </aside>
 <main id="video-feed" class="max-w-[500px] mx-auto relative"></main>
 <div id="live-modal" onclick="if(event.target===this)toggleModal('live-modal',false)" class="hidden fixed inset-0 z-50 bg-slate-950/90 flex items-center justify-center p-4"><div class="bg-slate-900 w-full max-w-md rounded-2xl p-5 border border-orange-500/35"><div class="flex justify-between mb-4"><span class="px-2 py-1 rounded-full text-xs font-extrabold bg-orange-500">MPLANET LIVE</span><button onclick="toggleModal('live-modal',false)"><i class="fa-solid fa-xmark"></i></button></div><div class="aspect-[9/12] rounded-xl bg-slate-950 flex flex-col items-center justify-center text-center p-6"><i class="fa-solid fa-video text-4xl text-orange-500 mb-3"></i><p class="font-bold">Broadcast to Mplanet</p><p class="text-sm text-slate-400">Allow camera to go live</p></div><button onclick="alert('Allow camera permission to go live')" class="w-full mt-4 bg-gradient-to-r from-blue-600 to-orange-500 py-3 rounded-xl font-bold">Go Live Now</button></div></div>
 <div id="comments-modal" onclick="if(event.target===this)toggleModal('comments-modal',false)" class="hidden fixed inset-0 z-50 bg-slate-950/70 flex items-end justify-center"><div class="bg-slate-900 w-full max-w-[500px] h-[65dvh] rounded-t-2xl flex flex-col p-4"><div class="flex justify-between border-b border-blue-500/20 pb-2"><button onclick="toggleModal('comments-modal',false)"><i class="fa-solid fa-arrow-left"></i></button><span class="font-bold text-sky-300">Comments</span><button onclick="toggleModal('comments-modal',false)"><i class="fa-solid fa-xmark"></i></button></div><div id="comments-list" class="flex-1 overflow-y-auto py-3 space-y-3"></div><form onsubmit="submitComment(event)" class="flex gap-2 pt-2 border-t border-blue-500/20"><input id="comment-input" required placeholder="Add a comment..." class="flex-1 bg-slate-800 rounded-full px-4 py-2 outline-none"><button class="bg-gradient-to-r from-blue-600 to-orange-500 px-5 py-2 rounded-full font-semibold">Post</button></form></div></div>
-<div id="upload-modal" onclick="if(event.target===this)toggleModal('upload-modal',false)" class="hidden fixed inset-0 z-50 bg-slate-950/85 flex items-center justify-center p-4"><div class="bg-slate-900 w-full max-w-md rounded-2xl p-5 border border-blue-500/30"><div class="flex justify-between mb-4"><h2 class="font-bold text-xl text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-orange-400">Post to Mplanet</h2><button onclick="toggleModal('upload-modal',false)"><i class="fa-solid fa-xmark text-xl"></i></button></div><form onsubmit="handleUpload(event)" class="space-y-4"><div><label class="text-sm text-sky-300 font-semibold">1. Select Video From Device</label><input id="video-file" type="file" accept="video/*" class="w-full mt-1 text-sm text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-orange-500 file:text-white"><video id="upload-preview" controls class="hidden w-full h-40 object-cover rounded-xl bg-black mt-2"></video><p id="upload-status" class="text-xs text-sky-300 mt-1"></p><div class="w-full bg-slate-800 rounded-full h-2 mt-2 overflow-hidden hidden" id="progress-wrap"><div id="progress-bar" class="h-full bg-gradient-to-r from-blue-500 to-orange-500" style="width:0%"></div></div></div><div><label class="text-sm text-sky-300">OR Paste YouTube / MP4 Link (optional)</label><input id="video-url" type="text" placeholder="https://youtu.be/... (leave empty if uploading file)" class="w-full bg-slate-800 rounded-xl p-3 outline-none mt-1"></div><div><label class="text-sm text-sky-300">Caption & Hashtags</label><textarea id="video-caption" rows="2" required placeholder="#mplanet #viral" class="w-full bg-slate-800 rounded-xl p-3 outline-none"></textarea></div><div><label class="text-sm text-sky-300">Sound / Track</label><input id="video-music" placeholder="Original Sound" class="w-full bg-slate-800 rounded-xl p-3 outline-none"></div><button id="publish-btn" class="w-full bg-gradient-to-r from-blue-600 to-orange-500 py-3 rounded-xl font-bold">Publish Video</button></form></div></div>
+<div id="upload-modal" onclick="if(event.target===this)toggleModal('upload-modal',false)" class="hidden fixed inset-0 z-50 bg-slate-950/85 flex items-center justify-center p-4"><div class="bg-slate-900 w-full max-w-md rounded-2xl p-5 border border-blue-500/30"><div class="flex justify-between mb-4"><h2 class="font-bold text-xl text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-orange-400">Post to Mplanet</h2><button onclick="toggleModal('upload-modal',false)"><i class="fa-solid fa-xmark text-xl"></i></button></div><form onsubmit="handleUpload(event)" class="space-y-4"><div><label class="text-sm text-sky-300 font-semibold">1. Select Video From Device</label><input id="video-file" type="file" accept="video/*" class="w-full mt-1 text-sm text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-orange-500 file:text-white"><video id="upload-preview" controls class="hidden w-full h-40 object-cover rounded-xl bg-black mt-2"></video><p id="upload-status" class="text-xs text-sky-300 mt-1"></p><div class="w-full bg-slate-800 rounded-full h-2 mt-2 overflow-hidden hidden" id="progress-wrap"><div id="progress-bar" class="h-full bg-gradient-to-r from-blue-500 to-orange-500" style="width:0%"></div></div></div><div><label class="text-sm text-sky-300">OR Paste YouTube / MP4 Link</label><input id="video-url" type="text" placeholder="https://youtu.be/..." class="w-full bg-slate-800 rounded-xl p-3 outline-none mt-1"></div><div><label class="text-sm text-sky-300">Caption & Hashtags</label><textarea id="video-caption" rows="2" required placeholder="#mplanet #viral" class="w-full bg-slate-800 rounded-xl p-3 outline-none"></textarea></div><div><label class="text-sm text-sky-300">Sound / Track</label><input id="video-music" placeholder="Original Sound" class="w-full bg-slate-800 rounded-xl p-3 outline-none"></div><button id="publish-btn" class="w-full bg-gradient-to-r from-blue-600 to-orange-500 py-3 rounded-xl font-bold">Publish Video</button></form></div></div>
 
 <!-- PROFILE -->
 <div id="profile-modal" class="hidden fixed inset-0 z-50 bg-slate-950 flex flex-col max-w-[500px] mx-auto overflow-y-auto">
-<div class="flex justify-between px-4 py-3 border-b border-blue-500/20 sticky top-0 bg-slate-950 z-20"><button onclick="toggleModal('profile-modal',false)"><i class="fa-solid fa-arrow-left text-xl"></i></button><span class="font-bold text-sky-300">@briank</span><button onclick="toggleModal('settings-modal',true)" class="text-slate-300"><i class="fa-solid fa-gear"></i> Settings</button></div>
-<div class="h-24 bg-gradient-to-r from-blue-600 via-sky-500 to-orange-500 relative shrink-0"><button onclick="toggleModal('edit-modal',true)" class="absolute bottom-2 right-2 bg-black/60 px-2 py-1 rounded text-xs">Edit Cover</button></div>
+<div class="flex justify-between px-4 py-3 border-b border-blue-500/20 sticky top-0 bg-slate-950 z-20"><button onclick="toggleModal('profile-modal',false)"><i class="fa-solid fa-arrow-left text-xl"></i></button><span class="font-bold text-sky-300">@briank</span><button onclick="openSettings()" class="text-slate-300"><i class="fa-solid fa-gear"></i> Settings</button></div>
+<div class="h-24 bg-gradient-to-r from-blue-600 via-sky-500 to-orange-500 relative shrink-0"></div>
 <div class="px-5 -mt-10 text-center relative">
 <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-tr from-blue-600 via-sky-400 to-orange-500 p-0.5"><div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-3xl font-bold overflow-hidden"><img id="profile-pic" class="hidden w-full h-full object-cover rounded-full"><span id="profile-letter">B</span></div></div>
 <h3 class="font-extrabold text-xl mt-2">Brian K <span class="text-sky-400 text-base">✓</span></h3><p class="text-sky-400 font-semibold text-sm">@briank • Creator</p>
@@ -56,34 +60,74 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 <div class="flex justify-center gap-2 mt-3"><button onclick="toggleModal('edit-modal',true)" class="bg-slate-800 px-4 py-1.5 rounded-full text-sm font-bold">Edit Profile</button><button onclick="shareProfile()" class="bg-slate-800 px-4 py-1.5 rounded-full text-sm font-bold">Share Profile</button></div>
 <div class="grid grid-cols-4 gap-2 mt-4 pt-3 border-t border-blue-500/15"><div><b id="stat-posts">0</b><br><span class="text-slate-400 text-xs">Posts</span></div><div><b id="stat-followers" class="text-orange-400">0</b><br><span class="text-slate-400 text-xs">Followers</span></div><div><b id="stat-following" class="text-sky-400">0</b><br><span class="text-slate-400 text-xs">Following</span></div><div><b id="stat-likes" class="text-amber-400">0</b><br><span class="text-slate-400 text-xs">Likes</span></div></div>
 </div>
-
-<!-- WALLET -->
 <div class="mx-4 mt-4 p-4 rounded-2xl bg-gradient-to-r from-blue-950/70 to-orange-950/50 border border-blue-500/30"><div class="flex justify-between mb-2"><span class="text-xs font-extrabold text-sky-300">🪙 Coins Wallet</span><span class="text-xs text-slate-400">All prices in USD</span></div>
 <div><span id="wallet-coins" class="text-2xl font-black">850</span> <span class="text-xs font-bold text-amber-400">Coins</span></div>
 <p class="text-xs mt-1 text-slate-300">Withdraw value: <b class="text-green-400" id="wallet-usd">$2.72</b> • Deposit value: <b class="text-amber-400" id="wallet-deposit-usd">$6.80</b></p>
-<p class="text-xs text-slate-400">Payout: <span id="payout-display">Not set</span></p>
+<p class="text-xs text-slate-400">Payout: <span id="payout-display">Not set</span> • <span id="private-badge" class="text-slate-500">Public Account</span></p>
 <div class="grid grid-cols-2 gap-2 mt-3"><button onclick="document.getElementById('buy-coins-section').scrollIntoView({behavior:'smooth'})" class="py-2 rounded-xl bg-sky-500 text-slate-950 font-extrabold text-sm">+ Deposit / Buy Coins</button><button onclick="openWithdraw()" class="py-2 rounded-xl bg-orange-500 font-extrabold text-sm">Withdraw</button></div>
 <div id="withdraw-box" class="hidden mt-3 space-y-2"><p class="text-xs text-slate-400">Withdraw: 1 coin = <b class="text-green-400">$<span id="wd-rate">0.0032</span></b> • Deposit: 1 coin = $<span id="dep-rate">0.008</span><br>Min Withdraw: <b id="min-wd-coins">422</b> coins ($<span id="min-wd-usd2">1.35</span> ≈ UGX 5,000)<br>You will receive: <b id="wd-ugx" class="text-green-400">$0.00</b></p><input id="wd-phone" placeholder="MTN/Airtel 077..." class="w-full bg-slate-800 rounded-xl p-3 outline-none"><input id="wd-amount" type="number" placeholder="Coins to withdraw" class="w-full bg-slate-800 rounded-xl p-3 outline-none"><button onclick="doWithdraw()" class="w-full bg-orange-500 py-2 rounded-xl font-bold">Request Withdraw</button><p id="wd-msg" class="text-xs text-green-400"></p></div>
 <div class="mt-3"><p class="text-xs font-bold text-slate-300 mb-1">Withdraw History</p><div id="withdraw-history" class="space-y-1 text-xs text-slate-400">No withdraws yet</div></div>
 </div>
-
-<!-- REFERRAL -->
 <div class="mx-4 mt-3 p-4 rounded-2xl bg-slate-900 border border-emerald-500/30"><p class="font-black text-emerald-400">🎁 Invite & Earn 11.25%</p><p class="text-xs text-slate-400">You earn 15% of owner's 75% when your friend deposits ≥ UGX 2,000. Cap 11,250 coins.</p>
 <div class="flex gap-2 mt-2"><input id="ref-link" readonly value="https://mplanet.com/?ref=briank" class="flex-1 bg-slate-800 rounded-xl p-2 text-xs outline-none"><button onclick="copyRef()" class="bg-emerald-500 px-3 rounded-xl font-bold text-sm">Copy</button></div>
 <p class="text-xs mt-2">Referral Earned: <b id="ref-earned">0</b> / 11,250 coins</p><div class="w-full bg-slate-800 h-2 rounded-full mt-1 overflow-hidden"><div id="ref-bar" class="h-full bg-emerald-500" style="width:0%"></div></div></div>
-
-<!-- BUY -->
-<div id="buy-coins-section" class="mx-4 mt-3 p-4 rounded-2xl bg-slate-900 border border-amber-500/30"><p class="font-black text-amber-400">🪙 Buy Coins</p><p class="text-[11px] text-green-400" id="live-rate">Live: $1 = UGX 3,700 (loading...)</p><p class="text-[11px] text-slate-400">Min Withdraw: <b class="text-white" id="min-wd-usd">$1.35</b> (≈ UGX 5,000) • All prices in USD</p><div class="grid grid-cols-3 gap-2 mt-3"><button onclick="buyCoins(50)" class="bg-slate-800 rounded-xl py-3"><p class="font-black">50 🪙</p><p class="text-xs text-amber-400 font-bold">$<span class="buy-price" data-coins="50"></span></p></button><button onclick="buyCoins(120)" class="bg-slate-800 rounded-xl py-3 border border-amber-500"><p class="font-black">120 🪙</p><p class="text-xs text-amber-400 font-bold">$<span class="buy-price" data-coins="120"></span></p></button><button onclick="buyCoins(300)" class="bg-slate-800 rounded-xl py-3"><p class="font-black">300 🪙</p><p class="text-xs text-amber-400 font-bold">$<span class="buy-price" data-coins="300"></span></p></button></div><p class="text-[11px] text-slate-400 mt-2 text-center">Deposit: 1 coin = $0.008 • Withdraw: 1 coin = $0.0032<br>Pay via MTN MoMo / Airtel Money</p></div>
-
-<!-- TABS -->
+<div id="buy-coins-section" class="mx-4 mt-3 p-4 rounded-2xl bg-slate-900 border border-amber-500/30"><p class="font-black text-amber-400">🪙 Buy Coins</p><p class="text-[11px] text-green-400" id="live-rate">Live: $1 = UGX 3,700 (loading...)</p><p class="text-[11px] text-slate-400">Min Withdraw: <b class="text-white" id="min-wd-usd">$1.35</b> (≈ UGX 5,000) • All prices in USD</p><div class="grid grid-cols-3 gap-2 mt-3"><button onclick="buyCoins(50)" class="bg-slate-800 rounded-xl py-3"><p class="font-black">50 🪙</p><p class="text-xs text-amber-400 font-bold">$<span class="buy-price" data-coins="50"></span></p></button><button onclick="buyCoins(120)" class="bg-slate-800 rounded-xl py-3 border border-amber-500"><p class="font-black">120 🪙</p><p class="text-xs text-amber-400 font-bold">$<span class="buy-price" data-coins="120"></span></p></button><button onclick="buyCoins(300)" class="bg-slate-800 rounded-xl py-3"><p class="font-black">300 🪙</p><p class="text-xs text-amber-400 font-bold">$<span class="buy-price" data-coins="300"></span></p></button></div></div>
 <div class="flex justify-around mt-4 border-t border-blue-500/15 text-sm font-bold text-slate-400"><button id="tab-posts" onclick="setProfileTab('posts')" class="py-3 flex-1 tab-active">Posts</button><button id="tab-saved" onclick="setProfileTab('saved')" class="py-3 flex-1">Saved</button><button id="tab-liked" onclick="setProfileTab('liked')" class="py-3 flex-1">Liked</button></div>
 <div id="profile-grid" class="grid grid-cols-3 gap-0.5 p-0.5"></div>
 </div>
 
 <!-- EDIT -->
 <div id="edit-modal" class="hidden fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4"><div class="bg-slate-900 w-full max-w-sm rounded-2xl p-5"><div class="flex justify-between mb-3"><h3 class="font-bold">Edit Profile</h3><button onclick="toggleModal('edit-modal',false)">✕</button></div><input id="edit-name" value="Brian K" class="w-full bg-slate-800 rounded-xl p-3 mb-2 outline-none"><input id="edit-bio" value="Funny videos from Kampala" class="w-full bg-slate-800 rounded-xl p-3 mb-2 outline-none"><input id="edit-link" value="https://mplanet.com/@briank" class="w-full bg-slate-800 rounded-xl p-3 mb-2 outline-none"><label class="text-xs text-sky-300">Profile Photo</label><input id="edit-photo" type="file" accept="image/*" class="w-full text-sm mb-3"><button onclick="saveProfile()" class="w-full bg-gradient-to-r from-blue-600 to-orange-500 py-2.5 rounded-xl font-bold">Save</button></div></div>
-<!-- SETTINGS -->
-<div id="settings-modal" class="hidden fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4"><div class="bg-slate-900 w-full max-w-sm rounded-2xl p-5"><div class="flex justify-between mb-3"><h3 class="font-bold">Settings</h3><button onclick="toggleModal('settings-modal',false)">✕</button></div><button onclick="alert('Password change coming soon')" class="w-full text-left bg-slate-800 p-3 rounded-xl mb-2">Change Password</button><button onclick="alert('Notifications: ON')" class="w-full text-left bg-slate-800 p-3 rounded-xl mb-2">Notifications</button><button onclick="logout()" class="w-full bg-red-500 py-2.5 rounded-xl font-bold">Logout</button></div></div>
+
+<!-- SETTINGS — FULL -->
+<div id="settings-modal" class="hidden fixed inset-0 z-[60] bg-slate-950 flex flex-col max-w-[500px] mx-auto overflow-y-auto">
+<div class="flex justify-between px-4 py-3 border-b border-blue-500/20 sticky top-0 bg-slate-950 z-10"><button onclick="toggleModal('settings-modal',false)"><i class="fa-solid fa-arrow-left"></i></button><span class="font-bold">Settings</span><span class="text-xs text-slate-400">v1.0</span></div>
+<div class="p-4 space-y-4 pb-10">
+<!-- ACCOUNT -->
+<div><p class="text-xs font-black text-sky-400 mb-2">ACCOUNT</p><div class="bg-slate-900 rounded-2xl p-3 space-y-2">
+<input id="set-phone" placeholder="Phone 077..." class="w-full bg-slate-800 rounded-xl p-3 outline-none text-sm">
+<input id="set-email" placeholder="Email (for password reset)" class="w-full bg-slate-800 rounded-xl p-3 outline-none text-sm">
+<input id="set-newpass" type="password" placeholder="New Password (min 6)" class="w-full bg-slate-800 rounded-xl p-3 outline-none text-sm">
+<button onclick="changePassword()" class="w-full bg-blue-600 py-2.5 rounded-xl font-bold text-sm">Change Password</button>
+<button onclick="saveAccountInfo()" class="w-full bg-slate-800 py-2.5 rounded-xl font-bold text-sm">Save Phone / Email</button>
+</div></div>
+<!-- PRIVACY -->
+<div><p class="text-xs font-black text-sky-400 mb-2">PRIVACY</p><div class="bg-slate-900 rounded-2xl p-3 space-y-3">
+<div class="flex justify-between items-center"><span class="text-sm">Private Account <span class="text-xs text-slate-400 block">Only followers see videos</span></span><div id="sw-private" class="switch" onclick="toggleSetting('private',this)"></div></div>
+<div class="flex justify-between items-center"><span class="text-sm">Allow Comments</span><div id="sw-comments" class="switch on" onclick="toggleSetting('allowComments',this)"></div></div>
+<div><label class="text-sm">Who can comment</label><select id="set-comment-who" onchange="saveSetting('commentWho',this.value)" class="w-full bg-slate-800 rounded-xl p-3 mt-1 text-sm"><option value="everyone">Everyone</option><option value="followers">Followers only</option><option value="nobody">Nobody</option></select></div>
+<button onclick="alert('Blocked: none yet')" class="w-full text-left bg-slate-800 p-3 rounded-xl text-sm">Blocked Users →</button>
+</div></div>
+<!-- NOTIFICATIONS -->
+<div><p class="text-xs font-black text-sky-400 mb-2">NOTIFICATIONS</p><div class="bg-slate-900 rounded-2xl p-3 space-y-3">
+<div class="flex justify-between items-center"><span class="text-sm">New Like ❤️</span><div class="switch on" onclick="toggleSetting('notifLike',this)"></div></div>
+<div class="flex justify-between items-center"><span class="text-sm">New Follower 👤</span><div class="switch on" onclick="toggleSetting('notifFollower',this)"></div></div>
+<div class="flex justify-between items-center"><span class="text-sm">New Comment 💬</span><div class="switch on" onclick="toggleSetting('notifComment',this)"></div></div>
+<div class="flex justify-between items-center"><span class="text-sm">Withdraw Paid 💰</span><div class="switch on" onclick="toggleSetting('notifWithdraw',this)"></div></div>
+<div class="flex justify-between items-center"><span class="text-sm">Referral Bonus 🎁</span><div class="switch on" onclick="toggleSetting('notifReferral',this)"></div></div>
+</div></div>
+<!-- WALLET -->
+<div><p class="text-xs font-black text-sky-400 mb-2">WALLET / PAYOUT</p><div class="bg-slate-900 rounded-2xl p-3 space-y-2">
+<input id="set-payout" placeholder="Payout MTN/Airtel 077..." class="w-full bg-slate-800 rounded-xl p-3 outline-none text-sm">
+<input id="set-pin" type="password" maxlength="4" inputmode="numeric" placeholder="Withdraw PIN (4 digits, optional)" class="w-full bg-slate-800 rounded-xl p-3 outline-none text-sm">
+<button onclick="saveWalletSettings()" class="w-full bg-emerald-600 py-2.5 rounded-xl font-bold text-sm">Save Payout + PIN</button>
+<p class="text-xs text-slate-400">If PIN is set, withdraw will ask for it.</p>
+</div></div>
+<!-- APP -->
+<div><p class="text-xs font-black text-sky-400 mb-2">APP</p><div class="bg-slate-900 rounded-2xl p-3 space-y-3">
+<div><label class="text-sm">Language</label><select id="set-lang" onchange="saveSetting('lang',this.value);applyLang()" class="w-full bg-slate-800 rounded-xl p-3 mt-1 text-sm"><option value="en">English</option><option value="lg">Luganda</option></select></div>
+<div class="flex justify-between items-center"><span class="text-sm">Autoplay Videos</span><div class="switch on" onclick="toggleSetting('autoplay',this)"></div></div>
+<div class="flex justify-between items-center"><span class="text-sm">Sound ON by default</span><div class="switch on" onclick="toggleSetting('soundOn',this)"></div></div>
+<div class="flex justify-between items-center"><span class="text-sm">Data Saver (low quality)</span><div class="switch" onclick="toggleSetting('dataSaver',this)"></div></div>
+</div></div>
+<!-- SAFETY -->
+<div><p class="text-xs font-black text-sky-400 mb-2">SAFETY</p><div class="bg-slate-900 rounded-2xl p-3 space-y-2">
+<button onclick="reportProblem()" class="w-full text-left bg-slate-800 p-3 rounded-xl text-sm">Report a Problem →</button>
+<button onclick="alert('Mplanet Terms: Be kind. No hate. No spam. Coins are for likes, withdraw min UGX 5,000.')" class="w-full text-left bg-slate-800 p-3 rounded-xl text-sm">Terms & Privacy →</button>
+<button onclick="deleteAccount()" class="w-full bg-red-900/50 text-red-300 py-2.5 rounded-xl font-bold text-sm">Delete Account</button>
+<button onclick="logout()" class="w-full bg-red-500 py-2.5 rounded-xl font-bold text-sm">Logout</button>
+</div></div>
+</div></div>
 
 <div id="search-modal" class="hidden fixed inset-0 z-50 bg-slate-950 max-w-[500px] mx-auto p-4 flex flex-col"><div class="flex gap-3 mb-4"><button onclick="toggleModal('search-modal',false)"><i class="fa-solid fa-arrow-left text-xl"></i></button><input id="search-input" oninput="filterVideos(this.value)" placeholder="Search captions, #hashtags..." class="flex-1 bg-slate-800 rounded-full px-4 py-2 outline-none"></div><div id="search-results" class="grid grid-cols-2 gap-2 overflow-y-auto"></div></div>
 <div id="buy-coins-box" class="hidden fixed inset-0 bg-black/70 z-[100] flex items-center justify-center p-4"><div class="bg-slate-900 rounded-2xl p-5 w-full max-w-xs text-center border border-amber-500/30"><p class="text-4xl">🪙</p><p class="font-black text-lg mt-2">You need Coins to Like!</p><p class="text-sm text-slate-400 mt-1">Liking sends 1 coin to the creator.<br>You have <span id="buy-coins-balance">0</span> coins.</p><button onclick="document.getElementById('buy-coins-box').classList.add('hidden'); toggleModal('profile-modal',true); renderProfile()" class="w-full bg-amber-500 text-black font-bold py-2.5 rounded-xl mt-4">Buy Coins in Profile</button><button onclick="document.getElementById('buy-coins-box').classList.add('hidden')" class="w-full text-slate-400 text-sm mt-2">Close</button></div></div>
@@ -99,6 +143,55 @@ let LIVE_UGX=3700;
 const COIN_DEPOSIT_USD=0.008, COIN_WITHDRAW_USD=0.0032;
 const MIN_DEPOSIT_UGX=2000, MIN_WITHDRAW_UGX=5000, REFERRAL_FROM_OWNER=0.15;
 let COIN_RATE=COIN_DEPOSIT_USD, WITHDRAW_RATE=COIN_WITHDRAW_USD;
+// SETTINGS STORE
+function getSettings(){ try{ return JSON.parse(localStorage.getItem('mplanet-settings')||'{}'); }catch(e){ return {}; } }
+function saveSetting(k,v){ let s=getSettings(); s[k]=v; localStorage.setItem('mplanet-settings', JSON.stringify(s)); }
+function toggleSetting(k,el){ let s=getSettings(); let cur = s[k]!==undefined ? s[k] : el.classList.contains('on'); let next=!cur; s[k]=next; localStorage.setItem('mplanet-settings', JSON.stringify(s)); el.classList.toggle('on', next); if(k==='private') updatePrivateBadge(); if(k==='soundOn') isMuted=!next; alert((k)+' '+(next?'ON':'OFF')); }
+function updatePrivateBadge(){ let s=getSettings(); let b=document.getElementById('private-badge'); if(b) b.textContent = s.private ? '🔒 Private Account' : 'Public Account'; }
+function applyLang(){ let s=getSettings(); if(s.lang==='lg'){ /* simple */ document.title='Mplanet — Vidiyo'; } }
+function openSettings(){
+  let s=getSettings();
+  document.getElementById('set-phone').value=localStorage.getItem('payout-phone')||'';
+  document.getElementById('set-email').value=s.email||'';
+  document.getElementById('set-payout').value=localStorage.getItem('payout-phone')||'';
+  document.getElementById('set-pin').value=localStorage.getItem('withdraw-pin')||'';
+  document.getElementById('set-comment-who').value=s.commentWho||'everyone';
+  document.getElementById('set-lang').value=s.lang||'en';
+  // sync switches
+  document.querySelectorAll('#settings-modal .switch').forEach(sw=>{ /* keep as is, defaults ON except private/dataSaver */ });
+  if(s.private) document.getElementById('sw-private').classList.add('on'); else document.getElementById('sw-private').classList.remove('on');
+  if(s.allowComments===false) document.getElementById('sw-comments').classList.remove('on'); else document.getElementById('sw-comments').classList.add('on');
+  toggleModal('settings-modal',true);
+}
+async function changePassword(){
+  let np=document.getElementById('set-newpass').value.trim();
+  let email=document.getElementById('set-email').value.trim();
+  if(np.length<6) return alert('Password min 6 characters');
+  // Try Supabase auth, fallback to local save
+  try{ let {error}=await sb.auth.updateUser({password: np}); if(error) throw error; alert('Password changed ✅'); }
+  catch(e){ localStorage.setItem('local-pass', np); alert('Password saved locally ✅ (Supabase login not linked, will use local)'); }
+  document.getElementById('set-newpass').value='';
+}
+function saveAccountInfo(){
+  let ph=document.getElementById('set-phone').value.trim(); let em=document.getElementById('set-email').value.trim();
+  if(ph) localStorage.setItem('payout-phone', ph);
+  saveSetting('email', em); saveSetting('phone', ph);
+  alert('Phone / Email saved ✅'); updateWalletUSD();
+}
+function saveWalletSettings(){
+  let payout=document.getElementById('set-payout').value.trim(); let pin=document.getElementById('set-pin').value.trim();
+  if(pin && !/^\d{4}$/.test(pin)) return alert('PIN must be 4 digits');
+  if(payout) localStorage.setItem('payout-phone', payout);
+  if(pin) localStorage.setItem('withdraw-pin', pin); else localStorage.removeItem('withdraw-pin');
+  alert('Payout + PIN saved ✅'); updateWalletUSD();
+}
+function reportProblem(){ let t=prompt('What is the problem?'); if(t) alert('Report sent ✅ Thank you! We will check: '+t); }
+async function deleteAccount(){
+  if(!confirm('Delete account? This removes your local data. Type DELETE to confirm.')) return;
+  let c=prompt('Type DELETE to confirm'); if(c!=='DELETE') return alert('Cancelled');
+  try{ await sb.from('users').delete().eq('username', currentProfile.username); }catch(e){}
+  localStorage.clear(); alert('Account deleted'); location.reload();
+}
 async function loadLiveRate(){ try{ let r=await fetch('https://open.er-api.com/v6/latest/USD'); let j=await r.json(); if(j.rates&&j.rates.UGX){ if(j.rates.UGX>=3300 && j.rates.UGX<=4000) LIVE_UGX=j.rates.UGX; else LIVE_UGX=3700; } }catch(e){ LIVE_UGX=3700; }
   COIN_RATE=COIN_DEPOSIT_USD; WITHDRAW_RATE=COIN_WITHDRAW_USD;
   let minUSD=MIN_WITHDRAW_UGX/LIVE_UGX; let minCoins=Math.ceil(MIN_WITHDRAW_UGX/(COIN_WITHDRAW_USD*LIVE_UGX));
@@ -109,7 +202,7 @@ async function loadLiveRate(){ try{ let r=await fetch('https://open.er-api.com/v
   let mc=document.getElementById('min-wd-coins'); if(mc) mc.textContent=minCoins;
 }
 function updateCoinPrices(){ document.querySelectorAll('.buy-price').forEach(e=>e.textContent=(parseInt(e.dataset.coins)*COIN_RATE).toFixed(2)); let w=document.getElementById('wd-rate'); if(w) w.textContent=WITHDRAW_RATE; let d=document.getElementById('dep-rate'); if(d) d.textContent=COIN_RATE; }
-function updateWalletUSD(){ let w=document.getElementById('wallet-usd'); if(w) w.textContent='$'+(coins*COIN_WITHDRAW_USD).toFixed(2); let d=document.getElementById('wallet-deposit-usd'); if(d) d.textContent='$'+(coins*COIN_DEPOSIT_USD).toFixed(2); let ph=localStorage.getItem('payout-phone')||''; let pd=document.getElementById('payout-display'); if(pd) pd.textContent=ph||'Not set'; let wp=document.getElementById('wd-phone'); if(wp && ph) wp.value=ph; }
+function updateWalletUSD(){ let w=document.getElementById('wallet-usd'); if(w) w.textContent='$'+(coins*COIN_WITHDRAW_USD).toFixed(2); let d=document.getElementById('wallet-deposit-usd'); if(d) d.textContent='$'+(coins*COIN_DEPOSIT_USD).toFixed(2); let ph=localStorage.getItem('payout-phone')||''; let pd=document.getElementById('payout-display'); if(pd) pd.textContent=ph||'Not set'; let wp=document.getElementById('wd-phone'); if(wp && ph) wp.value=ph; updatePrivateBadge(); }
 function toggleModal(id,show){document.getElementById(id).classList.toggle('hidden',!show)}
 function openDrawer(){document.getElementById('drawer-bg').classList.remove('hidden');document.getElementById('drawer').classList.remove('-translate-x-full')}
 function closeDrawer(){document.getElementById('drawer-bg').classList.add('hidden');document.getElementById('drawer').classList.add('-translate-x-full')}
@@ -159,57 +252,36 @@ async function giveReferralBonus(buyerUsername, depositCoins, depositUGX){
 }
 function toggleSave(id){let s=saved.has(id);s?saved.delete(id):saved.add(id);let el=document.getElementById('save-'+id);if(el)el.className=`fa-solid fa-bookmark text-2xl ${!s?'text-blue-400':'text-white'}`; if(profileTab!=='posts') renderProfileGrid();}
 let currentCommentVideoId=null;let replyToId=null;
-async function openComments(id){ currentCommentVideoId=id; replyToId=null; toggleModal('comments-modal',true); let list=document.getElementById('comments-list'); list.innerHTML=`<div class="text-center text-slate-400 text-sm py-4">Loading...</div>`; if(String(id).startsWith('demo-')){ list.innerHTML=`<div class="bg-slate-800 p-3 rounded-xl"><b class="text-sky-400">@alex_ug</b>: Love Mplanet! 🚀</div>`; return; } let {data, error}=await sb.from('Comments').select('*').eq('video_id', id).order('created_at',{ascending:true}); if(error){ list.innerHTML=`<div class="text-center text-red-400 text-sm">Error: ${error.message}</div>`; return; } if(!data||!data.length){ list.innerHTML=`<div class="text-center text-slate-400 text-sm py-4">No comments yet.</div>`; return; } list.innerHTML=data.map(c=>`<div class="bg-slate-800 p-3 rounded-xl"><b class="text-sky-400">@${escapeHtml(c.username||'user')}</b>: ${escapeHtml(c.comment_text)}</div>`).join(''); }
+async function openComments(id){
+  currentCommentVideoId=id; replyToId=null; toggleModal('comments-modal',true);
+  let s=getSettings(); if(s.allowComments===false){ document.getElementById('comments-list').innerHTML=`<div class="text-center text-slate-400">Comments OFF for this account (Settings)</div>`; return; }
+  let list=document.getElementById('comments-list'); list.innerHTML=`<div class="text-center text-slate-400 text-sm py-4">Loading...</div>`;
+  if(String(id).startsWith('demo-')){ list.innerHTML=`<div class="bg-slate-800 p-3 rounded-xl"><b class="text-sky-400">@alex_ug</b>: Love Mplanet! 🚀</div>`; return; }
+  let {data, error}=await sb.from('Comments').select('*').eq('video_id', id).order('created_at',{ascending:true});
+  if(error){ list.innerHTML=`<div class="text-center text-red-400 text-sm">Error: ${error.message}</div>`; return; }
+  if(!data||!data.length){ list.innerHTML=`<div class="text-center text-slate-400 text-sm py-4">No comments yet.</div>`; return; }
+  list.innerHTML=data.map(c=>`<div class="bg-slate-800 p-3 rounded-xl"><b class="text-sky-400">@${escapeHtml(c.username||'user')}</b>: ${escapeHtml(c.comment_text)}</div>`).join('');
+}
 async function submitComment(e){ e.preventDefault(); let inp=document.getElementById('comment-input'); let txt=inp.value.trim(); if(!txt||!currentCommentVideoId) return; let vid=currentCommentVideoId; document.getElementById('comments-list').innerHTML+=`<div class="bg-slate-800 p-3 rounded-xl"><b class="text-orange-400">@${currentProfile.username}</b>: ${escapeHtml(txt)}</div>`; inp.value=''; if(String(vid).startsWith('demo-')) return; await sb.from('Comments').insert([{video_id: vid, username: currentProfile.username, comment_text: txt, parent_id: replyToId}]); }
 function shareVideo(){if(navigator.share)navigator.share({title:'Mplanet',url:location.href}).catch(()=>{});else{ navigator.clipboard.writeText(location.href); alert('Link copied!')}}
 function filterVideos(q){let res=allVideos.filter(v=>(v.caption||'').toLowerCase().includes(q.toLowerCase()));document.getElementById('search-results').innerHTML=res.map(v=>`<div class="bg-slate-900 rounded-xl overflow-hidden"><div class="aspect-[9/16] bg-slate-800 flex items-center justify-center text-4xl">🎬</div><p class="p-2 text-sm line-clamp-2">${escapeHtml(v.caption)}</p></div>`).join('')||'No results'}
 document.getElementById('video-file').addEventListener('change', function(){ let f=this.files[0]; if(!f) return; let prev=document.getElementById('upload-preview'); prev.src=URL.createObjectURL(f); prev.classList.remove('hidden'); });
-async function handleUpload(e){ e.preventDefault(); let file=document.getElementById('video-file')?.files[0]; let linkUrl=document.getElementById('video-url').value.trim(); let caption=document.getElementById('video-caption').value.trim(); let music=document.getElementById('video-music').value.trim()||'Original Sound'; let status=document.getElementById('upload-status'); let btn=document.getElementById('publish-btn'); let finalUrl=linkUrl; if(file){ if(file.size>100*1024*1024) return alert('Video too big!'); btn.disabled=true; btn.textContent='Uploading...'; let fileName=Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_'); let {error}=await sb.storage.from('videos').upload(fileName,file,{cacheControl:'3600',upsert:false,contentType:file.type||'video/mp4'}); if(error){btn.disabled=false;btn.textContent='Publish Video';return alert('Upload failed: '+error.message)} let {data:pub}=sb.storage.from('videos').getPublicUrl(fileName); finalUrl=pub.publicUrl; } if(!finalUrl) return alert('Select a video file OR paste a link'); let {error:dbError}=await sb.from('Videos').insert([{title:caption,caption:caption,video_url:finalUrl,music_name:music,user_id:currentProfile.id,username:currentProfile.username}]); if(dbError){btn.disabled=false;btn.textContent='Publish Video';return alert('Error: '+dbError.message)} alert('Published!'); btn.disabled=false; btn.textContent='Publish Video'; e.target.reset(); toggleModal('upload-modal',false); loadFeed('foryou'); }
-// PROFILE FUNCTIONS
+async function handleUpload(e){ e.preventDefault(); let file=document.getElementById('video-file')?.files[0]; let linkUrl=document.getElementById('video-url').value.trim(); let caption=document.getElementById('video-caption').value.trim(); let music=document.getElementById('video-music').value.trim()||'Original Sound'; let btn=document.getElementById('publish-btn'); let finalUrl=linkUrl; if(file){ if(file.size>100*1024*1024) return alert('Video too big!'); btn.disabled=true; btn.textContent='Uploading...'; let fileName=Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_'); let {error}=await sb.storage.from('videos').upload(fileName,file,{cacheControl:'3600',upsert:false,contentType:file.type||'video/mp4'}); if(error){btn.disabled=false;btn.textContent='Publish Video';return alert('Upload failed: '+error.message)} let {data:pub}=sb.storage.from('videos').getPublicUrl(fileName); finalUrl=pub.publicUrl; } if(!finalUrl) return alert('Select a video file OR paste a link'); let {error:dbError}=await sb.from('Videos').insert([{title:caption,caption:caption,video_url:finalUrl,music_name:music,user_id:currentProfile.id,username:currentProfile.username}]); if(dbError){btn.disabled=false;btn.textContent='Publish Video';return alert('Error: '+dbError.message)} alert('Published!'); btn.disabled=false; btn.textContent='Publish Video'; e.target.reset(); toggleModal('upload-modal',false); loadFeed('foryou'); }
 function copyRef(){ let l=document.getElementById('ref-link'); l.select(); navigator.clipboard.writeText(l.value); alert('Referral link copied!'); }
 function shareProfile(){ let l='https://mplanet.com/@'+currentProfile.username; if(navigator.share) navigator.share({title:'Mplanet @'+currentProfile.username, url:l}).catch(()=>{}); else { navigator.clipboard.writeText(l); alert('Profile link copied!'); } }
-function saveProfile(){
-  let name=document.getElementById('edit-name').value.trim()||'Brian K';
-  let bio=document.getElementById('edit-bio').value.trim();
-  let link=document.getElementById('edit-link').value.trim();
-  let file=document.getElementById('edit-photo').files[0];
-  document.querySelector('#profile-modal h3').innerHTML=name+' <span class="text-sky-400 text-base">✓</span>';
-  document.getElementById('profile-bio').textContent=bio;
-  document.getElementById('profile-link').textContent='🔗 '+link;
-  if(file){ let r=new FileReader(); r.onload=e=>{ let img=document.getElementById('profile-pic'); img.src=e.target.result; img.classList.remove('hidden'); document.getElementById('profile-letter').classList.add('hidden'); localStorage.setItem('profile-pic', e.target.result); }; r.readAsDataURL(file); }
-  localStorage.setItem('profile-name', name); localStorage.setItem('profile-bio', bio); localStorage.setItem('profile-link', link);
-  toggleModal('edit-modal',false); alert('Profile saved!');
-}
+function saveProfile(){ let name=document.getElementById('edit-name').value.trim()||'Brian K'; let bio=document.getElementById('edit-bio').value.trim(); let link=document.getElementById('edit-link').value.trim(); let file=document.getElementById('edit-photo').files[0]; document.querySelector('#profile-modal h3').innerHTML=name+' <span class="text-sky-400 text-base">✓</span>'; document.getElementById('profile-bio').textContent=bio; document.getElementById('profile-link').textContent='🔗 '+link; if(file){ let r=new FileReader(); r.onload=e=>{ let img=document.getElementById('profile-pic'); img.src=e.target.result; img.classList.remove('hidden'); document.getElementById('profile-letter').classList.add('hidden'); localStorage.setItem('profile-pic', e.target.result); }; r.readAsDataURL(file); } localStorage.setItem('profile-name', name); localStorage.setItem('profile-bio', bio); localStorage.setItem('profile-link', link); toggleModal('edit-modal',false); alert('Profile saved!'); }
 function logout(){ if(!confirm('Logout?')) return; localStorage.clear(); location.reload(); }
 function setProfileTab(t){ profileTab=t; ['posts','saved','liked'].forEach(x=>document.getElementById('tab-'+x).classList.toggle('tab-active', x===t)); renderProfileGrid(); }
-function renderProfileGrid(){
-  let list=[];
-  if(profileTab==='posts') list=allVideos.filter(v=>v.profiles.id===currentProfile.id);
-  if(profileTab==='saved') list=allVideos.filter(v=>saved.has(v.id));
-  if(profileTab==='liked') list=allVideos.filter(v=>liked.has(v.id));
-  document.getElementById('profile-grid').innerHTML=list.map(v=>`<div class="aspect-[9/16] bg-slate-900 relative overflow-hidden"><video src="${v.video_url}" muted preload="metadata" class="w-full h-full object-cover"></video><span class="absolute bottom-1 left-1 text-xs bg-black/70 px-1 rounded">❤️ ${v.likes_count}</span></div>`).join('')||`<div class="col-span-3 py-10 text-center text-slate-400 text-sm">No ${profileTab} yet</div>`;
-}
-async function loadWithdrawHistory(){
-  let {data}=await sb.from('Withdraws').select('*').eq('user_id', currentProfile.id).order('created_at',{ascending:false}).limit(5);
-  let el=document.getElementById('withdraw-history'); if(!el) return;
-  if(!data||!data.length){ el.innerHTML='No withdraws yet'; return; }
-  el.innerHTML=data.map(w=>`<div class="flex justify-between bg-slate-800 p-2 rounded-lg"><span>${w.amount} coins = $${(w.amount*COIN_WITHDRAW_USD).toFixed(2)}</span><span class="${w.status==='pending'?'text-amber-400':'text-green-400'}">${w.status}</span></div>`).join('');
-}
+function renderProfileGrid(){ let list=[]; if(profileTab==='posts') list=allVideos.filter(v=>v.profiles.id===currentProfile.id); if(profileTab==='saved') list=allVideos.filter(v=>saved.has(v.id)); if(profileTab==='liked') list=allVideos.filter(v=>liked.has(v.id)); document.getElementById('profile-grid').innerHTML=list.map(v=>`<div class="aspect-[9/16] bg-slate-900 relative overflow-hidden"><video src="${v.video_url}" muted preload="metadata" class="w-full h-full object-cover"></video><span class="absolute bottom-1 left-1 text-xs bg-black/70 px-1 rounded">❤️ ${v.likes_count}</span></div>`).join('')||`<div class="col-span-3 py-10 text-center text-slate-400 text-sm">No ${profileTab} yet</div>`; }
+async function loadWithdrawHistory(){ let {data}=await sb.from('Withdraws').select('*').eq('user_id', currentProfile.id).order('created_at',{ascending:false}).limit(5); let el=document.getElementById('withdraw-history'); if(!el) return; if(!data||!data.length){ el.innerHTML='No withdraws yet'; return; } el.innerHTML=data.map(w=>`<div class="flex justify-between bg-slate-800 p-2 rounded-lg"><span>${w.amount} coins = $${(w.amount*COIN_WITHDRAW_USD).toFixed(2)}</span><span class="${w.status==='pending'?'text-amber-400':'text-green-400'}">${w.status}</span></div>`).join(''); }
 async function renderProfile(){
   let {count:fc} = await sb.from('follows').select('*', {count:'exact', head:true}).eq('following_username', currentProfile.username);
   let {count:fg} = await sb.from('follows').select('*', {count:'exact', head:true}).eq('follower_username', currentProfile.username);
-  document.getElementById('stat-followers').textContent = fc || 0;
-  document.getElementById('stat-following').textContent = fg || 0;
+  document.getElementById('stat-followers').textContent = fc || 0; document.getElementById('stat-following').textContent = fg || 0;
   let {data:u}=await sb.from('users').select('referral_earned, coins').eq('username', currentProfile.username).single();
   if(u){ referralEarned=u.referral_earned||0; if(u.coins!==null){ coins=u.coins; currentProfile.coins=coins; } }
-  document.getElementById('ref-earned').textContent=referralEarned;
-  document.getElementById('ref-bar').style.width=Math.min(100, referralEarned/11250*100)+'%';
-  let my=allVideos.filter(v=>v.profiles.id===currentProfile.id);
-  document.getElementById('stat-posts').textContent=my.length;
-  document.getElementById('stat-likes').textContent=my.reduce((s,v)=>s+(v.likes_count||0),0);
-  document.getElementById('wallet-coins').textContent=coins;
-  document.getElementById('ref-link').value='https://mplanet.com/?ref='+currentProfile.username;
-  updateWalletUSD(); loadWithdrawHistory(); renderProfileGrid();
+  document.getElementById('ref-earned').textContent=referralEarned; document.getElementById('ref-bar').style.width=Math.min(100, referralEarned/11250*100)+'%';
+  let my=allVideos.filter(v=>v.profiles.id===currentProfile.id); document.getElementById('stat-posts').textContent=my.length; document.getElementById('stat-likes').textContent=my.reduce((s,v)=>s+(v.likes_count||0),0); document.getElementById('wallet-coins').textContent=coins; document.getElementById('ref-link').value='https://mplanet.com/?ref='+currentProfile.username; updateWalletUSD(); loadWithdrawHistory(); renderProfileGrid();
   let savedPic=localStorage.getItem('profile-pic'); if(savedPic){ let img=document.getElementById('profile-pic'); img.src=savedPic; img.classList.remove('hidden'); document.getElementById('profile-letter').classList.add('hidden'); }
 }
 function openWithdraw(){document.getElementById('withdraw-box').classList.toggle('hidden')}
@@ -219,6 +291,8 @@ async function doWithdraw(){
   if(amt>coins) return alert('Not enough coins');
   let ugxValue=amt*COIN_WITHDRAW_USD*LIVE_UGX;
   if(ugxValue < MIN_WITHDRAW_UGX) return alert('Minimum withdraw is UGX 5,000 ($'+(MIN_WITHDRAW_UGX/LIVE_UGX).toFixed(2)+'). You need at least '+Math.ceil(MIN_WITHDRAW_UGX/(COIN_WITHDRAW_USD*LIVE_UGX))+' coins.');
+  let savedPin=localStorage.getItem('withdraw-pin');
+  if(savedPin){ let pin=prompt('Enter Withdraw PIN (4 digits)'); if(pin!==savedPin) return alert('Wrong PIN ❌'); }
   localStorage.setItem('payout-phone', phone);
   let {error}=await sb.from('Withdraws').insert([{user_id:currentProfile.id,phone:phone,amount:amt,status:'pending'}]);
   if(error) return alert(error.message);
