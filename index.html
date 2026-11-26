@@ -270,24 +270,20 @@ function renderVideos(videos){ let c=document.getElementById('video-feed'); if(!
 c.innerHTML=videos.map(v=>{let l=liked.has(v.id),s=saved.has(v.id);return `<div class="video-card" ondblclick="doubleTap(event,'${v.id}')">${mediaHtml(v)}<div class="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-slate-950/95 to-transparent pt-12 pb-4 px-4"><div class="mb-3"><h3 class="font-bold text-lg text-sky-300">@${v.profiles.username}</h3><p class="text-base line-clamp-2">${escapeHtml(v.caption)}</p><div class="flex gap-2 text-sm text-orange-300"><i class="fa-solid fa-music"></i><span class="truncate">${escapeHtml(v.music_name)}</span></div></div><div class="flex justify-between items-center pt-2 border-t border-blue-500/20"><div class="w-11 h-11 rounded-full bg-gradient-to-tr from-blue-600 to-orange-500 p-0.5"><div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center font-bold uppercase">${v.profiles.username[0]}</div></div><button onclick="toggleLike('${v.id}','${v.profiles.username}')"><i id="like-${v.id}" class="fa-solid fa-heart text-2xl ${l?'text-orange-500':'text-white'}"></i><br><span id="like-c-${v.id}" class="text-sm font-bold">${v.likes_count}</span></button><button onclick="openComments('${v.id}')"><i class="fa-solid fa-comment-dots text-2xl text-sky-300"></i><br><span class="text-sm font-bold">${v.comments_count}</span></button><button onclick="toggleSave('${v.id}')"><i id="save-${v.id}" class="fa-solid fa-bookmark text-2xl ${s?'text-blue-400':'text-white'}"></i><br><span class="text-sm font-bold">${v.saves_count}</span></button><button onclick="shareVideo()"><i class="fa-solid fa-share text-2xl"></i><br><span class="text-sm font-bold">Share</span></button><button onclick="toggleMute()" class="w-12 h-12 rounded-full bg-orange-500 border-2 border-white/80 flex items-center justify-center spinning-disc"><i class="fa-solid ${isMuted?'fa-volume-xmark':'fa-volume-high'} text-white"></i></button></div></div></div>`}).join('');
 setupVideoObserver();
 }
-  function setupVideoObserver(){
-  document.querySelectorAll('#video-feed video').forEach(v => {
-    v.pause();
-    v.muted = isMuted;
-  });
-  let observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      let video = entry.target.querySelector('video');
-      if(!video) return;
-      if(entry.isIntersecting && entry.intersectionRatio >= 0.6){
-        video.muted = isMuted;
-        video.play().catch(()=>{});
-      } else {
-        video.pause();
-      }
+let feedObserver=null;
+function setupVideoObserver(){
+  if(feedObserver) feedObserver.disconnect();
+  document.querySelectorAll('#video-feed video').forEach(v=>{ v.pause(); v.muted=true; v.playsInline=true; });
+  feedObserver=new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      let video=entry.target.querySelector('video'); if(!video) return;
+      if(entry.isIntersecting && entry.intersectionRatio>=0.6){
+        document.querySelectorAll('#video-feed video').forEach(o=>{ if(o!==video) o.pause(); });
+        video.muted=isMuted; video.play().catch(()=>{});
+      } else { video.pause(); }
     });
-  }, { root: document.getElementById('video-feed'), threshold: 0.6 });
-  document.querySelectorAll('.video-card').forEach(card => observer.observe(card));
+  },{root:document.getElementById('video-feed'),threshold:0.6});
+  document.querySelectorAll('.video-card').forEach(card=>feedObserver.observe(card));
 }
 function toggleMute(){
   isMuted = !isMuted;
