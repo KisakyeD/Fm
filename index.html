@@ -22,6 +22,7 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 .switch.on{background:#22c55e}
 .switch:after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.2s}
 .switch.on:after{left:22px}
+.set-section{transition:all .2s}
 </style>
 </head>
 <body>
@@ -79,54 +80,54 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 <!-- EDIT -->
 <div id="edit-modal" class="hidden fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4"><div class="bg-slate-900 w-full max-w-sm rounded-2xl p-5"><div class="flex justify-between mb-3"><h3 class="font-bold">Edit Profile</h3><button onclick="toggleModal('edit-modal',false)">✕</button></div><input id="edit-name" value="Brian K" class="w-full bg-slate-800 rounded-xl p-3 mb-2 outline-none"><input id="edit-bio" value="Funny videos from Kampala" class="w-full bg-slate-800 rounded-xl p-3 mb-2 outline-none"><input id="edit-link" value="https://mplanet.com/@briank" class="w-full bg-slate-800 rounded-xl p-3 mb-2 outline-none"><label class="text-xs text-sky-300">Profile Photo</label><input id="edit-photo" type="file" accept="image/*" class="w-full text-sm mb-3"><button onclick="saveProfile()" class="w-full bg-gradient-to-r from-blue-600 to-orange-500 py-2.5 rounded-xl font-bold">Save</button></div></div>
 
-<!-- SETTINGS — FULL -->
+<!-- SETTINGS — TOP-DOWN ACCORDION -->
 <div id="settings-modal" class="hidden fixed inset-0 z-[60] bg-slate-950 flex flex-col max-w-[500px] mx-auto overflow-y-auto">
 <div class="flex justify-between px-4 py-3 border-b border-blue-500/20 sticky top-0 bg-slate-950 z-10"><button onclick="toggleModal('settings-modal',false)"><i class="fa-solid fa-arrow-left"></i></button><span class="font-bold">Settings</span><span class="text-xs text-slate-400">v1.0</span></div>
-<div class="p-4 space-y-4 pb-10">
-<!-- ACCOUNT -->
-<div><p class="text-xs font-black text-sky-400 mb-2">ACCOUNT</p><div class="bg-slate-900 rounded-2xl p-3 space-y-2">
+<div class="p-4 space-y-2 pb-10">
+<button onclick="toggleSettingsSection('sec-account',this)" class="w-full flex justify-between items-center bg-slate-900 p-4 rounded-2xl font-bold text-left"><span>👤 ACCOUNT</span><span class="set-arrow">▲</span></button>
+<div id="sec-account" class="set-section bg-slate-900/50 rounded-2xl p-3 space-y-2 -mt-1">
 <input id="set-phone" placeholder="Phone 077..." class="w-full bg-slate-800 rounded-xl p-3 outline-none text-sm">
 <input id="set-email" placeholder="Email (for password reset)" class="w-full bg-slate-800 rounded-xl p-3 outline-none text-sm">
 <input id="set-newpass" type="password" placeholder="New Password (min 6)" class="w-full bg-slate-800 rounded-xl p-3 outline-none text-sm">
 <button onclick="changePassword()" class="w-full bg-blue-600 py-2.5 rounded-xl font-bold text-sm">Change Password</button>
 <button onclick="saveAccountInfo()" class="w-full bg-slate-800 py-2.5 rounded-xl font-bold text-sm">Save Phone / Email</button>
-</div></div>
-<!-- PRIVACY -->
-<div><p class="text-xs font-black text-sky-400 mb-2">PRIVACY</p><div class="bg-slate-900 rounded-2xl p-3 space-y-3">
+</div>
+<button onclick="toggleSettingsSection('sec-privacy',this)" class="w-full flex justify-between items-center bg-slate-900 p-4 rounded-2xl font-bold text-left"><span>🔒 PRIVACY</span><span class="set-arrow">▼</span></button>
+<div id="sec-privacy" class="set-section hidden bg-slate-900/50 rounded-2xl p-3 space-y-3 -mt-1">
 <div class="flex justify-between items-center"><span class="text-sm">Private Account <span class="text-xs text-slate-400 block">Only followers see videos</span></span><div id="sw-private" class="switch" onclick="toggleSetting('private',this)"></div></div>
 <div class="flex justify-between items-center"><span class="text-sm">Allow Comments</span><div id="sw-comments" class="switch on" onclick="toggleSetting('allowComments',this)"></div></div>
 <div><label class="text-sm">Who can comment</label><select id="set-comment-who" onchange="saveSetting('commentWho',this.value)" class="w-full bg-slate-800 rounded-xl p-3 mt-1 text-sm"><option value="everyone">Everyone</option><option value="followers">Followers only</option><option value="nobody">Nobody</option></select></div>
 <button onclick="alert('Blocked: none yet')" class="w-full text-left bg-slate-800 p-3 rounded-xl text-sm">Blocked Users →</button>
-</div></div>
-<!-- NOTIFICATIONS -->
-<div><p class="text-xs font-black text-sky-400 mb-2">NOTIFICATIONS</p><div class="bg-slate-900 rounded-2xl p-3 space-y-3">
+</div>
+<button onclick="toggleSettingsSection('sec-notif',this)" class="w-full flex justify-between items-center bg-slate-900 p-4 rounded-2xl font-bold text-left"><span>🔔 NOTIFICATIONS</span><span class="set-arrow">▼</span></button>
+<div id="sec-notif" class="set-section hidden bg-slate-900/50 rounded-2xl p-3 space-y-3 -mt-1">
 <div class="flex justify-between items-center"><span class="text-sm">New Like ❤️</span><div class="switch on" onclick="toggleSetting('notifLike',this)"></div></div>
 <div class="flex justify-between items-center"><span class="text-sm">New Follower 👤</span><div class="switch on" onclick="toggleSetting('notifFollower',this)"></div></div>
 <div class="flex justify-between items-center"><span class="text-sm">New Comment 💬</span><div class="switch on" onclick="toggleSetting('notifComment',this)"></div></div>
 <div class="flex justify-between items-center"><span class="text-sm">Withdraw Paid 💰</span><div class="switch on" onclick="toggleSetting('notifWithdraw',this)"></div></div>
 <div class="flex justify-between items-center"><span class="text-sm">Referral Bonus 🎁</span><div class="switch on" onclick="toggleSetting('notifReferral',this)"></div></div>
-</div></div>
-<!-- WALLET -->
-<div><p class="text-xs font-black text-sky-400 mb-2">WALLET / PAYOUT</p><div class="bg-slate-900 rounded-2xl p-3 space-y-2">
+</div>
+<button onclick="toggleSettingsSection('sec-wallet',this)" class="w-full flex justify-between items-center bg-slate-900 p-4 rounded-2xl font-bold text-left"><span>💰 WALLET / PAYOUT</span><span class="set-arrow">▼</span></button>
+<div id="sec-wallet" class="set-section hidden bg-slate-900/50 rounded-2xl p-3 space-y-2 -mt-1">
 <input id="set-payout" placeholder="Payout MTN/Airtel 077..." class="w-full bg-slate-800 rounded-xl p-3 outline-none text-sm">
 <input id="set-pin" type="password" maxlength="4" inputmode="numeric" placeholder="Withdraw PIN (4 digits, optional)" class="w-full bg-slate-800 rounded-xl p-3 outline-none text-sm">
 <button onclick="saveWalletSettings()" class="w-full bg-emerald-600 py-2.5 rounded-xl font-bold text-sm">Save Payout + PIN</button>
 <p class="text-xs text-slate-400">If PIN is set, withdraw will ask for it.</p>
-</div></div>
-<!-- APP -->
-<div><p class="text-xs font-black text-sky-400 mb-2">APP</p><div class="bg-slate-900 rounded-2xl p-3 space-y-3">
+</div>
+<button onclick="toggleSettingsSection('sec-app',this)" class="w-full flex justify-between items-center bg-slate-900 p-4 rounded-2xl font-bold text-left"><span>📱 APP</span><span class="set-arrow">▼</span></button>
+<div id="sec-app" class="set-section hidden bg-slate-900/50 rounded-2xl p-3 space-y-3 -mt-1">
 <div><label class="text-sm">Language</label><select id="set-lang" onchange="saveSetting('lang',this.value);applyLang()" class="w-full bg-slate-800 rounded-xl p-3 mt-1 text-sm"><option value="en">English</option><option value="lg">Luganda</option></select></div>
 <div class="flex justify-between items-center"><span class="text-sm">Autoplay Videos</span><div class="switch on" onclick="toggleSetting('autoplay',this)"></div></div>
 <div class="flex justify-between items-center"><span class="text-sm">Sound ON by default</span><div class="switch on" onclick="toggleSetting('soundOn',this)"></div></div>
 <div class="flex justify-between items-center"><span class="text-sm">Data Saver (low quality)</span><div class="switch" onclick="toggleSetting('dataSaver',this)"></div></div>
-</div></div>
-<!-- SAFETY -->
-<div><p class="text-xs font-black text-sky-400 mb-2">SAFETY</p><div class="bg-slate-900 rounded-2xl p-3 space-y-2">
+</div>
+<button onclick="toggleSettingsSection('sec-safety',this)" class="w-full flex justify-between items-center bg-slate-900 p-4 rounded-2xl font-bold text-left"><span>🛡️ SAFETY</span><span class="set-arrow">▼</span></button>
+<div id="sec-safety" class="set-section hidden bg-slate-900/50 rounded-2xl p-3 space-y-2 -mt-1">
 <button onclick="reportProblem()" class="w-full text-left bg-slate-800 p-3 rounded-xl text-sm">Report a Problem →</button>
-<button onclick="alert('Mplanet Terms: Be kind. No hate. No spam. Coins are for likes, withdraw min UGX 5,000.')" class="w-full text-left bg-slate-800 p-3 rounded-xl text-sm">Terms & Privacy →</button>
+<button onclick="alert('Mplanet Terms: Be kind. No hate. No spam. Coins for likes, withdraw min UGX 5,000.')" class="w-full text-left bg-slate-800 p-3 rounded-xl text-sm">Terms & Privacy →</button>
 <button onclick="deleteAccount()" class="w-full bg-red-900/50 text-red-300 py-2.5 rounded-xl font-bold text-sm">Delete Account</button>
 <button onclick="logout()" class="w-full bg-red-500 py-2.5 rounded-xl font-bold text-sm">Logout</button>
-</div></div>
+</div>
 </div></div>
 
 <div id="search-modal" class="hidden fixed inset-0 z-50 bg-slate-950 max-w-[500px] mx-auto p-4 flex flex-col"><div class="flex gap-3 mb-4"><button onclick="toggleModal('search-modal',false)"><i class="fa-solid fa-arrow-left text-xl"></i></button><input id="search-input" oninput="filterVideos(this.value)" placeholder="Search captions, #hashtags..." class="flex-1 bg-slate-800 rounded-full px-4 py-2 outline-none"></div><div id="search-results" class="grid grid-cols-2 gap-2 overflow-y-auto"></div></div>
@@ -143,12 +144,20 @@ let LIVE_UGX=3700;
 const COIN_DEPOSIT_USD=0.008, COIN_WITHDRAW_USD=0.0032;
 const MIN_DEPOSIT_UGX=2000, MIN_WITHDRAW_UGX=5000, REFERRAL_FROM_OWNER=0.15;
 let COIN_RATE=COIN_DEPOSIT_USD, WITHDRAW_RATE=COIN_WITHDRAW_USD;
-// SETTINGS STORE
 function getSettings(){ try{ return JSON.parse(localStorage.getItem('mplanet-settings')||'{}'); }catch(e){ return {}; } }
 function saveSetting(k,v){ let s=getSettings(); s[k]=v; localStorage.setItem('mplanet-settings', JSON.stringify(s)); }
-function toggleSetting(k,el){ let s=getSettings(); let cur = s[k]!==undefined ? s[k] : el.classList.contains('on'); let next=!cur; s[k]=next; localStorage.setItem('mplanet-settings', JSON.stringify(s)); el.classList.toggle('on', next); if(k==='private') updatePrivateBadge(); if(k==='soundOn') isMuted=!next; alert((k)+' '+(next?'ON':'OFF')); }
+function toggleSetting(k,el){ let s=getSettings(); let cur = s[k]!==undefined ? s[k] : el.classList.contains('on'); let next=!cur; s[k]=next; localStorage.setItem('mplanet-settings', JSON.stringify(s)); el.classList.toggle('on', next); if(k==='private') updatePrivateBadge(); if(k==='soundOn') isMuted=!next; alert(k+' '+(next?'ON':'OFF')); }
 function updatePrivateBadge(){ let s=getSettings(); let b=document.getElementById('private-badge'); if(b) b.textContent = s.private ? '🔒 Private Account' : 'Public Account'; }
-function applyLang(){ let s=getSettings(); if(s.lang==='lg'){ /* simple */ document.title='Mplanet — Vidiyo'; } }
+function applyLang(){ let s=getSettings(); if(s.lang==='lg'){ document.title='Mplanet — Vidiyo'; } }
+function toggleSettingsSection(id, btn){
+  document.querySelectorAll('.set-section').forEach(s=>{ if(s.id!==id) s.classList.add('hidden'); });
+  document.querySelectorAll('.set-arrow').forEach(a=>{ if(a!==btn.querySelector('.set-arrow')) a.textContent='▼'; });
+  let sec=document.getElementById(id);
+  let isHidden=sec.classList.contains('hidden');
+  sec.classList.toggle('hidden');
+  btn.querySelector('.set-arrow').textContent = isHidden ? '▲' : '▼';
+  if(isHidden) sec.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
 function openSettings(){
   let s=getSettings();
   document.getElementById('set-phone').value=localStorage.getItem('payout-phone')||'';
@@ -157,19 +166,19 @@ function openSettings(){
   document.getElementById('set-pin').value=localStorage.getItem('withdraw-pin')||'';
   document.getElementById('set-comment-who').value=s.commentWho||'everyone';
   document.getElementById('set-lang').value=s.lang||'en';
-  // sync switches
-  document.querySelectorAll('#settings-modal .switch').forEach(sw=>{ /* keep as is, defaults ON except private/dataSaver */ });
   if(s.private) document.getElementById('sw-private').classList.add('on'); else document.getElementById('sw-private').classList.remove('on');
   if(s.allowComments===false) document.getElementById('sw-comments').classList.remove('on'); else document.getElementById('sw-comments').classList.add('on');
+  document.querySelectorAll('.set-section').forEach(sec=>sec.classList.add('hidden'));
+  document.querySelectorAll('.set-arrow').forEach(a=>a.textContent='▼');
+  let acc=document.getElementById('sec-account'); if(acc) acc.classList.remove('hidden');
+  let firstBtn=document.querySelector("[onclick*='sec-account'] .set-arrow"); if(firstBtn) firstBtn.textContent='▲';
   toggleModal('settings-modal',true);
 }
 async function changePassword(){
   let np=document.getElementById('set-newpass').value.trim();
-  let email=document.getElementById('set-email').value.trim();
   if(np.length<6) return alert('Password min 6 characters');
-  // Try Supabase auth, fallback to local save
   try{ let {error}=await sb.auth.updateUser({password: np}); if(error) throw error; alert('Password changed ✅'); }
-  catch(e){ localStorage.setItem('local-pass', np); alert('Password saved locally ✅ (Supabase login not linked, will use local)'); }
+  catch(e){ localStorage.setItem('local-pass', np); alert('Password saved locally ✅'); }
   document.getElementById('set-newpass').value='';
 }
 function saveAccountInfo(){
@@ -185,9 +194,9 @@ function saveWalletSettings(){
   if(pin) localStorage.setItem('withdraw-pin', pin); else localStorage.removeItem('withdraw-pin');
   alert('Payout + PIN saved ✅'); updateWalletUSD();
 }
-function reportProblem(){ let t=prompt('What is the problem?'); if(t) alert('Report sent ✅ Thank you! We will check: '+t); }
+function reportProblem(){ let t=prompt('What is the problem?'); if(t) alert('Report sent ✅ Thank you!'); }
 async function deleteAccount(){
-  if(!confirm('Delete account? This removes your local data. Type DELETE to confirm.')) return;
+  if(!confirm('Delete account?')) return;
   let c=prompt('Type DELETE to confirm'); if(c!=='DELETE') return alert('Cancelled');
   try{ await sb.from('users').delete().eq('username', currentProfile.username); }catch(e){}
   localStorage.clear(); alert('Account deleted'); location.reload();
@@ -254,7 +263,7 @@ function toggleSave(id){let s=saved.has(id);s?saved.delete(id):saved.add(id);let
 let currentCommentVideoId=null;let replyToId=null;
 async function openComments(id){
   currentCommentVideoId=id; replyToId=null; toggleModal('comments-modal',true);
-  let s=getSettings(); if(s.allowComments===false){ document.getElementById('comments-list').innerHTML=`<div class="text-center text-slate-400">Comments OFF for this account (Settings)</div>`; return; }
+  let s=getSettings(); if(s.allowComments===false){ document.getElementById('comments-list').innerHTML=`<div class="text-center text-slate-400">Comments OFF (Settings > Privacy)</div>`; return; }
   let list=document.getElementById('comments-list'); list.innerHTML=`<div class="text-center text-slate-400 text-sm py-4">Loading...</div>`;
   if(String(id).startsWith('demo-')){ list.innerHTML=`<div class="bg-slate-800 p-3 rounded-xl"><b class="text-sky-400">@alex_ug</b>: Love Mplanet! 🚀</div>`; return; }
   let {data, error}=await sb.from('Comments').select('*').eq('video_id', id).order('created_at',{ascending:true});
