@@ -447,7 +447,7 @@ closeDrawer = function(){ _origCloseDrawer(); setTimeout(resumeVisibleVideo, 300
     <canvas id="editor-canvas" width="300" height="300" class="w-full h-full"></canvas>
   </div>
   <p class="text-xs text-slate-400 mt-2">Drag to move • Slider to zoom</p>
-  <input id="editor-zoom" type="range" min="1" max="3" step="0.1" value="1" oninput="drawEditor()" class="w-72 mt-3">
+  <input id="editor-zoom" type="range" min="1" max="3" step="0.1" value="1" oninput="editorZoom=parseFloat(this.value); drawEditor()" class="w-72 mt-3">
   <div class="flex gap-2 mt-3">
     <button onclick="editorRotate()" class="bg-slate-800 px-4 py-2 rounded-xl font-bold">↻ Rotate</button>
     <button onclick="closePhotoEditor()" class="bg-slate-800 px-4 py-2 rounded-xl font-bold">Cancel</button>
