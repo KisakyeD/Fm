@@ -416,7 +416,54 @@ document.addEventListener('pointerup',()=>dragStart=null);
 function saveProfile(){ let name=document.getElementById('edit-name').value.trim()||'Brian K'; let bio=document.getElementById('edit-bio').value.trim(); let link=document.getElementById('edit-link').value.trim(); let file=document.getElementById('edit-photo').files[0]; document.querySelector('#profile-modal h3').innerHTML=name+' <span class="text-sky-400 text-base">✓</span>'; document.getElementById('profile-bio').textContent=bio; document.getElementById('profile-link').textContent='🔗 '+link; if(file){ let r=new FileReader(); r.onload=e=>{ let img=document.getElementById('profile-pic'); img.src=e.target.result; img.classList.remove('hidden'); document.getElementById('profile-letter').classList.add('hidden'); localStorage.setItem('profile-pic', e.target.result); }; r.readAsDataURL(file); } localStorage.setItem('profile-name', name); localStorage.setItem('profile-bio', bio); localStorage.setItem('profile-link', link); toggleModal('edit-modal',false); alert('Profile saved!'); }
 function logout(){ if(!confirm('Logout?')) return; localStorage.clear(); location.reload(); }
 function setProfileTab(t){ profileTab=t; ['posts','saved','liked'].forEach(x=>document.getElementById('tab-'+x).classList.toggle('tab-active', x===t)); renderProfileGrid(); }
-function renderProfileGrid(){ let list=[]; if(profileTab==='posts') list=allVideos.filter(v=>v.profiles.id===currentProfile.id); if(profileTab==='saved') list=allVideos.filter(v=>saved.has(v.id)); if(profileTab==='liked') list=allVideos.filter(v=>liked.has(v.id)); document.getElementById('profile-grid').innerHTML=list.map(v=>`<div onclick="openProfileVideo('${v.id}')" class="aspect-[9/16] bg-slate-900 relative overflow-hidden cursor-pointer"><video src="${v.video_url}" muted preload="metadata" class="w-full h-full object-cover"></video><span class="absolute bottom-1 left-1 text-xs bg-black/70 px-1 rounded">❤️ ${v.likes_count}</span><span class="absolute inset-0 flex items-center justify-center text-3xl">▶️</span></div>`).join('')||`<div class="col-span-3 py-10 text-center text-slate-400 text-sm">No ${profileTab} yet</div>`; }
+function renderProfileGrid(){ let list=[];let pinned = getPinned();
+if(profileTab==='posts') list.sort((a,b)=> pinned.indexOf(String(b.id)) - pinned.indexOf(String(a.id))); if(profileTab==='posts') list=allVideos.filter(v=>v.profiles.id===currentProfile.id); if(profileTab==='saved') list=allVideos.filter(v=>saved.has(v.id)); if(profileTab==='liked') list=allVideos.filter(v=>liked.has(v.id)); document.getElementById('profile-grid').innerHTML=list.map(v=>`<div onclick="openProfileVideo('${v.id}')"<button onclick="event.stopPropagation(); openPostMenu('${v.id}')" class="absolute top-1 right-1 z-10 w-8 h-8 bg-black/70 rounded-full font-black">⋮</button>class="aspect-[9/16] bg-slate-900 relative overflow-hidden cursor-pointer"><video src="${v.video_url}" muted preload="metadata" class="w-full h-full object-cover"></video><span class="absolute bottom-1 left-1 text-xs bg-black/70 px-1 rounded">❤️ ${v.likes_count}</span><span class="absolute inset-0 flex items-center justify-center text-3xl">▶️</span></div>`).join('')||`<div class="col-span-3 py-10 text-center text-slate-400 text-sm">No ${profileTab} yet</div>`; }
+let currentMenuPostId = null;
+function getPinned(){ try{ return JSON.parse(localStorage.getItem('pinned-posts')||'[]'); }catch(e){ return []; } }
+function openPostMenu(id){
+  currentMenuPostId = id;
+  let pinned = getPinned();
+  document.getElementById('pin-btn-text').textContent = pinned.includes(String(id)) ? 'Unpin from Profile' : 'Pin to Profile';
+  document.getElementById('post-menu').classList.remove('hidden');
+  pauseAllVideos();
+}
+function closePostMenu(){
+  document.getElementById('post-menu').classList.add('hidden');
+  currentMenuPostId = null;
+}
+function editPostCaption(){
+  let v = allVideos.find(x=>String(x.id)===String(currentMenuPostId)); if(!v) return;
+  let nc = prompt('Edit Caption:', v.caption||'');
+  if(nc===null) return;
+  v.caption = nc; closePostMenu();
+  sb.from('Videos').update({caption:nc, title:nc}).eq('id', isNaN(Number(v.id))? -1 : Number(v.id));
+  renderProfileGrid(); alert('Caption updated ✅');
+}
+function pinPost(){
+  let id = String(currentMenuPostId); let pinned = getPinned();
+  if(pinned.includes(id)) pinned = pinned.filter(x=>x!==id);
+  else { pinned.unshift(id); pinned = pinned.slice(0,3); }
+  localStorage.setItem('pinned-posts', JSON.stringify(pinned));
+  closePostMenu(); renderProfileGrid(); alert(pinned.includes(id) ? 'Pinned to top 📌' : 'Unpinned');
+}
+function sharePostMenu(){
+  let l = location.origin + '/@' + currentProfile.username + '/video/' + currentMenuPostId;
+  if(navigator.share) navigator.share({title:'Mplanet', url:l}).catch(()=>{});
+  else { navigator.clipboard.writeText(l); alert('Link copied!'); }
+  closePostMenu();
+}
+function copyPostLink(){
+  let l = location.origin + '/@' + currentProfile.username + '/video/' + currentMenuPostId;
+  navigator.clipboard.writeText(l); alert('Link copied! 🔗'); closePostMenu();
+}
+async function deletePost(){
+  let id = currentMenuPostId;
+  if(prompt('Type DELETE to delete this post')!=='DELETE') return;
+  showLoader();
+  if(!String(id).startsWith('demo-')) await sb.from('Videos').delete().eq('id', Number(id));
+  allVideos = allVideos.filter(x=>String(x.id)!==String(id));
+  hideLoader(); closePostMenu(); renderProfileGrid(); alert('Post deleted 🗑️');
+}
 function openProfileVideo(id){ let v=allVideos.find(x=>String(x.id)===String(id)); if(!v) return; pauseAllVideos(); let vid=document.getElementById('profile-player-video'); vid.src=v.video_url; vid.muted=isMuted; document.getElementById('profile-player-caption').textContent=v.caption||''; document.getElementById('profile-player').classList.remove('hidden'); vid.play().catch(()=>{}); }
 function closeProfilePlayer(){ let vid=document.getElementById('profile-player-video'); vid.pause(); vid.src=''; document.getElementById('profile-player').classList.add('hidden'); }
 async function loadWithdrawHistory(){ let {data}=await sb.from('Withdraws').select('*').eq('user_id', currentProfile.id).order('created_at',{ascending:false}).limit(5); let el=document.getElementById('withdraw-history'); if(!el) return; if(!data||!data.length){ el.innerHTML='No withdraws yet'; return; } el.innerHTML=data.map(w=>`<div class="flex justify-between bg-slate-800 p-2 rounded-lg"><span>${w.amount} coins = $${(w.amount*COIN_WITHDRAW_USD).toFixed(2)}</span><span class="${w.status==='pending'?'text-amber-400':'text-green-400'}">${w.status}</span></div>`).join(''); }
@@ -485,6 +532,19 @@ let _origCloseDrawer = closeDrawer;
 closeDrawer = function(){ _origCloseDrawer(); setTimeout(resumeVisibleVideo, 300); };
   document.getElementById('withdraw-box').classList.add('hidden');
 </script>
+  <!-- POST ⋮ MENU -->
+<div id="post-menu" onclick="if(event.target===this)closePostMenu()" class="hidden fixed inset-0 z-[95] bg-black/70 flex items-end justify-center">
+  <div class="bg-slate-900 w-full max-w-[500px] rounded-t-2xl p-4 pb-6">
+    <div class="w-12 h-1 bg-slate-700 rounded-full mx-auto mb-3"></div>
+    <p class="text-center font-bold mb-3">Post Options</p>
+    <button onclick="editPostCaption()" class="w-full text-left bg-slate-800 p-3 rounded-xl mb-2">✏️ Edit Caption</button>
+    <button onclick="pinPost()" class="w-full text-left bg-slate-800 p-3 rounded-xl mb-2">📌 <span id="pin-btn-text">Pin to Profile</span></button>
+    <button onclick="sharePostMenu()" class="w-full text-left bg-slate-800 p-3 rounded-xl mb-2">📤 Share</button>
+    <button onclick="copyPostLink()" class="w-full text-left bg-slate-800 p-3 rounded-xl mb-2">🔗 Copy Link</button>
+    <button onclick="deletePost()" class="w-full text-left bg-red-900/50 text-red-300 p-3 rounded-xl mb-2">🗑️ Delete Post</button>
+    <button onclick="closePostMenu()" class="w-full bg-slate-800 p-3 rounded-xl font-bold">Cancel</button>
+  </div>
+</div>
   <div id="profile-player" class="hidden fixed inset-0 z-[70] bg-black max-w-[500px] mx-auto flex flex-col">
   <div class="flex justify-between items-center px-3 py-3 bg-black/80 z-20">
     <button onclick="closeProfilePlayer()" class="p-2"><i class="fa-solid fa-arrow-left text-2xl"></i> Back</button>
