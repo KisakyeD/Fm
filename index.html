@@ -24,6 +24,15 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 .switch:after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.2s}
 .switch.on:after{left:22px}
 #splash{transition:opacity .4s}
+/* FIX ONLY - layout from screenshot, no new features */
+header{flex-wrap:nowrap!important;white-space:nowrap!important}
+header>div:last-child{flex-shrink:0}
+#drawer{transform:translateX(-100%)!important}
+#drawer.open{transform:translateX(0)!important}
+#drawer-bg.hidden{display:none!important}
+#video-feed{height:100dvh!important;padding-top:0!important}
+.video-card{height:100dvh!important;width:100%!important}
+.video-card video,.video-card iframe{width:100%!important;height:100%!important;max-width:500px!important;object-fit:cover!important;margin:0 auto!important;display:block!important}
 </style>
 </head>
 <body>
@@ -34,7 +43,7 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 <div class="flex gap-2"><button onclick="openNotifications()" class="relative p-1.5"><i class="fa-solid fa-bell text-xl"></i><span id="notif-dot" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full"></span></button><button onclick="openSearch()" class="p-1.5"><i class="fa-solid fa-magnifying-glass text-xl"></i></button></div>
 </header>
 <div id="drawer-bg" onclick="closeDrawer()" class="hidden fixed inset-0 z-40 bg-slate-950/75"></div>
-<aside id="drawer" class="fixed top-0 left-0 bottom-0 z-50 w-72 bg-slate-950 border-r border-blue-500/20 p-5 flex flex-col justify-between transform -translate-x-full transition-transform duration-200">
+<aside id="drawer" class="fixed top-0 left-0 bottom-0 z-50 w-72 bg-slate-950 border-r border-blue-500/20 p-5 flex flex-col justify-between transition-transform duration-200">
 <div>
 <div class="flex justify-between pb-4 border-b border-blue-500/20"><div class="font-black text-2xl"><span class="text-blue-500">M</span><span class="text-orange-500">planet</span></div><button onclick="closeDrawer()"><i class="fa-solid fa-xmark text-2xl"></i></button></div>
 <p class="text-xs text-slate-400 mt-3">Logged in as <b id="drawer-user" class="text-white">@briank</b></p>
@@ -145,8 +154,8 @@ async function loadLiveRate(){ try{ let r=await fetch('https://open.er-api.com/v
 function updateCoinPrices(){ document.querySelectorAll('.buy-price').forEach(e=>e.textContent=(parseInt(e.dataset.coins)*COIN_RATE).toFixed(2)); let w=document.getElementById('wd-rate'); if(w) w.textContent=WITHDRAW_RATE; let d=document.getElementById('dep-rate'); if(d) d.textContent=COIN_RATE; }
 function updateWalletUSD(){ let w=document.getElementById('wallet-usd'); if(w) w.textContent='$'+(coins*COIN_WITHDRAW_USD).toFixed(2); let d=document.getElementById('wallet-deposit-usd'); if(d) d.textContent='$'+(coins*COIN_DEPOSIT_USD).toFixed(2); let ph=localStorage.getItem('payout-phone')||''; let pd=document.getElementById('payout-display'); if(pd) pd.textContent=ph||'Not set'; let wp=document.getElementById('wd-phone'); if(wp && ph) wp.value=ph; updatePrivateBadge(); }
 function toggleModal(id,show){document.getElementById(id).classList.toggle('hidden',!show)}
-function openDrawer(){document.getElementById('drawer-bg').classList.remove('hidden');document.getElementById('drawer').classList.remove('-translate-x-full')}
-function closeDrawer(){document.getElementById('drawer-bg').classList.add('hidden');document.getElementById('drawer').classList.add('-translate-x-full')}
+function openDrawer(){document.getElementById('drawer-bg').classList.remove('hidden');document.getElementById('drawer').classList.add('open')}
+function closeDrawer(){document.getElementById('drawer-bg').classList.add('hidden');document.getElementById('drawer').classList.remove('open')}
 function openSearch(){toggleModal('search-modal',true);filterVideos('')}
 function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function ytId(u){try{if(u.includes('youtu.be'))return u.split('youtu.be/')[1].split('?')[0];return new URL(u).searchParams.get('v')}catch(e){return null}}
