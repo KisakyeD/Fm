@@ -20,13 +20,11 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 </style>
 </head>
 <body>
-
 <header class="fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-3 py-3 bg-gradient-to-b from-slate-950/90 to-transparent max-w-[500px] mx-auto">
 <div class="flex items-center gap-2"><button onclick="openDrawer()" class="p-1.5"><i class="fa-solid fa-bars text-2xl"></i></button><div class="font-black text-2xl"><span class="text-blue-500">M</span><span class="text-orange-500">planet</span> 🌍</div></div>
 <div class="flex gap-3 font-bold"><button id="tab-following" onclick="loadFeed('following')" class="text-white/60">Following</button><span class="text-white/30">|</span><button id="tab-foryou" onclick="loadFeed('foryou')" class="text-white border-b-2 border-orange-500">For You</button></div>
 <button onclick="openSearch()" class="p-1.5"><i class="fa-solid fa-magnifying-glass text-xl"></i></button>
 </header>
-
 <div id="drawer-bg" onclick="closeDrawer()" class="hidden fixed inset-0 z-40 bg-slate-950/75"></div>
 <aside id="drawer" class="fixed top-0 left-0 bottom-0 z-50 w-72 bg-slate-950 border-r border-blue-500/20 p-5 flex flex-col justify-between transform -translate-x-full transition-transform duration-200">
 <div>
@@ -38,29 +36,21 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 <button onclick="closeDrawer();toggleModal('upload-modal',true)" class="planet-btn"><span class="text-2xl">🌍</span><span><b>Create / Upload</b><br><small class="text-sky-300">Share to the world.</small></span></button>
 <button onclick="closeDrawer();toggleModal('profile-modal',true);renderProfile()" class="flex gap-4 px-3 py-3 rounded-xl hover:bg-blue-500/15 text-left font-semibold"><i class="fa-regular fa-user w-6 text-orange-400 text-xl"></i>Profile @briank</button>
 </nav></div>
-<div class="pt-4 border-t border-blue-500/20 text-sm text-slate-400">Mplanet Creator Platform</div>
+<div class="pt-4 border-t border-blue-500/20 text-sm text-slate-400">Mplanet Creator Platform • All prices in USD</div>
 </aside>
-
 <main id="video-feed" class="max-w-[500px] mx-auto relative"></main>
-
 <div id="live-modal" onclick="if(event.target===this)toggleModal('live-modal',false)" class="hidden fixed inset-0 z-50 bg-slate-950/90 flex items-center justify-center p-4"><div class="bg-slate-900 w-full max-w-md rounded-2xl p-5 border border-orange-500/35"><div class="flex justify-between mb-4"><span class="px-2 py-1 rounded-full text-xs font-extrabold bg-orange-500">MPLANET LIVE</span><button onclick="toggleModal('live-modal',false)"><i class="fa-solid fa-xmark"></i></button></div><div class="aspect-[9/12] rounded-xl bg-slate-950 flex flex-col items-center justify-center text-center p-6"><i class="fa-solid fa-video text-4xl text-orange-500 mb-3"></i><p class="font-bold">Broadcast to Mplanet</p><p class="text-sm text-slate-400">Allow camera to go live</p></div><button onclick="alert('Allow camera permission to go live')" class="w-full mt-4 bg-gradient-to-r from-blue-600 to-orange-500 py-3 rounded-xl font-bold">Go Live Now</button></div></div>
-
 <div id="comments-modal" onclick="if(event.target===this)toggleModal('comments-modal',false)" class="hidden fixed inset-0 z-50 bg-slate-950/70 flex items-end justify-center"><div class="bg-slate-900 w-full max-w-[500px] h-[65dvh] rounded-t-2xl flex flex-col p-4"><div class="flex justify-between border-b border-blue-500/20 pb-2"><button onclick="toggleModal('comments-modal',false)"><i class="fa-solid fa-arrow-left"></i></button><span class="font-bold text-sky-300">Comments</span><button onclick="toggleModal('comments-modal',false)"><i class="fa-solid fa-xmark"></i></button></div><div id="comments-list" class="flex-1 overflow-y-auto py-3 space-y-3"></div><form onsubmit="submitComment(event)" class="flex gap-2 pt-2 border-t border-blue-500/20"><input id="comment-input" required placeholder="Add a comment..." class="flex-1 bg-slate-800 rounded-full px-4 py-2 outline-none"><button class="bg-gradient-to-r from-blue-600 to-orange-500 px-5 py-2 rounded-full font-semibold">Post</button></form></div></div>
-
 <div id="upload-modal" onclick="if(event.target===this)toggleModal('upload-modal',false)" class="hidden fixed inset-0 z-50 bg-slate-950/85 flex items-center justify-center p-4"><div class="bg-slate-900 w-full max-w-md rounded-2xl p-5 border border-blue-500/30"><div class="flex justify-between mb-4"><h2 class="font-bold text-xl text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-orange-400">Post to Mplanet</h2><button onclick="toggleModal('upload-modal',false)"><i class="fa-solid fa-xmark text-xl"></i></button></div><form onsubmit="handleUpload(event)" class="space-y-4"><div><label class="text-sm text-sky-300 font-semibold">1. Select Video From Device</label><input id="video-file" type="file" accept="video/*" class="w-full mt-1 text-sm text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-orange-500 file:text-white"><video id="upload-preview" controls class="hidden w-full h-40 object-cover rounded-xl bg-black mt-2"></video><p id="upload-status" class="text-xs text-sky-300 mt-1"></p><div class="w-full bg-slate-800 rounded-full h-2 mt-2 overflow-hidden hidden" id="progress-wrap"><div id="progress-bar" class="h-full bg-gradient-to-r from-blue-500 to-orange-500" style="width:0%"></div></div></div><div><label class="text-sm text-sky-300">OR Paste YouTube / MP4 Link (optional)</label><input id="video-url" type="text" placeholder="https://youtu.be/... (leave empty if uploading file)" class="w-full bg-slate-800 rounded-xl p-3 outline-none mt-1"></div><div><label class="text-sm text-sky-300">Caption & Hashtags</label><textarea id="video-caption" rows="2" required placeholder="#mplanet #viral" class="w-full bg-slate-800 rounded-xl p-3 outline-none"></textarea></div><div><label class="text-sm text-sky-300">Sound / Track</label><input id="video-music" placeholder="Original Sound" class="w-full bg-slate-800 rounded-xl p-3 outline-none"></div><button id="publish-btn" class="w-full bg-gradient-to-r from-blue-600 to-orange-500 py-3 rounded-xl font-bold">Publish Video</button><p class="text-xs text-slate-400 text-center">Use WiFi. Keep video under 50MB for fast upload.</p></form></div></div>
-
 <div id="profile-modal" class="hidden fixed inset-0 z-50 bg-slate-950 flex flex-col max-w-[500px] mx-auto overflow-y-auto">
 <div class="flex justify-between px-4 py-3 border-b border-blue-500/20 sticky top-0 bg-slate-950 z-10"><button onclick="toggleModal('profile-modal',false)"><i class="fa-solid fa-arrow-left text-xl"></i></button><span class="font-bold text-sky-300">@briank</span><button onclick="toggleModal('profile-modal',false)" class="text-orange-400 font-semibold">Close</button></div>
 <div class="px-5 pt-5 text-center"><div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-tr from-blue-600 via-sky-400 to-orange-500 p-0.5"><div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-3xl font-bold">B</div></div><h3 class="font-extrabold text-xl mt-2">Brian K</h3><p class="text-sky-400 font-semibold text-sm">@briank</p><p class="text-sm text-white/90 mt-1">Funny videos from Kampala</p><div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-blue-500/15"><div><b id="stat-posts">0</b><br><span class="text-slate-400 text-xs">Posts</span></div><div><b id="stat-followers" class="text-orange-400">0</b><br><span class="text-slate-400 text-xs">Followers</span></div><div><b id="stat-likes" class="text-amber-400">0</b><br><span class="text-slate-400 text-xs">Total Likes</span></div></div></div>
-<div class="mx-4 mt-4 p-4 rounded-2xl bg-gradient-to-r from-blue-950/70 to-orange-950/50 border border-blue-500/30"><div class="flex justify-between mb-2"><span class="text-xs font-extrabold text-sky-300"><i class="fa-solid fa-coins text-amber-400"></i> Coins Wallet</span><span class="text-xs text-slate-400">Payout: Not set</span></div><div><span id="wallet-coins" class="text-2xl font-black">850</span> <span class="text-xs font-bold text-amber-400">Coins</span></div><div class="grid grid-cols-2 gap-2 mt-3"><button onclick="openWithdraw()" class="py-2 rounded-xl bg-sky-500 text-slate-950 font-extrabold text-sm">+ Deposit</button><button onclick="openWithdraw()" class="py-2 rounded-xl bg-orange-500 font-extrabold text-sm">Withdraw</button></div><div id="withdraw-box" class="hidden mt-3 space-y-2"><input id="wd-phone" placeholder="MTN/Airtel 077..." class="w-full bg-slate-800 rounded-xl p-3 outline-none"><input id="wd-amount" type="number" placeholder="Coins to withdraw" class="w-full bg-slate-800 rounded-xl p-3 outline-none"><button onclick="doWithdraw()" class="w-full bg-orange-500 py-2 rounded-xl font-bold">Request Withdraw</button><p id="wd-msg" class="text-xs text-green-400"></p></div></div>
-<div class="mx-4 mt-3 p-4 rounded-2xl bg-slate-900 border border-amber-500/30"><p class="font-black text-amber-400">🪙 Buy Coins</p><p class="text-xs text-slate-400 mt-1">Use coins to Like. Creator gets 1 coin per Like.</p><div class="grid grid-cols-3 gap-2 mt-3"><button onclick="buyCoins(50,5000)" class="bg-slate-800 rounded-xl py-3"><p class="font-black">50 🪙</p><p class="text-xs text-amber-400 font-bold">UGX 5,000</p></button><button onclick="buyCoins(120,10000)" class="bg-slate-800 rounded-xl py-3 border border-amber-500"><p class="font-black">120 🪙</p><p class="text-xs text-amber-400 font-bold">UGX 10,000</p></button><button onclick="buyCoins(300,20000)" class="bg-slate-800 rounded-xl py-3"><p class="font-black">300 🪙</p><p class="text-xs text-amber-400 font-bold">UGX 20,000</p></button></div><p class="text-[11px] text-slate-500 mt-2 text-center">Pay via MTN MoMo / Airtel Money</p></div>
+<div class="mx-4 mt-4 p-4 rounded-2xl bg-gradient-to-r from-blue-950/70 to-orange-950/50 border border-blue-500/30"><div class="flex justify-between mb-2"><span class="text-xs font-extrabold text-sky-300"><i class="fa-solid fa-coins text-amber-400"></i> Coins Wallet</span><span class="text-xs text-slate-400">All prices in USD</span></div><div><span id="wallet-coins" class="text-2xl font-black">850</span> <span class="text-xs font-bold text-amber-400">Coins</span></div><div class="grid grid-cols-2 gap-2 mt-3"><button onclick="document.getElementById('buy-coins-section').scrollIntoView({behavior:'smooth'})" class="py-2 rounded-xl bg-sky-500 text-slate-950 font-extrabold text-sm">+ Deposit / Buy Coins</button><button onclick="openWithdraw()" class="py-2 rounded-xl bg-orange-500 font-extrabold text-sm">Withdraw</button></div><div id="withdraw-box" class="hidden mt-3 space-y-2"><p class="text-xs text-slate-400">Withdraw: 1 coin = <b class="text-green-400">$<span id="wd-rate">0.0032</span></b> • Deposit: 1 coin = $<span id="dep-rate">0.008</span><br>Min Withdraw: <b id="min-wd-coins">422</b> coins ($<span id="min-wd-usd2">1.35</span> ≈ UGX 5,000)<br>You will receive: <b id="wd-ugx" class="text-green-400">$0.00</b></p><input id="wd-phone" placeholder="MTN/Airtel 077..." class="w-full bg-slate-800 rounded-xl p-3 outline-none"><input id="wd-amount" type="number" placeholder="Coins to withdraw" class="w-full bg-slate-800 rounded-xl p-3 outline-none"><button onclick="doWithdraw()" class="w-full bg-orange-500 py-2 rounded-xl font-bold">Request Withdraw</button><p id="wd-msg" class="text-xs text-green-400"></p></div></div>
+<div id="buy-coins-section" class="mx-4 mt-3 p-4 rounded-2xl bg-slate-900 border border-amber-500/30"><p class="font-black text-amber-400">🪙 Buy Coins</p><p class="text-[11px] text-green-400" id="live-rate">Live: $1 = UGX 3,700 (loading...)</p><p class="text-[11px] text-slate-400">Min Withdraw: <b class="text-white" id="min-wd-usd">$1.35</b> (≈ UGX 5,000) • All prices in USD</p><p class="text-xs text-slate-400 mt-1">Use coins to Like. Creator gets 1 coin per Like.</p><div class="grid grid-cols-3 gap-2 mt-3"><button onclick="buyCoins(50)" class="bg-slate-800 rounded-xl py-3"><p class="font-black">50 🪙</p><p class="text-xs text-amber-400 font-bold">$<span class="buy-price" data-coins="50"></span></p></button><button onclick="buyCoins(120)" class="bg-slate-800 rounded-xl py-3 border border-amber-500"><p class="font-black">120 🪙</p><p class="text-xs text-amber-400 font-bold">$<span class="buy-price" data-coins="120"></span></p></button><button onclick="buyCoins(300)" class="bg-slate-800 rounded-xl py-3"><p class="font-black">300 🪙</p><p class="text-xs text-amber-400 font-bold">$<span class="buy-price" data-coins="300"></span></p></button></div><p class="text-[11px] text-slate-400 mt-2 text-center">Deposit: 1 coin = $0.008 • Withdraw: 1 coin = $0.0032<br>Min deposit for referral: UGX 2,000 • Referral paid from owner 75%<br>Pay via MTN MoMo / Airtel Money</p></div>
 <div id="profile-grid" class="grid grid-cols-3 gap-0.5 p-0.5 mt-4"></div>
 </div>
-
 <div id="search-modal" class="hidden fixed inset-0 z-50 bg-slate-950 max-w-[500px] mx-auto p-4 flex flex-col"><div class="flex gap-3 mb-4"><button onclick="toggleModal('search-modal',false)"><i class="fa-solid fa-arrow-left text-xl"></i></button><input id="search-input" oninput="filterVideos(this.value)" placeholder="Search captions, #hashtags..." class="flex-1 bg-slate-800 rounded-full px-4 py-2 outline-none"></div><div id="search-results" class="grid grid-cols-2 gap-2 overflow-y-auto"></div></div>
-
 <div id="buy-coins-box" class="hidden fixed inset-0 bg-black/70 z-[100] flex items-center justify-center p-4"><div class="bg-slate-900 rounded-2xl p-5 w-full max-w-xs text-center border border-amber-500/30"><p class="text-4xl">🪙</p><p class="font-black text-lg mt-2">You need Coins to Like!</p><p class="text-sm text-slate-400 mt-1">Liking sends 1 coin to the creator.<br>You have <span id="buy-coins-balance">0</span> coins.</p><button onclick="document.getElementById('buy-coins-box').classList.add('hidden'); toggleModal('profile-modal',true); renderProfile()" class="w-full bg-amber-500 text-black font-bold py-2.5 rounded-xl mt-4">Buy Coins in Profile</button><button onclick="document.getElementById('buy-coins-box').classList.add('hidden')" class="w-full text-slate-400 text-sm mt-2">Close</button></div></div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL="https://leqcrtwoczcnlkkfveqz.supabase.co";
@@ -69,10 +59,27 @@ const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let allVideos=[], liked=new Set(), saved=new Set(), following=new Set(), isMuted=false;
 let currentProfile={id:'local-user',username:'briank',display_name:'Brian K',coins:850};
 let coins=850;
-const DEMO=[
-{id:'demo-1',video_url:'https://assets.mixkit.co/videos/preview/mixkit-girl-in-neon-light-1282-large.mp4',caption:'Welcome to Mplanet! Cosmic vibes #mplanet #viral',music_name:'Orbit Pulse',likes_count:1420,comments_count:34,saves_count:56,profiles:{id:'u1',username:'maya_vibes'}},
-{id:'demo-2',video_url:'https://assets.mixkit.co/videos/preview/mixkit-tree-with-yellow-flowers-1173-large.mp4',caption:'Morning breeze in Kampala #nature #uganda',music_name:'Acoustic Breeze',likes_count:890,comments_count:19,saves_count:24,profiles:{id:'u2',username:'kampala_explorer'}}
-];
+// LIVE DOLLAR + USD PRICES
+let LIVE_UGX=3700;
+const COIN_DEPOSIT_USD=0.008, COIN_WITHDRAW_USD=0.0032;
+const MIN_DEPOSIT_UGX=2000, MIN_WITHDRAW_UGX=5000, REFERRAL_FROM_OWNER=0.15;
+let COIN_RATE=COIN_DEPOSIT_USD, WITHDRAW_RATE=COIN_WITHDRAW_USD;
+async function loadLiveRate(){
+  try{ let r=await fetch('https://open.er-api.com/v6/latest/USD'); let j=await r.json(); if(j.rates&&j.rates.UGX) LIVE_UGX=j.rates.UGX; }catch(e){}
+  COIN_RATE=COIN_DEPOSIT_USD; WITHDRAW_RATE=COIN_WITHDRAW_USD;
+  let minUSD=MIN_WITHDRAW_UGX/LIVE_UGX;
+  let minCoins=Math.ceil(MIN_WITHDRAW_UGX/(COIN_WITHDRAW_USD*LIVE_UGX));
+  updateCoinPrices();
+  let lr=document.getElementById('live-rate'); if(lr) lr.textContent='Live: $1 = UGX '+LIVE_UGX.toLocaleString();
+  let m1=document.getElementById('min-wd-usd'); if(m1) m1.textContent='$'+minUSD.toFixed(2);
+  let m2=document.getElementById('min-wd-usd2'); if(m2) m2.textContent=minUSD.toFixed(2);
+  let mc=document.getElementById('min-wd-coins'); if(mc) mc.textContent=minCoins;
+}
+function updateCoinPrices(){
+  document.querySelectorAll('.buy-price').forEach(e=>e.textContent=(parseInt(e.dataset.coins)*COIN_RATE).toFixed(2));
+  let w=document.getElementById('wd-rate'); if(w) w.textContent=WITHDRAW_RATE;
+  let d=document.getElementById('dep-rate'); if(d) d.textContent=COIN_RATE;
+}
 function toggleModal(id,show){document.getElementById(id).classList.toggle('hidden',!show)}
 function openDrawer(){document.getElementById('drawer-bg').classList.remove('hidden');document.getElementById('drawer').classList.remove('-translate-x-full')}
 function closeDrawer(){document.getElementById('drawer-bg').classList.add('hidden');document.getElementById('drawer').classList.add('-translate-x-full')}
@@ -90,6 +97,10 @@ if(data&&data.length){videos=data.map(v=>({id:String(v.id),video_url:v.video_url
 if(mode==='following') videos=videos.filter(v=>following.has(v.profiles.id));
 allVideos=videos; renderVideos(videos);
 }
+const DEMO=[
+{id:'demo-1',video_url:'https://assets.mixkit.co/videos/preview/mixkit-girl-in-neon-light-1282-large.mp4',caption:'Welcome to Mplanet! Cosmic vibes #mplanet #viral',music_name:'Orbit Pulse',likes_count:1420,comments_count:34,saves_count:56,profiles:{id:'u1',username:'maya_vibes'}},
+{id:'demo-2',video_url:'https://assets.mixkit.co/videos/preview/mixkit-tree-with-yellow-flowers-1173-large.mp4',caption:'Morning breeze in Kampala #nature #uganda',music_name:'Acoustic Breeze',likes_count:890,comments_count:19,saves_count:24,profiles:{id:'u2',username:'kampala_explorer'}}
+];
 function renderVideos(videos){
 let c=document.getElementById('video-feed');
 if(!videos.length){c.innerHTML=`<div class="h-full flex items-center justify-center p-6 text-center text-white/60">No videos yet. Be first to post!</div>`;return}
@@ -98,156 +109,66 @@ let first=c.querySelector('video'); if(first){first.muted=isMuted; first.play().
 }
 function toggleMute(){isMuted=!isMuted;document.querySelectorAll('video').forEach(v=>v.muted=isMuted); loadFeed(document.getElementById('tab-following').className.includes('border-orange')?'following':'foryou')}
 function doubleTap(e,id){let card=e.currentTarget;let h=document.createElement('i');h.className='fa-solid fa-heart heart-burst';h.style.left='40%';h.style.top='40%';card.appendChild(h);setTimeout(()=>h.remove(),700);if(!liked.has(id)){let v=allVideos.find(x=>String(x.id)===String(id)); toggleLike(id, v?v.profiles.username:'')}}
-function applyLikeUI(id){
-  liked.add(id);
-  let heart=document.getElementById('like-'+id);
-  let cnt=document.getElementById('like-c-'+id);
-  if(heart) heart.classList.add('text-orange-500');
-  if(cnt) cnt.textContent=(parseInt(cnt.textContent)||0)+1;
-}
+function applyLikeUI(id){ liked.add(id); let heart=document.getElementById('like-'+id); let cnt=document.getElementById('like-c-'+id); if(heart) heart.classList.add('text-orange-500'); if(cnt) cnt.textContent=(parseInt(cnt.textContent)||0)+1; }
 async function toggleLike(id, owner){
   if(window.liking) return; window.liking=true;
   if(liked.has(id)){ window.liking=false; alert('You already liked this post ❤️'); return; }
-  // Demo videos: no DB, just local like - no coin, no freeze
   if(String(id).startsWith('demo-')){ window.liking=false; applyLikeUI(id); return; }
-  // No coins - show box in Profile flow
-  if(coins < 1){
-    window.liking=false;
-    let b=document.getElementById('buy-coins-balance'); if(b) b.textContent=coins;
-    document.getElementById('buy-coins-box').classList.remove('hidden');
-    return;
-  }
+  if(coins < 1){ window.liking=false; let b=document.getElementById('buy-coins-balance'); if(b) b.textContent=coins; document.getElementById('buy-coins-box').classList.remove('hidden'); return; }
   let {data, error}=await sb.rpc('like_post',{p_video_id:Number(id), p_liker:currentProfile.username, p_owner:owner});
   window.liking=false;
   if(error){ alert('Error: '+error.message); return; }
   if(data==='already_liked'){ liked.add(id); alert('You already liked this post ❤️'); return; }
-  if(data==='no_coins'){
-    let b=document.getElementById('buy-coins-balance'); if(b) b.textContent=coins;
-    document.getElementById('buy-coins-box').classList.remove('hidden');
-    return;
-  }
-  applyLikeUI(id);
-  coins=(coins||0)-1; currentProfile.coins=coins;
-  localStorage.setItem('local-user', JSON.stringify(currentProfile));
-  let w=document.getElementById('wallet-coins'); if(w) w.textContent=coins;
+  if(data==='no_coins'){ let b=document.getElementById('buy-coins-balance'); if(b) b.textContent=coins; document.getElementById('buy-coins-box').classList.remove('hidden'); return; }
+  applyLikeUI(id); coins=(coins||0)-1; currentProfile.coins=coins; localStorage.setItem('local-user', JSON.stringify(currentProfile)); let w=document.getElementById('wallet-coins'); if(w) w.textContent=coins;
 }
-function buyCoins(amount, price){
-  alert('Buy '+amount+' coins for UGX '+price+' - MTN MoMo payment coming soon. Your balance: '+coins+' 🪙');
+function buyCoins(amount){ alert('Buy '+amount+' coins for $'+(amount*COIN_RATE).toFixed(2)+' (Live $1 = UGX '+LIVE_UGX.toLocaleString()+'). Balance: '+coins+' 🪙'); }
+async function giveReferralBonus(buyerUsername, depositCoins, depositUGX){
+  if(depositUGX < MIN_DEPOSIT_UGX) return;
+  let {data:buyer}=await sb.from('users').select('referred_by').eq('username', buyerUsername).single();
+  if(!buyer||!buyer.referred_by) return;
+  let bonus=Math.floor(depositCoins*0.75*REFERRAL_FROM_OWNER);
+  let {data:ref}=await sb.from('users').select('referral_earned').eq('username', buyer.referred_by).single();
+  let already=ref?(ref.referral_earned||0):0;
+  if(already>=11250) return; if(already+bonus>11250) bonus=11250-already;
+  await sb.rpc('add_referral_bonus',{p_username:buyer.referred_by, p_bonus:bonus});
 }
 function toggleSave(id){let s=saved.has(id);s?saved.delete(id):saved.add(id);let el=document.getElementById('save-'+id);if(el)el.className=`fa-solid fa-bookmark text-2xl ${!s?'text-blue-400':'text-white'}`}
 let currentCommentVideoId=null;let replyToId=null; let replyToUser='';
 async function openComments(id){
-  currentCommentVideoId=id; replyToId=null;
-  toggleModal('comments-modal',true);
-  let list=document.getElementById('comments-list');
-  list.innerHTML=`<div class="text-center text-slate-400 text-sm py-4">Loading comments...</div>`;
+  currentCommentVideoId=id; replyToId=null; toggleModal('comments-modal',true);
+  let list=document.getElementById('comments-list'); list.innerHTML=`<div class="text-center text-slate-400 text-sm py-4">Loading comments...</div>`;
   if(String(id).startsWith('demo-')){ list.innerHTML=`<div class="bg-slate-800 p-3 rounded-xl"><b class="text-sky-400">@alex_ug</b>: Love Mplanet! 🚀</div>`; return; }
   let {data, error}=await sb.from('Comments').select('*').eq('video_id', id).order('created_at',{ascending:true});
   if(error){ list.innerHTML=`<div class="text-center text-red-400 text-sm">Error: ${error.message}</div>`; return; }
-  if(!data || !data.length){ list.innerHTML=`<div class="text-center text-slate-400 text-sm py-4">No comments yet. Be first!</div>`; return; }
-  list.innerHTML=data.map(c=>{
-    let isMine=c.username===currentProfile.username;
-    let replyTag=c.parent_id?`<span class="text-orange-400 text-[10px]">↩ reply</span> `:'';
-    return `<div class="bg-slate-800 p-3 rounded-xl" id="comment-${c.id}"><b class="text-sky-400">@${escapeHtml(c.username||'user')}</b>: ${replyTag}<span id="ctext-${c.id}">${escapeHtml(c.comment_text)}</span>
-    <div class="flex gap-3 mt-1 text-xs">
-      <button onclick="startReply('${c.id}','${escapeHtml(c.username||'user')}')" class="text-sky-300 font-bold">↩ Reply</button>
-      ${isMine?`<button onclick="editComment('${c.id}')" class="text-amber-400 font-bold">Edit</button><button onclick="deleteComment('${c.id}')" class="text-red-400 font-bold">Delete</button>`:''}
-    </div></div>`;
-  }).join('');
+  if(!data||!data.length){ list.innerHTML=`<div class="text-center text-slate-400 text-sm py-4">No comments yet. Be first!</div>`; return; }
+  list.innerHTML=data.map(c=>{ let isMine=c.username===currentProfile.username; let replyTag=c.parent_id?`<span class="text-orange-400 text-[10px]">↩ reply</span> `:''; return `<div class="bg-slate-800 p-3 rounded-xl" id="comment-${c.id}"><b class="text-sky-400">@${escapeHtml(c.username||'user')}</b>: ${replyTag}<span id="ctext-${c.id}">${escapeHtml(c.comment_text)}</span><div class="flex gap-3 mt-1 text-xs"><button onclick="startReply('${c.id}','${escapeHtml(c.username||'user')}')" class="text-sky-300 font-bold">↩ Reply</button>${isMine?`<button onclick="editComment('${c.id}')" class="text-amber-400 font-bold">Edit</button><button onclick="deleteComment('${c.id}')" class="text-red-400 font-bold">Delete</button>`:''}</div></div>`; }).join('');
 }
-function startReply(cid, user){
-  replyToId=cid; replyToUser=user;
-  let inp=document.getElementById('comment-input');
-  inp.value='@'+user+' '; inp.focus();
-}
-async function deleteComment(cid){
-  if(!confirm('Delete this comment?')) return;
-  let {error}=await sb.from('Comments').delete().eq('id', cid);
-  if(error) return alert(error.message);
-  document.getElementById('comment-'+cid)?.remove();
-}
-async function editComment(cid){
-  let oldText=document.getElementById('ctext-'+cid)?.textContent||'';
-  let nt=prompt('Edit comment:', oldText);
-  if(nt===null || !nt.trim()) return;
-  let {error}=await sb.from('Comments').update({comment_text: nt.trim()}).eq('id', cid);
-  if(error) return alert(error.message);
-  document.getElementById('ctext-'+cid).textContent=nt.trim();
-}
-async function submitComment(e){
-  e.preventDefault();
-  let inp=document.getElementById('comment-input');
-  let txt=inp.value.trim();
-  if(!txt || !currentCommentVideoId) return;
-  let vid=currentCommentVideoId;
-  document.getElementById('comments-list').innerHTML+=`<div class="bg-slate-800 p-3 rounded-xl"><b class="text-orange-400">@${currentProfile.username}</b>: ${escapeHtml(txt)}</div>`;
-  inp.value='';
-  if(String(vid).startsWith('demo-')) return;
-  let {error}=await sb.from('Comments').insert([{video_id: vid, username: currentProfile.username, comment_text: txt, parent_id: replyToId}]);
-  replyToId=null;
-  if(error){ alert('Comment save failed: '+error.message); return; }
-  let v=allVideos.find(x=>String(x.id)===String(vid));
-  let newCount=(v?(v.comments_count||0):0)+1;
-  if(v) v.comments_count=newCount;
-  await sb.from('Videos').update({comments_count: newCount}).eq('id', vid);
-}
+function startReply(cid, user){ replyToId=cid; replyToUser=user; let inp=document.getElementById('comment-input'); inp.value='@'+user+' '; inp.focus(); }
+async function deleteComment(cid){ if(!confirm('Delete this comment?')) return; let {error}=await sb.from('Comments').delete().eq('id', cid); if(error) return alert(error.message); document.getElementById('comment-'+cid)?.remove(); }
+async function editComment(cid){ let oldText=document.getElementById('ctext-'+cid)?.textContent||''; let nt=prompt('Edit comment:', oldText); if(nt===null||!nt.trim()) return; let {error}=await sb.from('Comments').update({comment_text: nt.trim()}).eq('id', cid); if(error) return alert(error.message); document.getElementById('ctext-'+cid).textContent=nt.trim(); }
+async function submitComment(e){ e.preventDefault(); let inp=document.getElementById('comment-input'); let txt=inp.value.trim(); if(!txt||!currentCommentVideoId) return; let vid=currentCommentVideoId; document.getElementById('comments-list').innerHTML+=`<div class="bg-slate-800 p-3 rounded-xl"><b class="text-orange-400">@${currentProfile.username}</b>: ${escapeHtml(txt)}</div>`; inp.value=''; if(String(vid).startsWith('demo-')) return; let {error}=await sb.from('Comments').insert([{video_id: vid, username: currentProfile.username, comment_text: txt, parent_id: replyToId}]); replyToId=null; if(error){ alert('Comment save failed: '+error.message); return; } let v=allVideos.find(x=>String(x.id)===String(vid)); let newCount=(v?(v.comments_count||0):0)+1; if(v) v.comments_count=newCount; await sb.from('Videos').update({comments_count: newCount}).eq('id', vid); }
 function shareVideo(){if(navigator.share)navigator.share({title:'Mplanet',url:location.href}).catch(()=>{});else{ navigator.clipboard.writeText(location.href); alert('Link copied!')}}
 function filterVideos(q){let res=allVideos.filter(v=>(v.caption||'').toLowerCase().includes(q.toLowerCase()));document.getElementById('search-results').innerHTML=res.map(v=>`<div class="bg-slate-900 rounded-xl overflow-hidden"><div class="aspect-[9/16] bg-slate-800 flex items-center justify-center text-4xl">🎬</div><p class="p-2 text-sm line-clamp-2">${escapeHtml(v.caption)}</p></div>`).join('')||'No results'}
-document.getElementById('video-file').addEventListener('change', function(){
-  let f=this.files[0]; if(!f) return;
-  let prev=document.getElementById('upload-preview');
-  prev.src=URL.createObjectURL(f);
-  prev.classList.remove('hidden');
-});
-async function handleUpload(e){
-e.preventDefault();
-let file=document.getElementById('video-file')?.files[0];
-let linkUrl=document.getElementById('video-url').value.trim();
-let caption=document.getElementById('video-caption').value.trim();
-let music=document.getElementById('video-music').value.trim()||'Original Sound';
-let status=document.getElementById('upload-status');
-let bar=document.getElementById('progress-bar');
-let wrap=document.getElementById('progress-wrap');
-let btn=document.getElementById('publish-btn');
-let finalUrl=linkUrl;
-if(file){
-if(file.size>100*1024*1024) return alert('Video too big! Keep under 100MB.');
-btn.disabled=true; btn.textContent='Uploading... Do not close';
-if(wrap) wrap.classList.remove('hidden');
-if(status) status.textContent='Uploading to MPlanet... 0%';
-let fileName=Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
-let {error}=await sb.storage.from('videos').upload(fileName,file,{cacheControl:'3600',upsert:false,contentType:file.type||'video/mp4'});
-if(error){btn.disabled=false;btn.textContent='Publish Video';if(status)status.textContent='';return alert('Upload failed: '+error.message)}
-let {data:pub}=sb.storage.from('videos').getPublicUrl(fileName);
-finalUrl=pub.publicUrl;
-if(bar) bar.style.width='100%';
-if(status) status.textContent='Upload done! Publishing...';
-}
-if(!finalUrl) return alert('Select a video file OR paste a link');
-let {error:dbError}=await sb.from('Videos').insert([{title:caption,caption:caption,video_url:finalUrl,music_name:music,user_id:currentProfile.id,username:currentProfile.username}]);
-if(dbError){btn.disabled=false;btn.textContent='Publish Video';return alert('Error: '+dbError.message)}
-alert('Published to MPlanet!'); if(status)status.textContent=''; if(bar)bar.style.width='0%'; if(wrap)wrap.classList.add('hidden');
-document.getElementById('upload-preview').classList.add('hidden');
-btn.disabled=false; btn.textContent='Publish Video';
-e.target.reset(); toggleModal('upload-modal',false); loadFeed('foryou');
-}
-function renderProfile(){
-let my=allVideos.filter(v=>v.profiles.id===currentProfile.id);
-document.getElementById('stat-posts').textContent=my.length;
-document.getElementById('stat-likes').textContent=my.reduce((s,v)=>s+(v.likes_count||0),0);
-document.getElementById('wallet-coins').textContent=coins;
-document.getElementById('profile-grid').innerHTML=my.map(v=>`<div class="aspect-[9/16] bg-slate-900 relative overflow-hidden"><video src="${v.video_url}" muted preload="metadata" class="w-full h-full object-cover"></video><span class="absolute bottom-1 left-1 text-xs bg-black/70 px-1 rounded">❤️ ${v.likes_count}</span></div>`).join('')||`<div class="col-span-3 py-10 text-center text-slate-400 text-sm">No posts yet</div>`;
-}
+document.getElementById('video-file').addEventListener('change', function(){ let f=this.files[0]; if(!f) return; let prev=document.getElementById('upload-preview'); prev.src=URL.createObjectURL(f); prev.classList.remove('hidden'); });
+async function handleUpload(e){ e.preventDefault(); let file=document.getElementById('video-file')?.files[0]; let linkUrl=document.getElementById('video-url').value.trim(); let caption=document.getElementById('video-caption').value.trim(); let music=document.getElementById('video-music').value.trim()||'Original Sound'; let status=document.getElementById('upload-status'); let bar=document.getElementById('progress-bar'); let wrap=document.getElementById('progress-wrap'); let btn=document.getElementById('publish-btn'); let finalUrl=linkUrl; if(file){ if(file.size>100*1024*1024) return alert('Video too big! Keep under 100MB.'); btn.disabled=true; btn.textContent='Uploading... Do not close'; if(wrap) wrap.classList.remove('hidden'); if(status) status.textContent='Uploading to MPlanet... 0%'; let fileName=Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_'); let {error}=await sb.storage.from('videos').upload(fileName,file,{cacheControl:'3600',upsert:false,contentType:file.type||'video/mp4'}); if(error){btn.disabled=false;btn.textContent='Publish Video';if(status)status.textContent='';return alert('Upload failed: '+error.message)} let {data:pub}=sb.storage.from('videos').getPublicUrl(fileName); finalUrl=pub.publicUrl; if(bar) bar.style.width='100%'; if(status) status.textContent='Upload done! Publishing...'; } if(!finalUrl) return alert('Select a video file OR paste a link'); let {error:dbError}=await sb.from('Videos').insert([{title:caption,caption:caption,video_url:finalUrl,music_name:music,user_id:currentProfile.id,username:currentProfile.username}]); if(dbError){btn.disabled=false;btn.textContent='Publish Video';return alert('Error: '+dbError.message)} alert('Published to MPlanet!'); if(status)status.textContent=''; if(bar)bar.style.width='0%'; if(wrap)wrap.classList.add('hidden'); document.getElementById('upload-preview').classList.add('hidden'); btn.disabled=false; btn.textContent='Publish Video'; e.target.reset(); toggleModal('upload-modal',false); loadFeed('foryou'); }
+function renderProfile(){ let my=allVideos.filter(v=>v.profiles.id===currentProfile.id); document.getElementById('stat-posts').textContent=my.length; document.getElementById('stat-likes').textContent=my.reduce((s,v)=>s+(v.likes_count||0),0); document.getElementById('wallet-coins').textContent=coins; document.getElementById('profile-grid').innerHTML=my.map(v=>`<div class="aspect-[9/16] bg-slate-900 relative overflow-hidden"><video src="${v.video_url}" muted preload="metadata" class="w-full h-full object-cover"></video><span class="absolute bottom-1 left-1 text-xs bg-black/70 px-1 rounded">❤️ ${v.likes_count}</span></div>`).join('')||`<div class="col-span-3 py-10 text-center text-slate-400 text-sm">No posts yet</div>`; }
 function openWithdraw(){document.getElementById('withdraw-box').classList.toggle('hidden')}
 async function doWithdraw(){
-let phone=document.getElementById('wd-phone').value.trim(); let amt=parseInt(document.getElementById('wd-amount').value);
-if(!phone||!amt) return alert('Enter phone + coins');
-if(amt>coins) return alert('Not enough coins');
-let {error}=await sb.from('Withdraws').insert([{user_id:currentProfile.id,phone:phone,amount:amt,status:'pending'}]);
-if(error) return alert(error.message);
-coins-=amt; currentProfile.coins=coins; document.getElementById('wallet-coins').textContent=coins; document.getElementById('wd-msg').textContent='Withdraw requested! Wait for approval.';
+  let phone=document.getElementById('wd-phone').value.trim();
+  let amt=parseInt(document.getElementById('wd-amount').value);
+  if(!phone||!amt) return alert('Enter phone + coins');
+  if(amt>coins) return alert('Not enough coins');
+  let ugxValue=amt*COIN_WITHDRAW_USD*LIVE_UGX;
+  if(ugxValue < MIN_WITHDRAW_UGX) return alert('Minimum withdraw is UGX 5,000 ($'+(MIN_WITHDRAW_UGX/LIVE_UGX).toFixed(2)+'). You need at least '+Math.ceil(MIN_WITHDRAW_UGX/(COIN_WITHDRAW_USD*LIVE_UGX))+' coins. Your amount = UGX '+Math.round(ugxValue).toLocaleString());
+  let {error}=await sb.from('Withdraws').insert([{user_id:currentProfile.id,phone:phone,amount:amt,status:'pending'}]);
+  if(error) return alert(error.message);
+  coins-=amt; currentProfile.coins=coins; document.getElementById('wallet-coins').textContent=coins;
+  document.getElementById('wd-msg').textContent='Withdraw requested! You will get $'+(amt*WITHDRAW_RATE).toFixed(2)+' (≈ UGX '+Math.round(ugxValue).toLocaleString()+')';
 }
-loadFeed('foryou');
+async function loadMyCoins(){ let {data}=await sb.from('users').select('coins').eq('username', currentProfile.username).single(); if(data&&data.coins!==null){ coins=data.coins; currentProfile.coins=coins; let w=document.getElementById('wallet-coins'); if(w) w.textContent=coins; } }
+document.addEventListener('input', e=>{ if(e.target.id==='wd-amount'){ let v=parseInt(e.target.value)||0; let el=document.getElementById('wd-ugx'); if(el) el.textContent='$'+(v*WITHDRAW_RATE).toFixed(2)+' (≈ UGX '+Math.round(v*COIN_WITHDRAW_USD*LIVE_UGX).toLocaleString()+')'; } });
+loadFeed('foryou'); loadMyCoins(); loadLiveRate();
 </script>
 </body>
 </html>
