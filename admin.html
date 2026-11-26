@@ -5,38 +5,69 @@
 <title>Mplanet Admin</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>.tab-active{background:#f97316!important;color:#fff!important}</style>
 </head>
-<body class="bg-slate-950 text-white min-h-screen max-w-[600px] mx-auto">
+<body class="bg-slate-950 text-white min-h-screen max-w-[700px] mx-auto">
 <div class="flex justify-between items-center px-4 py-4 border-b border-blue-500/20 sticky top-0 bg-slate-950 z-10">
 <div class="font-black text-2xl"><span class="text-blue-500">M</span><span class="text-orange-500">planet</span> <span class="text-sm text-red-400">ADMIN</span></div>
-<a href="index.html" class="text-orange-400 font-semibold text-sm">← Back to App</a>
+<div class="flex gap-2"><button onclick="adminLogout()" class="text-xs bg-slate-800 px-3 py-1.5 rounded-lg">Logout</button><a href="index.html" class="text-orange-400 font-semibold text-sm px-2 py-1.5">← Back to App</a></div>
 </div>
 
-<div class="p-4">
-<div class="grid grid-cols-3 gap-2 mb-4">
+<!-- LOGIN -->
+<div id="admin-login" class="p-4 max-w-sm mx-auto mt-10"><div class="bg-slate-900 rounded-2xl p-5 border border-red-500/30"><p class="font-black text-xl text-center mb-1">🛡️ Admin Login</p><p class="text-xs text-slate-400 text-center mb-4">Only admin can approve withdraws & ban users</p><input id="admin-user" placeholder="Username (admin)" class="w-full bg-slate-800 rounded-xl p-3 mb-2 outline-none"><input id="admin-pass" type="password" placeholder="Password (1234)" class="w-full bg-slate-800 rounded-xl p-3 mb-3 outline-none"><button onclick="doAdminLogin()" class="w-full bg-red-500 py-3 rounded-xl font-bold">Login Admin</button><p class="text-[11px] text-slate-500 text-center mt-3">Demo: admin / 1234</p></div></div>
+
+<!-- DASHBOARD -->
+<div id="admin-dash" class="hidden p-4">
+<div class="grid grid-cols-4 gap-2 mb-3">
 <div class="bg-slate-900 rounded-xl p-3 text-center border border-blue-500/20"><b id="stat-total" class="text-xl">0</b><br><span class="text-xs text-slate-400">Videos</span></div>
-<div class="bg-slate-900 rounded-xl p-3 text-center border border-blue-500/20"><b id="stat-likes" class="text-xl text-orange-400">0</b><br><span class="text-xs text-slate-400">Total Likes</span></div>
-<div class="bg-slate-900 rounded-xl p-3 text-center border border-blue-500/20"><b id="stat-rewards" class="text-xl text-amber-400">0</b><br><span class="text-xs text-slate-400">Total Rewards</span></div>
+<div class="bg-slate-900 rounded-xl p-3 text-center border border-blue-500/20"><b id="stat-likes" class="text-xl text-orange-400">0</b><br><span class="text-xs text-slate-400">Likes</span></div>
+<div class="bg-slate-900 rounded-xl p-3 text-center border border-blue-500/20"><b id="stat-rewards" class="text-xl text-amber-400">0</b><br><span class="text-xs text-slate-400">Rewards</span></div>
+<div class="bg-slate-900 rounded-xl p-3 text-center border border-emerald-500/30"><b id="stat-pending" class="text-xl text-emerald-400">0</b><br><span class="text-xs text-slate-400">Pending WD</span></div>
+</div>
+<div class="grid grid-cols-3 gap-2 mb-4">
+<div class="bg-slate-900 rounded-xl p-3 text-center"><b id="stat-views" class="text-lg">0</b><br><span class="text-xs text-slate-400">Views</span></div>
+<div class="bg-slate-900 rounded-xl p-3 text-center"><b id="stat-users" class="text-lg text-sky-400">0</b><br><span class="text-xs text-slate-400">Users</span></div>
+<div class="bg-slate-900 rounded-xl p-3 text-center"><b id="stat-reports" class="text-lg text-red-400">0</b><br><span class="text-xs text-slate-400">Reports</span></div>
 </div>
 
-<input id="admin-search" oninput="filterAdmin(this.value)" placeholder="Search @username, caption..." class="w-full bg-slate-800 rounded-full px-4 py-2.5 outline-none mb-4">
+<div class="flex gap-2 mb-3 overflow-x-auto pb-1">
+<button id="t-videos" onclick="setAdminTab('videos')" class="px-4 py-2 rounded-full bg-slate-800 text-sm font-bold tab-active whitespace-nowrap">🎬 Videos</button>
+<button id="t-withdraws" onclick="setAdminTab('withdraws')" class="px-4 py-2 rounded-full bg-slate-800 text-sm font-bold whitespace-nowrap">💰 Withdraws</button>
+<button id="t-users" onclick="setAdminTab('users')" class="px-4 py-2 rounded-full bg-slate-800 text-sm font-bold whitespace-nowrap">👥 Users</button>
+<button id="t-reports" onclick="setAdminTab('reports')" class="px-4 py-2 rounded-full bg-slate-800 text-sm font-bold whitespace-nowrap">🚨 Reports</button>
+<button onclick="loadAll()" class="px-3 py-2 rounded-full bg-blue-600 text-sm font-bold">↻ Refresh</button>
+</div>
 
-<div id="admin-list" class="space-y-4"><p class="text-slate-400 text-sm text-center py-10">Loading videos...</p></div>
+<input id="admin-search" oninput="filterAdmin(this.value)" placeholder="Search @username, caption, phone..." class="w-full bg-slate-800 rounded-full px-4 py-2.5 outline-none mb-4">
+<div id="admin-list" class="space-y-4"><p class="text-slate-400 text-sm text-center py-10">Loading...</p></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const sb = supabase.createClient("https://leqcrtwoczcnlkkfveqz.supabase.co","sb_publishable_b1SFZR3ADng4sue_N5ApQA_J3s03UvE");
-let all = [];
+let all=[], allUsers=[], allWithdraws=[], allReports=[], adminTab='videos';
 function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-async function loadAdmin(){
+function checkAdmin(){ if(localStorage.getItem('mplanet-admin')==='yes'){ document.getElementById('admin-login').classList.add('hidden'); document.getElementById('admin-dash').classList.remove('hidden'); loadAll(); } }
+function doAdminLogin(){ let u=document.getElementById('admin-user').value.trim(); let p=document.getElementById('admin-pass').value; if(u!=='admin'||p!=='1234') return alert('Wrong admin login. Demo: admin / 1234'); localStorage.setItem('mplanet-admin','yes'); checkAdmin(); }
+function adminLogout(){ localStorage.removeItem('mplanet-admin'); location.reload(); }
+function setAdminTab(t){ adminTab=t; ['videos','withdraws','users','reports'].forEach(x=>document.getElementById('t-'+x).classList.toggle('tab-active', x===t)); renderCurrent(); }
+function renderCurrent(){ if(adminTab==='videos') renderAdmin(all); if(adminTab==='withdraws') renderWithdraws(allWithdraws); if(adminTab==='users') renderUsers(allUsers); if(adminTab==='reports') renderReports(allReports); }
+async function loadAll(){
   let {data, error} = await sb.from('Videos').select('*').order('created_at',{ascending:false}).limit(50);
   if(error){ document.getElementById('admin-list').innerHTML = '<p class="text-red-400">Error: '+error.message+'</p>'; return; }
   all = data || [];
+  let {data:u} = await sb.from('users').select('*').order('created_at',{ascending:false}).limit(50); allUsers = u||[];
+  if(!allUsers.length){ let seen={}; all.forEach(v=>{ if(v.username && !seen[v.username]){ seen[v.username]=1; allUsers.push({username:v.username, coins:0, referral_earned:0, banned:false}); } }); }
+  let {data:w} = await sb.from('Withdraws').select('*').order('created_at',{ascending:false}).limit(50); allWithdraws = w||[];
+  let reps = JSON.parse(localStorage.getItem('mplanet-reports')||'[]'); allReports = reps;
   document.getElementById('stat-total').textContent = all.length;
   document.getElementById('stat-likes').textContent = all.reduce((s,v)=>s+(v.likes_count||0),0);
   document.getElementById('stat-rewards').textContent = all.reduce((s,v)=>s+((v.reward ?? v.coins ?? 0)),0);
-  renderAdmin(all);
+  document.getElementById('stat-views').textContent = all.reduce((s,v)=>s+(v.views_count||0),0);
+  document.getElementById('stat-users').textContent = allUsers.length;
+  document.getElementById('stat-pending').textContent = allWithdraws.filter(x=>x.status==='pending').length;
+  document.getElementById('stat-reports').textContent = allReports.length;
+  renderCurrent();
 }
 function renderAdmin(list){
   let box = document.getElementById('admin-list');
@@ -49,26 +80,56 @@ function renderAdmin(list){
       ${media}
       <p class="font-bold mt-2">@${esc(v.username||'user')}</p>
       <p class="text-sm text-slate-300">${esc(v.caption||'')}</p>
-      <p class="text-xs text-slate-400 mt-1">${new Date(v.created_at).toLocaleString()}</p>
-      <p class="text-sm mt-1">❤️ ${v.likes_count||0} | 💬 ${v.comments_count||0} | <b class="text-amber-400">Reward: ${reward} coins</b></p><button onclick="loadCommentsAdmin('${v.id}')" class="mt-2 text-xs bg-sky-600 px-3 py-1.5 rounded-lg font-bold">💬 View Comments (${v.comments_count||0})</button>
-<div id="comments-${v.id}" class="mt-2 space-y-2"></div>
+      <p class="text-xs text-slate-400 mt-1">${v.created_at?new Date(v.created_at).toLocaleString():''} • 👁️ ${v.views_count||0}</p>
+      <p class="text-sm mt-1">❤️ ${v.likes_count||0} | 💬 ${v.comments_count||0} | <b class="text-amber-400">Reward: ${reward} coins</b></p>
+      <button onclick="loadCommentsAdmin('${v.id}')" class="mt-2 text-xs bg-sky-600 px-3 py-1.5 rounded-lg font-bold">💬 View Comments (${v.comments_count||0})</button>
+      <div id="comments-${v.id}" class="mt-2 space-y-2"></div>
       <div class="flex gap-2 mt-3">
-        <input id="reward-${v.id}" type="number" placeholder="Set reward coins" value="${reward}" class="flex-1 bg-slate-800 rounded-lg px-3 py-2 outline-none text-sm">
+        <input id="reward-${v.id}" type="number" placeholder="Set reward" value="${reward}" class="flex-1 bg-slate-800 rounded-lg px-3 py-2 outline-none text-sm">
         <button onclick="saveReward('${v.id}')" class="bg-amber-500 text-black px-3 py-2 rounded-lg text-sm font-bold">Save Reward</button>
         <button onclick="deleteVideo('${v.id}')" class="bg-red-500 px-3 py-2 rounded-lg text-sm font-bold">Delete</button>
       </div>
     </div>`;
   }).join('');
 }
-function filterAdmin(q){
-  let f = all.filter(v=> (v.username||'').toLowerCase().includes(q.toLowerCase()) || (v.caption||'').toLowerCase().includes(q.toLowerCase()));
-  renderAdmin(f);
+function renderWithdraws(list){
+  let box=document.getElementById('admin-list');
+  if(!list.length){ box.innerHTML='<p class="text-slate-400 text-center">No withdraws yet</p>'; return; }
+  box.innerHTML=list.map(w=>`<div class="bg-slate-900 border border-emerald-500/20 rounded-2xl p-3 flex justify-between items-center gap-2"><div><p class="font-bold">${esc(w.user_id)} • ${w.amount} coins = $${(w.amount*0.0032).toFixed(2)}</p><p class="text-xs text-slate-400">${esc(w.phone||'')} • ${w.created_at?new Date(w.created_at).toLocaleString():''}</p><span class="text-xs px-2 py-0.5 rounded ${w.status==='pending'?'bg-amber-500 text-black':'bg-emerald-500'} font-bold">${w.status}</span></div>${w.status==='pending'?`<div class="flex flex-col gap-1"><button onclick="approveWithdraw(${w.id},'${esc(w.user_id)}')" class="bg-emerald-500 px-3 py-1.5 rounded-lg text-xs font-bold">Approve / Pay ✅</button><button onclick="rejectWithdraw(${w.id})" class="bg-red-500 px-3 py-1.5 rounded-lg text-xs font-bold">Reject ❌</button></div>`:''}</div>`).join('');
 }
+function renderUsers(list){
+  let box=document.getElementById('admin-list');
+  if(!list.length){ box.innerHTML='<p class="text-slate-400 text-center">No users yet</p>'; return; }
+  box.innerHTML=list.map(u=>`<div class="bg-slate-900 rounded-2xl p-3 flex justify-between items-center"><div><p class="font-bold">@${esc(u.username)} ${u.banned?'<span class="text-red-400 text-xs">BANNED</span>':''}</p><p class="text-xs text-slate-400">Coins: ${u.coins||0} • Referral: ${u.referral_earned||0} / 11250</p></div><div class="flex gap-1"><button onclick="giveCoins('${esc(u.username)}')" class="bg-amber-500 text-black px-2 py-1.5 rounded-lg text-xs font-bold">+ Coins</button><button onclick="banUser('${esc(u.username)}',${!!u.banned})" class="bg-red-500 px-2 py-1.5 rounded-lg text-xs font-bold">${u.banned?'Unban':'Ban'}</button></div></div>`).join('');
+}
+function renderReports(list){
+  let box=document.getElementById('admin-list');
+  if(!list.length){ box.innerHTML='<p class="text-slate-400 text-center">No reports</p>'; return; }
+  box.innerHTML=list.map((r,i)=>`<div class="bg-slate-900 rounded-2xl p-3 flex justify-between"><div><p class="text-sm"><b>Video ${esc(r.video_id)}</b> • ${esc(r.reason)}</p><p class="text-xs text-slate-400">Reported by @${esc(r.reporter)}</p></div><button onclick="resolveReport(${i})" class="bg-emerald-500 px-2 py-1.5 rounded-lg text-xs font-bold">Resolve</button></div>`).join('');
+}
+function filterAdmin(q){
+  q=q.toLowerCase();
+  if(adminTab==='videos'){ renderAdmin(all.filter(v=> (v.username||'').toLowerCase().includes(q) || (v.caption||'').toLowerCase().includes(q))); }
+  if(adminTab==='withdraws'){ renderWithdraws(allWithdraws.filter(w=> (w.user_id||'').toLowerCase().includes(q) || (w.phone||'').includes(q))); }
+  if(adminTab==='users'){ renderUsers(allUsers.filter(u=> (u.username||'').toLowerCase().includes(q))); }
+  if(adminTab==='reports'){ renderReports(allReports.filter(r=> (r.reason||'').toLowerCase().includes(q))); }
+}
+async function approveWithdraw(id, user){
+  if(!confirm('Approve + Mark as PAID?')) return;
+  let {error}=await sb.from('Withdraws').update({status:'paid'}).eq('id', id);
+  if(error) return alert(error.message);
+  let notifs=JSON.parse(localStorage.getItem('mplanet-notifs')||'[]'); notifs.unshift({to:user, title:'Withdraw Paid 💰', body:'Your withdraw was paid! Check MoMo.', time:Date.now()}); localStorage.setItem('mplanet-notifs', JSON.stringify(notifs));
+  alert('Withdraw approved ✅'); loadAll();
+}
+async function rejectWithdraw(id){ if(!confirm('Reject this withdraw?')) return; let {error}=await sb.from('Withdraws').update({status:'rejected'}).eq('id', id); if(error) return alert(error.message); alert('Rejected'); loadAll(); }
+async function giveCoins(username){ let amt=parseInt(prompt('How many coins to give @'+username+'?','100')); if(!amt) return; let {data}=await sb.from('users').select('coins').eq('username', username).single(); let cur=data?data.coins||0:0; let {error}=await sb.from('users').update({coins:cur+amt}).eq('username', username); if(error) return alert(error.message); alert('Gave '+amt+' coins to @'+username); loadAll(); }
+async function banUser(username, isBanned){ if(!confirm((isBanned?'Unban':'Ban')+' @'+username+'?')) return; let {error}=await sb.from('users').update({banned:!isBanned}).eq('username', username); if(error){ let users=JSON.parse(localStorage.getItem('mplanet-banned')||'[]'); if(!isBanned) users.push(username); else users=users.filter(u=>u!==username); localStorage.setItem('mplanet-banned', JSON.stringify(users)); } alert((isBanned?'Unbanned':'Banned')+' @'+username); loadAll(); }
+function resolveReport(i){ let r=JSON.parse(localStorage.getItem('mplanet-reports')||'[]'); r.splice(i,1); localStorage.setItem('mplanet-reports', JSON.stringify(r)); loadAll(); }
 async function saveReward(id){
   let val = parseInt(document.getElementById('reward-'+id).value) || 0;
   let {error} = await sb.from('Videos').update({reward: val}).eq('id', id);
-  if(error) return alert('Error: '+error.message+'\n\nRun in Supabase SQL: ALTER TABLE "Videos" ADD COLUMN IF NOT EXISTS reward int default 0;');
-  alert('Reward saved: '+val+' coins'); loadAdmin();
+  if(error) return alert('Error: '+error.message+'\n\nRun SQL: ALTER TABLE "Videos" ADD COLUMN IF NOT EXISTS reward int default 0;');
+  alert('Reward saved: '+val+' coins'); loadAll();
 }
 async function loadCommentsAdmin(vid){
   let box = document.getElementById('comments-'+vid);
@@ -78,24 +139,22 @@ async function loadCommentsAdmin(vid){
   if(!data || !data.length){ box.innerHTML = '<p class="text-xs text-slate-400">No comments yet</p>'; return; }
   box.innerHTML = data.map(c=>{
     let isReply = c.parent_id ? '<span class="text-orange-400 text-[10px]">↩ REPLY</span> ' : '';
-    return `<div class="bg-slate-800 p-2 rounded-lg text-sm flex justify-between gap-2">
-      <span>${isReply}<b class="text-sky-400">@${esc(c.username||'user')}</b>: ${esc(c.comment_text)}</span>
-      <button onclick="deleteCommentAdmin('${c.id}','${vid}')" class="text-red-400 text-xs font-bold shrink-0">Delete</button>
-    </div>`;
+    return `<div class="bg-slate-800 p-2 rounded-lg text-sm flex justify-between gap-2"><span>${isReply}<b class="text-sky-400">@${esc(c.username||'user')}</b>: ${esc(c.comment_text)}</span><button onclick="deleteCommentAdmin('${c.id}','${vid}')" class="text-red-400 text-xs font-bold shrink-0">Delete</button></div>`;
   }).join('');
 }
 async function deleteCommentAdmin(cid, vid){
   if(!confirm('Delete this comment?')) return;
   let {error} = await sb.from('Comments').delete().eq('id', cid);
   if(error) return alert(error.message);
-  loadCommentsAdmin(vid); loadAdmin();
-}async function deleteVideo(id){
+  loadCommentsAdmin(vid); loadAll();
+}
+async function deleteVideo(id){
   if(!confirm('Delete this video?')) return;
   let {error} = await sb.from('Videos').delete().eq('id', id);
   if(error) return alert(error.message);
-  alert('Deleted'); loadAdmin();
+  alert('Deleted'); loadAll();
 }
-loadAdmin();
+checkAdmin();
 </script>
 </body>
 </html>
