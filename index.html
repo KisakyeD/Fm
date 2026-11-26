@@ -368,7 +368,16 @@ document.getElementById('video-file').addEventListener('change', function(){ let
 async function handleUpload(e){ e.preventDefault(); let file=document.getElementById('video-file')?.files[0]; let linkUrl=''; let caption=document.getElementById('video-caption').value.trim() || 'Mplanet video'; let music=document.getElementById('video-music').value.trim()||'Original Sound'; let btn=document.getElementById('publish-btn'); let finalUrl=linkUrl; if(file){ if(file.size>100*1024*1024) return alert('Video too big!'); btn.disabled=true; btn.textContent='Uploading...'; let fileName=Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_'); let {error}=await sb.storage.from('videos').upload(fileName,file,{cacheControl:'3600',upsert:false,contentType:file.type||'video/mp4'}); if(error){btn.disabled=false;btn.textContent='Publish Video';return alert('Upload failed: '+error.message)} let {data:pub}=sb.storage.from('videos').getPublicUrl(fileName); finalUrl=pub.publicUrl; } if(!finalUrl) return alert('Select a video file');let {error:dbError}=await sb.from('Videos').insert([{title:caption,caption:caption,video_url:finalUrl,music_name:music,user_id:currentProfile.id,username:currentProfile.username}]); if(dbError){btn.disabled=false;btn.textContent='Publish Video';return alert('Error: '+dbError.message)} alert('Published!'); btn.disabled=false; btn.textContent='Publish Video'; e.target.reset(); toggleModal('upload-modal',false); loadFeed('foryou'); }
 function copyRef(){ let l=document.getElementById('ref-link'); l.select(); navigator.clipboard.writeText(l.value); alert('Referral link copied!'); }
 function shareProfile(){ let l='https://mplanet.com/@'+currentProfile.username; if(navigator.share) navigator.share({title:'Mplanet @'+currentProfile.username, url:l}).catch(()=>{}); else { navigator.clipboard.writeText(l); alert('Profile link copied!'); } }
-function uploadProfilePic(e){ let file=e.target.files[0]; if(!file) return; let r=new FileReader(); r.onload=ev=>{ let img=document.getElementById('profile-pic'); img.src=ev.target.result; img.classList.remove('hidden'); document.getElementById('profile-letter').classList.add('hidden'); try{ localStorage.setItem('profile-pic', ev.target.result); }catch(err){ alert('Photo too big, pick smaller photo'); return; } alert('Profile photo updated ✅'); }; r.readAsDataURL(file); }
+let editorImg=null, editorZoom=1, editorRot=0, editorX=0, editorY=0;
+function uploadProfilePic(e){ let file=e.target.files[0]; if(!file) return; let r=new FileReader(); r.onload=ev=>{ editorImg=new Image(); editorImg.onload=()=>{ editorZoom=1; editorRot=0; editorX=0; editorY=0; document.getElementById('photo-editor').classList.remove('hidden'); drawEditor(); }; editorImg.src=ev.target.result; }; r.readAsDataURL(file); }
+function drawEditor(){ let c=document.getElementById('editor-canvas'); let ctx=c.getContext('2d'); ctx.clearRect(0,0,300,300); if(!editorImg) return; ctx.save(); ctx.translate(150+editorX,150+editorY); ctx.rotate(editorRot*Math.PI/180); let s=Math.max(300/editorImg.width,300/editorImg.height)*editorZoom; ctx.drawImage(editorImg,-editorImg.width*s/2,-editorImg.height*s/2,editorImg.width*s,editorImg.height*s); ctx.restore(); }
+function editorRotate(){ editorRot+=90; drawEditor(); }
+function closePhotoEditor(){ document.getElementById('photo-editor').classList.add('hidden'); }
+function saveEditedPhoto(){ let c=document.getElementById('editor-canvas'); let small=c.toDataURL('image/jpeg',0.7); let img=document.getElementById('profile-pic'); img.src=small; img.classList.remove('hidden'); document.getElementById('profile-letter').classList.add('hidden'); localStorage.setItem('profile-pic', small); closePhotoEditor(); alert('Profile photo saved ✅ Small + Fast!'); }
+// Drag to move
+let dragStart=null; document.addEventListener('pointerdown',e=>{ if(!document.getElementById('photo-editor')||document.getElementById('photo-editor').classList.contains('hidden')) return; if(e.target.id==='editor-canvas') dragStart={x:e.clientX,y:e.clientY,ox:editorX,oy:editorY}; });
+document.addEventListener('pointermove',e=>{ if(dragStart){ editorX=dragStart.ox+(e.clientX-dragStart.x); editorY=dragStart.oy+(e.clientY-dragStart.y); drawEditor(); } });
+document.addEventListener('pointerup',()=>dragStart=null);
 function saveProfile(){ let name=document.getElementById('edit-name').value.trim()||'Brian K'; let bio=document.getElementById('edit-bio').value.trim(); let link=document.getElementById('edit-link').value.trim(); let file=document.getElementById('edit-photo').files[0]; document.querySelector('#profile-modal h3').innerHTML=name+' <span class="text-sky-400 text-base">✓</span>'; document.getElementById('profile-bio').textContent=bio; document.getElementById('profile-link').textContent='🔗 '+link; if(file){ let r=new FileReader(); r.onload=e=>{ let img=document.getElementById('profile-pic'); img.src=e.target.result; img.classList.remove('hidden'); document.getElementById('profile-letter').classList.add('hidden'); localStorage.setItem('profile-pic', e.target.result); }; r.readAsDataURL(file); } localStorage.setItem('profile-name', name); localStorage.setItem('profile-bio', bio); localStorage.setItem('profile-link', link); toggleModal('edit-modal',false); alert('Profile saved!'); }
 function logout(){ if(!confirm('Logout?')) return; localStorage.clear(); location.reload(); }
 function setProfileTab(t){ profileTab=t; ['posts','saved','liked'].forEach(x=>document.getElementById('tab-'+x).classList.toggle('tab-active', x===t)); renderProfileGrid(); }
@@ -430,6 +439,19 @@ closeDrawer = function(){ _origCloseDrawer(); setTimeout(resumeVisibleVideo, 300
   <div class="p-4 bg-gradient-to-t from-black to-transparent">
     <p id="profile-player-caption" class="text-sm"></p>
     <button onclick="closeProfilePlayer()" class="w-full mt-3 bg-slate-800 py-3 rounded-xl font-bold">← Back to Profile</button>
+  </div>
+</div>
+  <div id="photo-editor" class="hidden fixed inset-0 z-[80] bg-black/90 flex flex-col items-center justify-center p-4 max-w-[500px] mx-auto">
+  <h3 class="font-bold mb-2">Edit Photo — Crop to Circle</h3>
+  <div class="w-72 h-72 rounded-full overflow-hidden border-4 border-orange-500 bg-slate-900 relative">
+    <canvas id="editor-canvas" width="300" height="300" class="w-full h-full"></canvas>
+  </div>
+  <p class="text-xs text-slate-400 mt-2">Drag to move • Slider to zoom</p>
+  <input id="editor-zoom" type="range" min="1" max="3" step="0.1" value="1" oninput="drawEditor()" class="w-72 mt-3">
+  <div class="flex gap-2 mt-3">
+    <button onclick="editorRotate()" class="bg-slate-800 px-4 py-2 rounded-xl font-bold">↻ Rotate</button>
+    <button onclick="closePhotoEditor()" class="bg-slate-800 px-4 py-2 rounded-xl font-bold">Cancel</button>
+    <button onclick="saveEditedPhoto()" class="bg-gradient-to-r from-blue-600 to-orange-500 px-6 py-2 rounded-xl font-bold">Save Photo ✅</button>
   </div>
 </div>
 <!-- BUY COINS BOX - NEW -->
