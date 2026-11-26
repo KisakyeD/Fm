@@ -433,7 +433,10 @@ async function doWithdraw(){
 async function loadMyCoins(){ let {data}=await sb.from('users').select('coins').eq('username', currentProfile.username).single(); if(data&&data.coins!==null){ coins=data.coins; currentProfile.coins=coins; updateWalletUSD(); let w=document.getElementById('wallet-coins'); if(w) w.textContent=coins; } }
 document.addEventListener('input', e=>{ if(e.target.id==='wd-amount'){ let v=parseInt(e.target.value)||0; let el=document.getElementById('wd-ugx'); if(el) el.textContent='$'+(v*WITHDRAW_RATE).toFixed(2)+' (≈ UGX '+Math.round(v*COIN_WITHDRAW_USD*LIVE_UGX).toLocaleString()+')'; let msg=document.getElementById('wd-msg'); if(msg && v>0){ let ugx=v*COIN_WITHDRAW_USD*LIVE_UGX; msg.textContent = ugx < MIN_WITHDRAW_UGX ? '⚠️ Below min UGX 5,000 — need ' + Math.ceil(MIN_WITHDRAW_UGX/(COIN_WITHDRAW_USD*LIVE_UGX)) + ' coins' : '✅ Above min — OK to withdraw'; msg.style.color = ugx < MIN_WITHDRAW_UGX ? '#f87171' : '#4ade80'; } } });
 restoreProfilePic();
-loadFeed('foryou'); loadMyCoins(); loadLiveRate();
+let _wm = document.getElementById('wallet-menu');
+let _sec = document.getElementById('buy-coins-section');
+if(_wm && _sec && !_wm.contains(_sec)){ _sec.className='p-1'; _wm.appendChild(_sec); }
+loadFeed('foryou');loadMyCoins(); loadLiveRate();
 // Pause when you leave tab / lock phone / switch app
 document.addEventListener('visibilitychange', () => {
   if(document.hidden) pauseAllVideos();
