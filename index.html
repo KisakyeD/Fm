@@ -416,8 +416,19 @@ document.addEventListener('pointerup',()=>dragStart=null);
 function saveProfile(){ let name=document.getElementById('edit-name').value.trim()||'Brian K'; let bio=document.getElementById('edit-bio').value.trim(); let link=document.getElementById('edit-link').value.trim(); let file=document.getElementById('edit-photo').files[0]; document.querySelector('#profile-modal h3').innerHTML=name+' <span class="text-sky-400 text-base">✓</span>'; document.getElementById('profile-bio').textContent=bio; document.getElementById('profile-link').textContent='🔗 '+link; if(file){ let r=new FileReader(); r.onload=e=>{ let img=document.getElementById('profile-pic'); img.src=e.target.result; img.classList.remove('hidden'); document.getElementById('profile-letter').classList.add('hidden'); localStorage.setItem('profile-pic', e.target.result); }; r.readAsDataURL(file); } localStorage.setItem('profile-name', name); localStorage.setItem('profile-bio', bio); localStorage.setItem('profile-link', link); toggleModal('edit-modal',false); alert('Profile saved!'); }
 function logout(){ if(!confirm('Logout?')) return; localStorage.clear(); location.reload(); }
 function setProfileTab(t){ profileTab=t; ['posts','saved','liked'].forEach(x=>document.getElementById('tab-'+x).classList.toggle('tab-active', x===t)); renderProfileGrid(); }
-function renderProfileGrid(){ let list=[];let pinned = getPinned();
-if(profileTab==='posts') list.sort((a,b)=> pinned.indexOf(String(b.id)) - pinned.indexOf(String(a.id))); if(profileTab==='posts') list=allVideos.filter(v=>v.profiles.id===currentProfile.id); if(profileTab==='saved') list=allVideos.filter(v=>saved.has(v.id)); if(profileTab==='liked') list=allVideos.filter(v=>liked.has(v.id)); document.getElementById('profile-grid').innerHTML=list.map(v=>`<div onclick="openProfileVideo('${v.id}')"<button onclick="event.stopPropagation(); openPostMenu('${v.id}')" class="absolute top-1 right-1 z-10 w-8 h-8 bg-black/70 rounded-full font-black">⋮</button>class="aspect-[9/16] bg-slate-900 relative overflow-hidden cursor-pointer"><video src="${v.video_url}" muted preload="metadata" class="w-full h-full object-cover"></video><span class="absolute bottom-1 left-1 text-xs bg-black/70 px-1 rounded">❤️ ${v.likes_count}</span><span class="absolute inset-0 flex items-center justify-center text-3xl">▶️</span></div>`).join('')||`<div class="col-span-3 py-10 text-center text-slate-400 text-sm">No ${profileTab} yet</div>`; }
+function renderProfileGrid(){
+  let list=[];
+  if(profileTab==='posts') list=allVideos.filter(v=>v.profiles.id===currentProfile.id);
+  if(profileTab==='saved') list=allVideos.filter(v=>saved.has(v.id));
+  if(profileTab==='liked') list=allVideos.filter(v=>liked.has(v.id));
+  let pinned = getPinned();
+  if(profileTab==='posts') list.sort((a,b)=>{
+    let ai = pinned.indexOf(String(a.id)); let bi = pinned.indexOf(String(b.id));
+    if(ai===-1) ai = 999; if(bi===-1) bi = 999;
+    return ai - bi;
+  });
+  document.getElementById('profile-grid').innerHTML=list.map(v=>`<div onclick="openProfileVideo('${v.id}')" class="aspect-[9/16] bg-slate-900 relative overflow-hidden cursor-pointer"><button onclick="event.stopPropagation(); openPostMenu('${v.id}')" class="absolute top-1 right-1 z-10 w-8 h-8 bg-black/70 rounded-full font-black">⋮</button><span class="absolute top-1 left-1 z-10 text-xs bg-black/70 px-1 rounded">${pinned.includes(String(v.id))?'📌':''}</span><video src="${v.video_url}" muted preload="metadata" class="w-full h-full object-cover"></video><span class="absolute bottom-1 left-1 text-xs bg-black/70 px-1 rounded">❤️ ${v.likes_count}</span><span class="absolute inset-0 flex items-center justify-center text-3xl">▶️</span></div>`).join('')||`<div class="col-span-3 py-10 text-center text-slate-400 text-sm">No ${profileTab} yet</div>`;
+}
 let currentMenuPostId = null;
 function getPinned(){ try{ return JSON.parse(localStorage.getItem('pinned-posts')||'[]'); }catch(e){ return []; } }
 function openPostMenu(id){
