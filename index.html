@@ -24,15 +24,16 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 .switch:after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.2s}
 .switch.on:after{left:22px}
 #splash{transition:opacity .4s}
-/* FIX ONLY - layout from screenshot, no new features */
-header{flex-wrap:nowrap!important;white-space:nowrap!important}
-header>div:last-child{flex-shrink:0}
-#drawer{transform:translateX(-100%)!important}
+/* FIX ONLY - works even if Tailwind CDN fails, no new features */
+header{position:fixed!important;top:0;left:0;right:0;z-index:30;display:flex!important;align-items:center!important;justify-content:space-between!important;flex-wrap:nowrap!important;padding:10px!important;max-width:500px!important;margin:0 auto!important;background:linear-gradient(to bottom,rgba(2,6,23,.95),transparent)!important}
+header div{display:flex;align-items:center;gap:6px}
+header button{white-space:nowrap!important;font-size:13px!important;background:#0f172a;border:1px solid #334155;padding:4px 8px;border-radius:8px;color:#fff}
+#drawer{position:fixed!important;top:0;left:0;bottom:0;z-index:50;width:280px!important;transform:translateX(-100%)!important;transition:transform .2s!important;background:#020617!important;padding:20px!important;overflow-y:auto!important}
 #drawer.open{transform:translateX(0)!important}
-#drawer-bg.hidden{display:none!important}
-#video-feed{height:100dvh!important;padding-top:0!important}
-.video-card{height:100dvh!important;width:100%!important}
-.video-card video,.video-card iframe{width:100%!important;height:100%!important;max-width:500px!important;object-fit:cover!important;margin:0 auto!important;display:block!important}
+#drawer-bg{position:fixed!important;inset:0;z-index:40;background:rgba(0,0,0,.75)}
+#video-feed{height:100dvh!important;width:100%!important;overflow-y:scroll!important;scroll-snap-type:y mandatory!important}
+.video-card{position:relative!important;height:100dvh!important;width:100%!important;max-width:500px!important;margin:0 auto!important;background:#000!important;overflow:hidden!important}
+.video-card video,.video-card iframe{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important}
 </style>
 </head>
 <body>
