@@ -443,6 +443,11 @@ closeDrawer = function(){ _origCloseDrawer(); setTimeout(resumeVisibleVideo, 300
 </div>
   <div id="photo-editor" class="hidden fixed inset-0 z-[80] bg-black/90 flex flex-col items-center justify-center p-4 max-w-[500px] mx-auto">
   <h3 class="font-bold mb-2">Edit Photo — Crop to Circle</h3>
+    <div id="photo-done-box" class="hidden absolute inset-0 z-10 bg-black/90 flex flex-col items-center justify-center">
+  <div class="w-20 h-20 rounded-full bg-green-500 flex items-center justify-center text-4xl">✓</div>
+  <h2 class="text-2xl font-black mt-4">Done ✅</h2>
+  <p class="text-slate-300 text-sm mt-1">Profile photo saved</p>
+</div>
   <div class="w-72 h-72 rounded-full overflow-hidden border-4 border-orange-500 bg-slate-900 relative">
     <canvas id="editor-canvas" width="300" height="300" class="w-full h-full"></canvas>
   </div>
