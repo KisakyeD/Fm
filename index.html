@@ -690,52 +690,5 @@ closeDrawer = function(){ _origCloseDrawer(); setTimeout(resumeVisibleVideo, 300
     <p id="post-viewer-caption" class="px-4 pb-4 text-sm text-slate-300"></p>
   </div>
 </div>
-<script>
-function openPostViewer(src, caption){
-  var v = document.getElementById('post-viewer-video');
-  var pv = document.getElementById('post-viewer');
-  if(!src){ alert('Video file not found for this post'); return; }
-  v.src = src;
-  document.getElementById('post-viewer-caption').textContent = caption || '';
-  pv.classList.remove('hidden');
-  v.play().catch(()=>{});
-}
-function closePostViewer(){
-  var v = document.getElementById('post-viewer-video');
-  v.pause(); v.src='';
-  document.getElementById('post-viewer').classList.add('hidden');
-}
-function likeViewerPost(btn){
-  var s = document.getElementById('viewer-likes');
-  s.textContent = parseInt(s.textContent||'0')+1;
-  btn.style.color='#f97316';
-}
-// MAKE GRID CLICKABLE - delegation, works even if renderProfile rebuilds grid
-document.addEventListener('click', function(e){
-  var item = e.target.closest('#profile-grid > div, #profile-grid img, #profile-grid video');
-  if(!item) return;
-  var container = item.closest('#profile-grid > div') || item;
-  // Try to find video src from data attributes or child video/img
-  var vid = container.querySelector('video');
-  var src = container.getAttribute('data-video') || container.getAttribute('data-src') || (vid ? vid.src || vid.getAttribute('data-src') : null);
-  // If grid uses background/thumbnail only, fall back to stored posts
-  if(!src){
-    try{
-      var posts = JSON.parse(localStorage.getItem('mplanet_posts')||'[]');
-      var idx = Array.from(document.querySelectorAll('#profile-grid > div')).indexOf(container);
-      if(posts[idx] && posts[idx].video) src = posts[idx].video;
-      if(posts[idx] && posts[idx].url) src = posts[idx].url;
-    }catch(err){}
-  }
-  if(!src){
-    // Last fallback: if thumbnail is an image, show it - at least it opens something
-    var img = container.querySelector('img');
-    if(img){ alert('This post has no video file saved - it was only a thumbnail. Re-upload it to play.'); return; }
-    return;
-  }
-  var cap = container.getAttribute('data-caption') || '';
-  openPostViewer(src, cap);
-});
-</script>
 </body>
 </html>
