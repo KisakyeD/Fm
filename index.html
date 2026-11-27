@@ -111,10 +111,16 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
   <!-- SETTINGS - TOP BAR ACCORDION -->
 <div id="settingsPage" class="...">
 <style>
-body.light, html.light { background:#f1f5f9 !important; color:#0f172a !important; }
-body.light .settings-card, body.light div[class*="bg-slate"] { background:#ffffff !important; color:#0f172a !important; border-color:#e2e8f0 !important; }
-body.light select, body.light button { color:#0f172a !important; }
-body.light .text-white, body.light .text-slate-300 { color:#0f172a !important; }
+body.light, html.light, body.light #app, body.light main { background:#f1f5f9 !important; color:#0f172a !important; }
+/* Sidebar / Nav / Header */
+body.light aside, body.light nav, body.light header, body.light [class*="bg-[#0a0f1e]"], body.light [class*="bg-slate-900"], body.light [class*="bg-slate-950"] { background:#ffffff !important; color:#0f172a !important; border-color:#e2e8f0 !important; }
+/* All cards */
+body.light .settings-card, body.light div[class*="bg-slate"], body.light div[class*="bg-[#"] { background:#ffffff !important; color:#0f172a !important; border-color:#e2e8f0 !important; }
+/* Text */
+body.light .text-white, body.light .text-slate-300, body.light .text-slate-400 { color:#0f172a !important; }
+body.light .text-slate-500 { color:#64748b !important; }
+/* Inputs / Selects */
+body.light select, body.light input { background:#ffffff !important; color:#0f172a !important; border-color:#cbd5e1 !important; }
 </style>
 <script>
 // FINAL SETTINGS FIX - save + restore all toggles
