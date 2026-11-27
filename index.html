@@ -111,20 +111,22 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
   <!-- SETTINGS - TOP BAR ACCORDION -->
 <div id="settingsPage" class="...">
 <div id="debugBox" style="background:yellow;color:black;padding:10px;font-size:13px;">
-<b>SETTINGS DEBUG</b><br><span id="dbgOut">Loading...</span>
+<b>SETTINGS DEBUG V2</b><br><span id="dbgOut">Loading...</span>
 </div>
 <script>
 setTimeout(function(){
   var out = [];
-  var selects = document.querySelectorAll('#settingsPage select');
-  var inputs = document.querySelectorAll('#settingsPage input');
-  var btns = document.querySelectorAll('#settingsPage button');
-  out.push('Selects: ' + selects.length);
-  selects.forEach(function(s,i){ out.push('S'+i+' id='+s.id+' val='+s.value); });
-  out.push('Inputs: ' + inputs.length);
-  inputs.forEach(function(s,i){ out.push('I'+i+' id='+s.id+' type='+s.type+' checked='+s.checked); });
-  out.push('Buttons: ' + btns.length);
-  btns.forEach(function(b,i){ out.push('B'+i+' text='+b.innerText.slice(0,25)); });
+  var all = document.querySelectorAll('#settingsPage *');
+  var toggles = [];
+  all.forEach(function(el){
+    var c = (el.className||'').toString().toLowerCase();
+    if(c.includes('toggle') || c.includes('switch') || c.includes('slider') || el.getAttribute('onclick')){
+      toggles.push(el.tagName + '.' + el.className + ' | onclick=' + el.getAttribute('onclick') + ' | text=' + el.innerText.slice(0,20));
+    }
+  });
+  out.push('Total elements in Settings: ' + all.length);
+  out.push('Possible toggles: ' + toggles.length);
+  toggles.forEach(function(t,i){ out.push('T'+i+' '+t); });
   document.getElementById('dbgOut').innerHTML = out.join('<br>');
 }, 1500);
 </script>
