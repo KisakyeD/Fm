@@ -110,25 +110,56 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 <div id="settings-modal" class="hidden fixed inset-0 z-[60] bg-slate-950 flex flex-col max-w-[500px] mx-auto overflow-y-auto">
   <!-- SETTINGS - TOP BAR ACCORDION -->
 <div id="settingsPage" class="...">
-<div id="debugBox" style="background:yellow;color:black;padding:10px;font-size:13px;">
-<b>SETTINGS DEBUG V2</b><br><span id="dbgOut">Loading...</span>
-</div>
+<style>
+body.light, html.light { background:#f1f5f9 !important; color:#0f172a !important; }
+body.light .settings-card, body.light div[class*="bg-slate"] { background:#ffffff !important; color:#0f172a !important; border-color:#e2e8f0 !important; }
+body.light select, body.light button { color:#0f172a !important; }
+body.light .text-white, body.light .text-slate-300 { color:#0f172a !important; }
+</style>
 <script>
-setTimeout(function(){
-  var out = [];
-  var all = document.querySelectorAll('#settingsPage *');
-  var toggles = [];
-  all.forEach(function(el){
-    var c = (el.className||'').toString().toLowerCase();
-    if(c.includes('toggle') || c.includes('switch') || c.includes('slider') || el.getAttribute('onclick')){
-      toggles.push(el.tagName + '.' + el.className + ' | onclick=' + el.getAttribute('onclick') + ' | text=' + el.innerText.slice(0,20));
+// FINAL SETTINGS FIX - save + restore all toggles
+function toggleSetting(name, el){
+  var isOn = el.classList.contains('on');
+  // flip
+  el.classList.toggle('on', !isOn);
+  // save
+  try{ localStorage.setItem('mplanet_set_' + name, (!isOn ? '1' : '0')); }catch(e){}
+  // special: if it's theme related, do nothing extra
+  return false;
+}
+document.addEventListener('DOMContentLoaded', function(){
+  // 1. Restore all DIV.switch toggles
+  document.querySelectorAll('#settingsPage .switch').forEach(function(el){
+    var oc = el.getAttribute('onclick') || '';
+    var m = oc.match(/toggleSetting\('([^']+)'/);
+    if(!m) return;
+    var saved = localStorage.getItem('mplanet_set_' + m[1]);
+    if(saved === '1') el.classList.add('on');
+    if(saved === '0') el.classList.remove('on');
+  });
+  // 2. Fix Theme
+  var ts = document.getElementById('themeSelect');
+  if(ts){
+    ts.addEventListener('change', function(){
+      var v = this.value;
+      localStorage.setItem('mplanet_theme', v);
+      var isLight = (v === 'light');
+      document.body.classList.toggle('light', isLight);
+      document.documentElement.classList.toggle('light', isLight);
+    });
+    var savedTheme = localStorage.getItem('mplanet_theme');
+    if(savedTheme){ ts.value = savedTheme; ts.dispatchEvent(new Event('change')); }
+  }
+  // 3. Fix Language + Comment Who (save on change)
+  ['set-lang','set-comment-who'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el){
+      el.addEventListener('change', function(){ localStorage.setItem('mplanet_set_'+id, this.value); });
+      var sv = localStorage.getItem('mplanet_set_'+id);
+      if(sv) el.value = sv;
     }
   });
-  out.push('Total elements in Settings: ' + all.length);
-  out.push('Possible toggles: ' + toggles.length);
-  toggles.forEach(function(t,i){ out.push('T'+i+' '+t); });
-  document.getElementById('dbgOut').innerHTML = out.join('<br>');
-}, 1500);
+});
 </script>
 <style>
 body.light, html.light { background:#f1f5f9 !important; color:#0f172a !important; }
