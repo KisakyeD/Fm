@@ -123,49 +123,37 @@ body.light .text-slate-500 { color:#64748b !important; }
 body.light select, body.light input { background:#ffffff !important; color:#0f172a !important; border-color:#cbd5e1 !important; }
 </style>
 <script>
-// FINAL SETTINGS FIX - save + restore all toggles
-function toggleSetting(name, el){
-  var isOn = el.classList.contains('on');
-  // flip
-  el.classList.toggle('on', !isOn);
-  // save
-  try{ localStorage.setItem('mplanet_set_' + name, (!isOn ? '1' : '0')); }catch(e){}
-  // special: if it's theme related, do nothing extra
-  return false;
+// COMPLETE THEME SYSTEM
+function applyTheme(mode){
+  var isLight = false;
+  if(mode === 'light') isLight = true;
+  else if(mode === 'dark') isLight = false;
+  else { // system
+    isLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+  }
+  document.body.classList.toggle('light', isLight);
+  document.documentElement.classList.toggle('light', isLight);
+  document.body.setAttribute('data-theme', mode);
+  try{ localStorage.setItem('mplanet_theme', mode); }catch(e){}
 }
 document.addEventListener('DOMContentLoaded', function(){
-  // 1. Restore all DIV.switch toggles
-  document.querySelectorAll('#settingsPage .switch').forEach(function(el){
-    var oc = el.getAttribute('onclick') || '';
-    var m = oc.match(/toggleSetting\('([^']+)'/);
-    if(!m) return;
-    var saved = localStorage.getItem('mplanet_set_' + m[1]);
-    if(saved === '1') el.classList.add('on');
-    if(saved === '0') el.classList.remove('on');
-  });
-  // 2. Fix Theme
   var ts = document.getElementById('themeSelect');
-  if(ts){
-    ts.addEventListener('change', function(){
-      var v = this.value;
-      localStorage.setItem('mplanet_theme', v);
-      var isLight = (v === 'light');
-      document.body.classList.toggle('light', isLight);
-      document.documentElement.classList.toggle('light', isLight);
+  if(!ts) return;
+  // Restore
+  var saved = localStorage.getItem('mplanet_theme') || 'system';
+  ts.value = saved;
+  applyTheme(saved);
+  // On change
+  ts.addEventListener('change', function(){ applyTheme(this.value); });
+  // If System + user changes phone theme, follow it
+  if(window.matchMedia){
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', function(){
+      if((localStorage.getItem('mplanet_theme')||'system') === 'system') applyTheme('system');
     });
-    var savedTheme = localStorage.getItem('mplanet_theme');
-    if(savedTheme){ ts.value = savedTheme; ts.dispatchEvent(new Event('change')); }
   }
-  // 3. Fix Language + Comment Who (save on change)
-  ['set-lang','set-comment-who'].forEach(function(id){
-    var el = document.getElementById(id);
-    if(el){
-      el.addEventListener('change', function(){ localStorage.setItem('mplanet_set_'+id, this.value); });
-      var sv = localStorage.getItem('mplanet_set_'+id);
-      if(sv) el.value = sv;
-    }
-  });
 });
+// Apply BEFORE page paints (no flash) on next load
+(function(){ try{ var s = localStorage.getItem('mplanet_theme')||'system'; var l = s==='light' || (s==='system' && window.matchMedia('(prefers-color-scheme: light)').matches); if(l) document.documentElement.classList.add('light'); }catch(e){} })();
 </script>
 <style>
 body.light, html.light { background:#f1f5f9 !important; color:#0f172a !important; }
