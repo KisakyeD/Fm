@@ -30,8 +30,6 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 .mp-orbit{position:absolute;inset:0;border:3px solid transparent;border-top-color:#3b82f6;border-right-color:#f97316;border-radius:50%;animation:mpSpin 0.9s linear infinite}
 .mp-planet{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:42px;animation:mpPulse 1s ease-in-out infinite}
 .mp-dot1,.mp-dot2{position:absolute;width:16px;height:16px;border-radius:50%}
-.mp-dot1{background:#3b82f6;top:0;left:50%;animation:mpBounce 0.9s ease-in-out infinite}
-.mp-dot2{background:#f97316;bottom:0;left:50%;animation:mpBounce 0.9s ease-in-out infinite reverse}
 @keyframes mpSpin{to{transform:rotate(360deg)}}
 @keyframes mpPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
 @keyframes mpBounce{0%,100%{transform:translateX(-50%) scale(1);opacity:1}50%{transform:translateX(-50%) scale(1.4);opacity:.7}}
