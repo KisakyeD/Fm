@@ -110,6 +110,24 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 <div id="settings-modal" class="hidden fixed inset-0 z-[60] bg-slate-950 flex flex-col max-w-[500px] mx-auto overflow-y-auto">
   <!-- SETTINGS - TOP BAR ACCORDION -->
 <div id="settingsPage" class="...">
+<div id="debugBox" style="background:yellow;color:black;padding:10px;font-size:13px;">
+<b>SETTINGS DEBUG</b><br><span id="dbgOut">Loading...</span>
+</div>
+<script>
+setTimeout(function(){
+  var out = [];
+  var selects = document.querySelectorAll('#settingsPage select');
+  var inputs = document.querySelectorAll('#settingsPage input');
+  var btns = document.querySelectorAll('#settingsPage button');
+  out.push('Selects: ' + selects.length);
+  selects.forEach(function(s,i){ out.push('S'+i+' id='+s.id+' val='+s.value); });
+  out.push('Inputs: ' + inputs.length);
+  inputs.forEach(function(s,i){ out.push('I'+i+' id='+s.id+' type='+s.type+' checked='+s.checked); });
+  out.push('Buttons: ' + btns.length);
+  btns.forEach(function(b,i){ out.push('B'+i+' text='+b.innerText.slice(0,25)); });
+  document.getElementById('dbgOut').innerHTML = out.join('<br>');
+}, 1500);
+</script>
 <style>
 body.light, html.light { background:#f1f5f9 !important; color:#0f172a !important; }
 body.light .settings-card, body.light div[class*="bg-slate"] { background:#ffffff !important; color:#0f172a !important; border-color:#e2e8f0 !important; }
