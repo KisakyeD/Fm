@@ -656,23 +656,6 @@ closeDrawer = function(){ _origCloseDrawer(); setTimeout(resumeVisibleVideo, 300
     <p class="text-[11px] text-slate-500 text-center mt-2">Demo: No real money taken yet. Coins added instantly.</p>
   </div>
 </div>
-  <!-- POST VIEWER -->
-<div id="post-viewer" onclick="if(event.target===this)closePostViewer()" class="hidden fixed inset-0 z-[70] bg-black/95 flex items-center justify-center p-4">
-  <div class="w-full max-w-[500px] bg-slate-950 rounded-2xl overflow-hidden border border-blue-500/30">
-    <div class="flex justify-between items-center p-3">
-      <span class="font-bold text-sm">@briank • Post</span>
-      <button onclick="closePostViewer()" class="w-8 h-8 rounded-full bg-slate-800 text-xl">✕</button>
-    </div>
-    <video id="post-viewer-video" controls autoplay playsinline loop class="w-full aspect-[9/16] bg-black object-cover"></video>
-    <div class="flex justify-around p-3 text-xl">
-      <button onclick="likeViewerPost(this)">❤️ <span id="viewer-likes">0</span></button>
-      <button onclick="closePostViewer();toggleModal('comments-modal',true)">💬</button>
-      <button onclick="shareProfile()">↗️ Share</button>
-      <button onclick="alert('Saved!')">🔖</button>
-    </div>
-    <p id="post-viewer-caption" class="px-4 pb-4 text-sm text-slate-300"></p>
-  </div>
-</div>
 <!-- POST VIEWER -->
 <div id="post-viewer" onclick="if(event.target===this)closePostViewer()" class="hidden fixed inset-0 z-[70] bg-black/95 flex items-center justify-center p-4">
   <div class="w-full max-w-[500px] bg-slate-950 rounded-2xl overflow-hidden border border-blue-500/30">
