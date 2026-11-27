@@ -112,6 +112,28 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 <div id="settings-modal" class="hidden fixed inset-0 z-[60] bg-slate-950 flex flex-col max-w-[500px] mx-auto overflow-y-auto">
 111 <!-- SETTINGS - TOP BAR ACCORDION -->
 112 <div id="settingsPage" class="...">
+<div id="debugBox" style="background:yellow;color:black;padding:10px;border-radius:10px;font-size:12px;margin:10px;">DEBUG: Loading...</div>
+<script>
+function updateDebug(){
+  var box = document.getElementById('debugBox');
+  if(!box) return;
+  var themeSel = document.getElementById('themeSelect');
+  box.innerHTML = 'JS: RUNNING ✅<br>' +
+  'Theme saved: ' + (localStorage.getItem('mplanet_theme') || 'none') + '<br>' +
+  'Body class: [' + document.body.className + ']<br>' +
+  'HTML class: [' + document.documentElement.className + ']<br>' +
+  'Selects found: ' + document.querySelectorAll('select').length + '<br>' +
+  'themeSelect exists? ' + (themeSel ? 'YES ✅' : 'NO ❌') + '<br>' +
+  'themeSelect value: ' + (themeSel ? themeSel.value : 'none');
+}
+document.addEventListener('DOMContentLoaded', function(){
+  setTimeout(updateDebug, 500);
+  // Update again when you change theme
+  var ts = document.getElementById('themeSelect');
+  if(ts) ts.addEventListener('change', function(){ setTimeout(updateDebug, 300); });
+});
+setTimeout(updateDebug, 2000);
+</script>
 113 <div id="debugBox" style="background:yellow;color:black;padding:10px;border-radius:10px;font-size:12px;margin:10px;">DEBUG: Loading...</div>
 114 <script>document.getElementById('debugBox').innerHTML = 'JS: RUNNING ✅<br>' + 'Theme saved: ' + (localStorage.getItem('mplanet_theme') || 'none') + '<br>' + 'Body class: ' + document.body.className + '<br>' + 'Selects found: ' + document.querySelectorAll('select').length;</script>
 115 <div class="settings-card"...
