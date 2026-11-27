@@ -143,6 +143,20 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 <p class="text-xs text-slate-400">If PIN is set, withdraw will ask for it.</p>
 </div>
 <button onclick="toggleSettingsSection('sec-app',this)" class="w-full flex justify-between items-center bg-slate-900 p-4 rounded-2xl font-bold text-left"><span>📱 APP</span><span class="set-arrow">▼</span></button>
+<button onclick="toggleSettingsSection('sec-theme',this)" class="w-full flex justify-between items-center p-3 font-bold bg-slate-900 rounded-xl">
+  <span>🎨 APPEARANCE</span><span>▼</span>
+</button>
+<div id="sec-theme" class="set-section hidden bg-slate-900/50 rounded-2xl p-3 space-y-3">
+  <div>
+    <label class="text-xs text-slate-400">Theme</label>
+    <select id="themeSelect" onchange="changeTheme(this.value)" class="w-full bg-slate-800 p-3 rounded-lg outline-none mt-1">
+      <option value="dark">🌙 Dark</option>
+      <option value="light">☀️ Light</option>
+      <option value="system">📱 System Default</option>
+    </select>
+  </div>
+  <p class="text-xs text-slate-500">Theme saves automatically.</p>
+</div>
 <div id="sec-app" class="set-section hidden bg-slate-900/50 rounded-2xl p-3 space-y-3 -mt-1">
 <div><label class="text-sm">Language</label><select id="set-lang" onchange="saveSetting('lang',this.value);applyLang()" class="w-full bg-slate-800 rounded-xl p-3 mt-1 text-sm"><option value="en">English</option><option value="lg">Luganda</option></select></div>
 <div class="flex justify-between items-center"><span class="text-sm">Autoplay Videos</span><div class="switch on" onclick="toggleSetting('autoplay',this)"></div></div>
