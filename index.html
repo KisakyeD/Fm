@@ -110,6 +110,12 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 <div id="settings-modal" class="hidden fixed inset-0 z-[60] bg-slate-950 flex flex-col max-w-[500px] mx-auto overflow-y-auto">
   <!-- SETTINGS - TOP BAR ACCORDION -->
 <div id="settingsPage" class="...">
+<style>
+body.light, html.light { background:#f1f5f9 !important; color:#0f172a !important; }
+body.light .settings-card, body.light div[class*="bg-slate"] { background:#ffffff !important; color:#0f172a !important; border-color:#e2e8f0 !important; }
+body.light select, body.light button { background:#ffffff !important; color:#0f172a !important; }
+body.light .text-white, body.light .text-slate-300 { color:#0f172a !important; }
+</style>
  <div class="settings-card"...
 <div class="flex justify-between px-4 py-3 border-b border-blue-500/20 sticky top-0 bg-slate-950 z-10"><button onclick="toggleModal('settings-modal',false)"><i class="fa-solid fa-arrow-left"></i></button><span class="font-bold">Settings</span><span class="text-xs text-slate-400">v1.0</span></div>
 <div class="p-4 space-y-2 pb-10">
