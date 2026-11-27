@@ -149,7 +149,7 @@ body,html{margin:0;padding:0;background:#030712;color:#fff;font-family:-apple-sy
 <div id="sec-theme" class="set-section hidden bg-slate-900/50 rounded-2xl p-3 space-y-3">
   <div>
     <label class="text-xs text-slate-400">Theme</label>
-    <select id="themeSelect" onchange="changeTheme(this.value)" class="w-full bg-slate-800 p-3 rounded-lg outline-none mt-1">
+    <select id="themeSelect" onchange="localStorage.setItem('mplanet_theme',this.value); document.documentElement.classList.toggle('light',this.value==='light'); document.body.classList.toggle('light',this.value==='light');"
       <option value="dark">🌙 Dark</option>
       <option value="light">☀️ Light</option>
       <option value="system">📱 System Default</option>
